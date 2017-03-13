@@ -19,8 +19,7 @@
           StudlyCapsExpand)
   (import (scheme base)
           (scheme char)
-          (slib common)
-          (except (srfi 13) string-for-each string-map string-downcase string-upcase))
+          (slib common))
 
   (begin
 

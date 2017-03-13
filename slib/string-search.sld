@@ -23,8 +23,14 @@
           count-newlines)
   (import (scheme base)
           (scheme char)
-          (slib alist)
-          (except (srfi 13) string-for-each string-map string-upcase string-downcase))
+          (slib alist))
+
+  (cond-expand
+    ((library (srfi 13))
+     (import (only (srfi 13) string-index string-index-right string-contains
+                   string-contains-ci string-count)))
+    (else
+      (error "No support for (srfi 13)")))
 
   (begin
 

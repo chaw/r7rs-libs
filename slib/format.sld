@@ -25,10 +25,14 @@
           (scheme complex)
           (scheme cxr)
           (scheme write)
-          (only (srfi 13) string-titlecase)
           (slib common)
           (slib pretty-print)
           (slib string-port))
+  (cond-expand
+    ((library (srfi 13))
+     (import (only (srfi 13) string-titlecase)))
+    (else
+      (error "No support for (srfi 13)")))
 
   (begin
 

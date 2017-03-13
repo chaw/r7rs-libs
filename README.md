@@ -1,7 +1,18 @@
 # Scheme Libraries
 
-Some libraries converted to run in R7RS Scheme, mostly from slib and srfis.
+Some libraries written for or converted to run in R7RS Scheme.  
+The converted libraries are from slib and srfis.
 
+## Robin
+
+A set of libraries written for R7RS Scheme: 
+
+* abbrev - create set of unambiguous abbreviations for strings (like Ruby Abbrev)
+
+A set of libraries currently being written for R7RS Scheme:
+
+* constants - some commonly used mathematical or scientific numbers
+* csv - read/write CSV files
 
 ## SLIB
 
@@ -51,7 +62,9 @@ TODO: defmacro - required?
   * alternatively use (srfi 28)
 * printf
 * scanf
-* getopt: TODO
+* getopt
+  * added option-index/option-name/option-value/next-option! to control variables
+  * TODO: runs in Kawa, not in Larceny
 * html-form: TODO
 * db->html: TODO?
 * http: TODO?
@@ -64,6 +77,7 @@ TODO: defmacro - required?
 * pretty-print
 * pprint-file
 * Time and Date: ? srfi 19
+* tzfile
 * ncbi-dma
 * schmooz: TODO?
 
@@ -93,7 +107,8 @@ TODO: defmacro - required?
 
 6: Database Packages
 
-* relational database: TODO
+* relational-database
+* database: TODO
 * relational infrastructure: TODO
 * wt-tree
   * tests pass with Larceny, fails to compile with Kawa -- TODO
@@ -112,7 +127,7 @@ TODO: defmacro - required?
 * matfile: NOT PLANNED
 * pnm
 * collect: TODO (requires yasos)
-* dynamic: TODO?
+* dynamic
 * hash-table: use (srfi 125) or (srfi 69)
 * object
 * priority-queue
