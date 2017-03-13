@@ -2,49 +2,18 @@
 
 Some libraries converted to run in R7RS Scheme, mostly from slib and srfis.
 
-## Implementations
-
-### Kawa
-
-A script is provided to compile all the files: > sh build-kawa.sh
-These put all the class files into ./bin
-Add the ./bin directory to your CLASSPATH to make the libraries available 
-for import into R7RS programs.
-
-### Larceny
-
-Add this directory to the search path when running programs, e.g.:
-
-    larceny -path .:~/Software/r7rs-libs/ -r7rs -program examples/plot1.sps
-
-### Chibi
-
-Add this directory to the search path when running programs, e.g.:
-
-    chibi-scheme -I ~/Software/r7rs-libs/ examples/plot1.sps
-
-### Cyclone
-
-Cyclone compiles scheme code to self-contained executables.  It works with 
-some of SLIB currently (there are limitations in number sizes, srfis etc).
-
-Cyclone requires the library files to be compiled before compiling the 
-programs.
-
-e.g. to compile the examples/alist.sps program and run it:
-
-    cyclone slib/alist.sld
-    cyclone examples/alist.sps
-    examples/alist
-
 
 ## SLIB
 
-SLIB is a long-established library of around 30,000 lines of Scheme code, 
+SLIB is a long-established library containing around 30,000 lines of Scheme code, 
 working with many Scheme implementations.  http://people.csail.mit.edu/jaffer/SLIB
 
-All libraries are imported as (import (slib NAME)) in place of (require 'NAME).
-Function/variable names are preserved in most cases.
+This project aims to package as much of SLIB as possible into R7RS libraries, 
+and ensure it works on several R7RS implementations. 
+
+All libraries are imported as `(import (slib NAME))` in place of `(require 'NAME)`.
+Function/variable names are preserved in most cases: documentation is available 
+at http://people.csail.mit.edu/jaffer/slib
 
 Version ported: 3b5 
 
@@ -56,7 +25,26 @@ Small changes are:
 
 List of Libraries with notes on progress (no comment means done):
 
-1. Textual Conversion Packages
+1: The Library System
+
+(replaced with R7RS library system)
+
+2: Universal SLIB Procedures
+
+* vicinity: use (srfi 59)
+
+Functions in configuration, input/output, system and miscellany are either no longer 
+needed (e.g. much of input/output is now present in R7RS) or have been moved into (slib common).
+
+3: Scheme Syntax Extension Packages 
+
+(These mostly appear to be included in R7RS Scheme or SRFIs.)
+
+* yasos: TODO?
+
+TODO: defmacro - required?
+
+4: Textual Conversion Packages
 
 * precedence-parse
 * format
@@ -79,7 +67,7 @@ List of Libraries with notes on progress (no comment means done):
 * ncbi-dma
 * schmooz: TODO?
 
-2. Mathematical libraries
+5: Mathematical libraries
 
 * logical: use (srfi 60)
 * modular
@@ -93,23 +81,26 @@ List of Libraries with notes on progress (no comment means done):
 * dft
 * crc
 * charplot
-  * provided (charplot:dimensions) and (charplot:dimensions-set! ) to get/change dimensions
+  * provides (charplot:dimensions) and (charplot:dimensions-set! ) to get/change dimensions
 * eps-graph: TODO
-* solid: NOT PLANNED
-* color: NOT PLANNED
+* solid: TODO
+* color: TODO
 * root
 * minimize
 * limit
 * commutative-ring: TODO? (needs databases)
 * determinant
 
-3. Database Packages
+6: Database Packages
 
-* database: TODO?
+* relational database: TODO
+* relational infrastructure: TODO
 * wt-tree
   * tests pass with Larceny, fails to compile with Kawa -- TODO
 
-4. Data Structures
+7: Other Packages
+
+7.1: Data Structures
 
 * arrays: use (srfi 63)
 * subarray
@@ -122,18 +113,18 @@ List of Libraries with notes on progress (no comment means done):
 * pnm
 * collect: TODO (requires yasos)
 * dynamic: TODO?
-* hash-table: use (srfi 125)
+* hash-table: use (srfi 125) or (srfi 69)
 * object
 * priority-queue
 * queue
 * records: provided by R7RS
 
-5. Searching and Sorting
+7.2: Sorting and Searching
 
 * common-list-functions: use (srfi 1)
 * tree
 * chapter-order
-* sort: use (srfi 95)
+* sort: use (srfi 132) or (srfi 95)
 * topological-sort
 * hash: use (srfi 128)
 * space-filling
@@ -144,19 +135,22 @@ List of Libraries with notes on progress (no comment means done):
 * string-search
 * diff (sequence comparison)
 
-6. Procedures
+7.3: Procedures
 
 * coerce
 * string-case
 * metric-units
 
+(Remainder mostly in R7RS already: some added to (slib common) if necessary.)
+
 ### Required SRFIs
 
-Some of the libraries require the following SRFIs:
+Some of the libraries require the following SRFIs (in place of related SLIB files):
 
 * srfi 1   Lists
 * srfi 13  Strings
 * srfi 27  Random Bits
+* srfi 59  Vicinities
 * srfi 60  Integers as Bits
 * srfi 63  Arrays
 * srfi 69  Hash Tables 
@@ -164,11 +158,61 @@ Some of the libraries require the following SRFIs:
 
 ## SRFIs
 
-A few SRFIs are implemented here.  These fill gaps in those SRFIs provided 
-by some implementations, mostly to use all of SLIB.  Note that some of the 
-SRFIs here are designed to work only with some implementations:
+A few SRFIs are implemented here.  These fill gaps in those SRFIs provided by
+some implementations, mostly to use all of SLIB.  You should only install those
+SRFIs which you need, and note that some of the SRFIs here are designed to work
+only with particular implementations:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
 * srfi 42  simply the reference implementation
 * srfi 63  SLIB's array.scm implemented as a srfi library
+
+
+## R7RS Implementations
+
+The libraries are currently tested on the following R7RS implementations.
+
+### Kawa
+
+A script is provided to compile all the files: 
+
+    > sh build-kawa.sh
+
+These put all the class files into ./bin  (equivalent .bat files provided for windows).
+
+To make the libraries available for importing, add the ./bin directory to your CLASSPATH.
+Alternatively, package up the class files into a jar file:
+
+    cd bin
+    jar cf r7rs-libs.jar slib srfi
+
+then include the jar file on your classpath before launching kawa (e.g. in 
+the kawa startup script: bin/kawa).
+
+### Larceny
+
+Add this directory to the search path when running programs, e.g.:
+
+    larceny -path .:~/r7rs-libs/ -r7rs -program examples/plot1.sps
+
+### Chibi
+
+Add this directory to the search path when running programs, e.g.:
+
+    chibi-scheme -I ~/r7rs-libs/ examples/plot1.sps
+
+### Cyclone
+
+Cyclone compiles scheme code to self-contained executables.  It works with 
+some of SLIB currently (there are limitations in number sizes, srfis etc).
+
+Cyclone requires the library files to be compiled before compiling the 
+programs.
+
+e.g. to compile the examples/alist.sps program and run it:
+
+    cyclone slib/alist.sld
+    cyclone examples/alist.sps
+    examples/alist
+
 
