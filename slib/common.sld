@@ -4,7 +4,6 @@
   (slib common)
   (export call-with-open-ports
           char-code-limit
-          current-directory
           gentemp
           identity
           make-exchanger
@@ -29,8 +28,6 @@
     ;;@ (software-type) should be set to the generic operating system type.
     ;;; unix, vms, macos, amiga and ms-dos are supported.
     (define (software-type) 'unix)
-
-    (define (current-directory) ".") ;; TODO: port dirs.scm ??
 
     (define gentemp
       (let ((c 100))

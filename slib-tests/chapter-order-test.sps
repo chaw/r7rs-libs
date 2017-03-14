@@ -3,7 +3,7 @@
         (slib chapter-order)
         (srfi 64))
 
-(test-begin "chapter-ordering")
+(test-begin "(slib chapter-order)")
 
 (test-assert (chap:string<? "a.9" "a.10"))
 (test-assert (chap:string>? "4aa" "4c"))

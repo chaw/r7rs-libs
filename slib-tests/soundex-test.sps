@@ -3,7 +3,7 @@
         (slib soundex)
         (srfi 64))
 
-(test-begin "soundex")
+(test-begin "(slib soundex)")
 
 (for-each (lambda (str target)
             (test-equal (soundex str) target))

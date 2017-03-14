@@ -20,7 +20,7 @@
         (format #t "Failed ~a ~a ~a~&" format-args out-str format-out)
         (test-assert #f)))))
 
-(test-begin "format")
+(test-begin "(slib format)")
 
 ; any object test
 

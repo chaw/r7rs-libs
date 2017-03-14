@@ -12,7 +12,6 @@ A set of libraries written for R7RS Scheme:
 A set of libraries currently being written for R7RS Scheme:
 
 * constants - some commonly used mathematical or scientific numbers
-* csv - read/write CSV files
 
 ## SLIB
 
@@ -71,7 +70,7 @@ TODO: defmacro - required?
 * html-for-each: TODO
 * uri
   * TODO: Fix warning on use of sscanf in case statement (line 452)
-* xml-parse: TODO
+* xml-parse
 * generic-write
 * object->string: TODO?
 * pretty-print
@@ -155,6 +154,16 @@ TODO: defmacro - required?
 * coerce
 * string-case
 * metric-units
+
+7.4: Standards Support
+
+* rev2-procedures (some procedures from R2RS)
+
+7.6: Systems Interface
+
+* directory
+  * Working with Chibi Scheme
+  * Mostly working with Kawa - the pattern matching is not correct
 
 (Remainder mostly in R7RS already: some added to (slib common) if necessary.)
 
