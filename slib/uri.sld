@@ -44,6 +44,7 @@
           (scheme cxr)
           (slib coerce)
           (slib common)
+          (slib directory)
           (slib printf)
           (slib scanf)
           (slib string-case)

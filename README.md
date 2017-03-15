@@ -29,9 +29,8 @@ Version ported: 3b5
 
 Small changes are:
 
-* Assumes bignums/complex/reals etc supported by implementations 
-  (no checking with flag) - this feature needs adding back in
 * (slib common) created to hold generally used definitions
+* code uses SRFIs where possible
 
 List of Libraries with notes on progress (no comment means done):
 
@@ -63,11 +62,12 @@ TODO: defmacro - required?
 * scanf
 * getopt
   * added option-index/option-name/option-value/next-option! to control variables
-  * TODO: runs in Kawa, not in Larceny
+  * TODO: runs in Chibi and Kawa, not in Larceny
 * html-form: TODO
 * db->html: TODO?
 * http: TODO?
-* html-for-each: TODO
+* html-for-each
+  * TODO: Fix warning on use of sscanf in case statement (line 452)
 * uri
   * TODO: Fix warning on use of sscanf in case statement (line 452)
 * xml-parse
@@ -110,7 +110,7 @@ TODO: defmacro - required?
 * database: TODO
 * relational infrastructure: TODO
 * wt-tree
-  * tests pass with Larceny, fails to compile with Kawa -- TODO
+  * tests pass with Chibi and Larceny, fails to compile with Kawa -- TODO
 
 7: Other Packages
 
@@ -164,6 +164,8 @@ TODO: defmacro - required?
 * directory
   * Working with Chibi Scheme
   * Mostly working with Kawa - the pattern matching is not correct
+  * Mostly working with Larceny - the pattern matching is not correct
+    * and make-directory is exported (from primitives) but not into example
 
 (Remainder mostly in R7RS already: some added to (slib common) if necessary.)
 
@@ -207,8 +209,8 @@ These put all the class files into ./bin  (equivalent .bat files provided for wi
 To make the libraries available for importing, add the ./bin directory to your CLASSPATH.
 Alternatively, package up the class files into a jar file:
 
-    cd bin
-    jar cf r7rs-libs.jar slib srfi
+    > cd bin
+    > jar cf r7rs-libs.jar slib srfi
 
 then include the jar file on your classpath before launching kawa (e.g. in 
 the kawa startup script: bin/kawa).
@@ -217,13 +219,13 @@ the kawa startup script: bin/kawa).
 
 Add this directory to the search path when running programs, e.g.:
 
-    larceny -path .:~/r7rs-libs/ -r7rs -program examples/plot1.sps
+    > larceny -path .:~/r7rs-libs/ -r7rs -program examples/plot1.sps
 
 ### Chibi
 
 Add this directory to the search path when running programs, e.g.:
 
-    chibi-scheme -I ~/r7rs-libs/ examples/plot1.sps
+    > chibi-scheme -I ~/r7rs-libs/ examples/plot1.sps
 
 ### Cyclone
 
@@ -235,8 +237,8 @@ programs.
 
 e.g. to compile the examples/alist.sps program and run it:
 
-    cyclone slib/alist.sld
-    cyclone examples/alist.sps
-    examples/alist
+    > cyclone slib/alist.sld
+    > cyclone examples/alist.sps
+    > examples/alist
 
 

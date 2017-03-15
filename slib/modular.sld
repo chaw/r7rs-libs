@@ -21,9 +21,6 @@
 ;;@ftindex modular
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
-;;
-;; Changes to original:
-;; 1. Assumes bignums supported
 
 (define-library
   (slib modular)
@@ -79,17 +76,26 @@
     ;;@args modulus n
     ;;Returns the integer @code{(modulo @var{n} (modular:characteristic
     ;;@var{modulus}))} in the representation specified by @var{modulus}.
-    ;;
-    ;; assumes bignums supported
     (define modular:normalize
-      (lambda (m k)
-        (cond ((positive? m) (modulo k m))
-              ((zero? m) k)
-              ((<= m k (- m)) k)
-              (else
-                (let* ((pm (+ 1 (* -2 m)))
-                       (s (modulo k pm)))
-                  (if (<= s (- m)) s (- s pm)))))))
+      (if (provided? 'bignum)
+        (lambda (m k)
+          (cond ((positive? m) (modulo k m))
+                ((zero? m) k)
+                ((<= m k (- m)) k)
+                (else
+                  (let* ((pm (+ 1 (* -2 m)))
+                         (s (modulo k pm)))
+                    (if (<= s (- m)) s (- s pm))))))
+        (lambda (m k)
+          (cond ((positive? m) (modulo k m))
+                ((zero? m) k)
+                ((<= m k (- m)) k)
+                ((<= m (quotient (+ -1 most-positive-fixnum) 2))
+                 (let* ((pm (+ 1 (* -2 m)))
+                        (s (modulo k pm)))
+                   (if (<= s (- m)) s (- s pm))))
+                ((positive? k) (+ (+ (+ k -1) m) m))
+                (else  (- (- (+ k 1) m) m))))))
 
     ;;;; NOTE: The rest of these functions assume normalized arguments!
 
@@ -187,13 +193,49 @@
 
     ;;@args modulus n2 n3
     ;;Returns (@var{n2} * @var{n3}) mod @var{modulus}.
-    ;;
-    ;; Assume bignum support
     (define modular:*
-      (lambda (m a b)
-        (cond ((zero? m) (* a b))
-              ((positive? m) (modulo (* a b) m))
-              (else (modular:normalize m (* a b))))))
+      (if (provided? 'bignum)
+        (lambda (m a b)
+          (cond ((zero? m) (* a b))
+                ((positive? m) (modulo (* a b) m))
+                (else (modular:normalize m (* a b)))))
+        (lambda (m a b)
+          (define a0 a)
+          (define p 0)
+          (cond
+            ((zero? m) (* a b))
+            ((negative? m)
+             ;; Need algorighm to work with symmetric representation.
+             (modular:normalize m (* (modular:normalize m a)
+                                     (modular:normalize m b))))
+            (else
+              (set! a (modulo a m))
+              (set! b (modulo b m))
+              (set! a0 a)
+              (cond ((< a modular:r))
+                    ((< b modular:r) (set! a b) (set! b a0) (set! a0 a))
+                    (else
+                      (set! a0 (modulo a modular:r))
+                      (let ((a1 (quotient a modular:r))
+                            (qh (quotient m modular:r))
+                            (rh (modulo m modular:r)))
+                        (cond ((>= a1 modular:r)
+                               (set! a1 (- a1 modular:r))
+                               (set! p (modulo (- (* modular:r (modulo b qh))
+                                                  (* (quotient b qh) rh)) m))))
+                        (cond ((not (zero? a1))
+                               (let ((q (quotient m a1)))
+                                 (set! p (- p (* (quotient b q) (modulo m a1))))
+                                 (set! p (modulo (+ (if (positive? p) (- p m) p)
+                                                    (* a1 (modulo b q))) m)))))
+                        (set! p (modulo (- (* modular:r (modulo p qh))
+                                           (* (quotient p qh) rh)) m)))))
+              (if (zero? a0)
+                p
+                (let ((q (quotient m a0)))
+                  (set! p (- p (* (quotient b q) (modulo m a0))))
+                  (modulo (+ (if (positive? p) (- p m) p)
+                             (* a0 (modulo b q))) m))))))))
 
     ;;@args modulus n2 n3
     ;;Returns (@var{n2} ^ @var{n3}) mod @var{modulus}.

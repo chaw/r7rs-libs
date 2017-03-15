@@ -8,11 +8,11 @@
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 ;;
-;; Implementation relies on SRFI-13 where possible
+;; Implementation relies on SRFI-13 where possible (Chibi does not include SRFI-13)
 
 (define-library
   (slib string-search)
-  (export string-index      ; from SRFI 13
+  (export string-index 
           string-index-ci
           string-reverse-index
           string-reverse-index-ci
@@ -26,33 +26,131 @@
           (slib alist))
 
   (cond-expand
-    ((library (srfi 13))
+    ((library (srfi 13)) ; use srfi 13 if available
      (import (only (srfi 13) string-index string-index-right string-contains
-                   string-contains-ci string-count)))
-    (else
-      (error "No support for (srfi 13)")))
+                   string-contains-ci string-count))
+     (begin
+       ;@
+       (define (string-index-ci str chr)
+         (string-index str (lambda (c) (char-ci=? chr c))))
+
+       ;@
+       (define string-reverse-index string-index-right)
+
+       ;@
+       (define (string-reverse-index-ci str chr)
+         (string-index-right str (lambda (c) (char-ci=? chr c))))
+
+       ;@
+       (define (substring? pat str)
+         (string-contains str pat))
+
+       ;@
+       (define (substring-ci? pat str)
+         (string-contains-ci str pat))
+
+       ))
+    (else ; provide own examples in original SLIB
+
+      ;;;@ Return the index of the first occurence of chr in str, or #f
+      (define (string-index str chr)
+        (define len (string-length str))
+        (do ((pos 0 (+ 1 pos)))
+          ((or (>= pos len) (char=? chr (string-ref str pos)))
+           (and (< pos len) pos))))
+      ;@
+      (define (string-index-ci str chr)
+        (define len (string-length str))
+        (do ((pos 0 (+ 1 pos)))
+          ((or (>= pos len) (char-ci=? chr (string-ref str pos)))
+           (and (< pos len) pos))))
+      ;@
+      (define (string-reverse-index str chr)
+        (do ((pos (+ -1 (string-length str)) (+ -1 pos)))
+          ((or (negative? pos) (char=? (string-ref str pos) chr))
+           (and (not (negative? pos)) pos))))
+      ;@
+      (define (string-reverse-index-ci str chr)
+        (do ((pos (+ -1 (string-length str)) (+ -1 pos)))
+          ((or (negative? pos) (char-ci=? (string-ref str pos) chr))
+           (and (not (negative? pos)) pos))))
+      ;@
+      (define (substring? pat str)
+        (define patlen (string-length pat))
+        (define strlen (string-length str))
+        (cond ((zero? patlen) 0)		; trivial match
+              ((>= patlen strlen) (and (= patlen strlen) (string=? pat str) 0))
+              ;; use faster string-index to match a single-character pattern
+              ((= 1 patlen) (string-index str (string-ref pat 0)))
+              ((or (<= strlen (* 2 patlen))
+                   (<= patlen 2))
+               (subloop pat patlen str strlen char=?))
+              (else
+                ;; compute skip values for search pattern characters
+                ;; for all c not in pat, skip[c] = patlen + 1
+                ;; for c in pat, skip[c] is distance of rightmost occurrence
+                ;;  of c from end of str
+                (let ((skip '()))
+                  (define setprop (alist-associator char=?))
+                  (do ((i 0 (+ i 1)))
+                    ((= i patlen))
+                    (set! skip (setprop skip (string-ref pat i) (- patlen i))))
+                  (subskip skip pat patlen str strlen char=?)))))
+
+      ;@
+      (define (substring-ci? pat str)
+        (define patlen (string-length pat))
+        (define strlen (string-length str))
+        (cond ((zero? patlen) 0)		; trivial match
+              ((>= patlen strlen) (and (= patlen strlen) (string-ci=? pat str) 0))
+              ((= 1 patlen) (string-index-ci str (string-ref pat 0)))
+              ((or (<= strlen (* 2 patlen))
+                   (<= patlen 2))
+               (subloop pat patlen str strlen char-ci=?))
+              (else
+                (let ((skip '()))
+                  (define setprop (alist-associator char-ci=?))
+                  (do ((i 0 (+ i 1)))
+                    ((= i patlen))
+                    (set! skip (setprop skip (string-ref pat i) (- patlen i))))
+                  (subskip skip pat patlen str strlen char-ci=?)))))
+
+      (define (subskip skip pat patlen str strlen char=)
+        (define getprop (alist-inquirer char=?))
+        (do ((k patlen (if (< k strlen)
+                         (+ k (or (getprop skip (string-ref str k)) (+ patlen 1)))
+                         (+ strlen 1))))
+          ((or (> k strlen)
+               (do ((i 0 (+ i 1))
+                    (j (- k patlen) (+ j 1)))
+                 ((or (= i patlen)
+                      (not (char= (string-ref pat i) (string-ref str j))))
+                  (= i patlen))))
+           (and (<= k strlen) (- k patlen)))))
+
+      ;;; Assumes that PATLEN > 1
+      (define (subloop pat patlen str strlen char=)
+        (define span (- strlen patlen))
+        (define c1 (string-ref pat 0))
+        (define c2 (string-ref pat 1))
+        (let outer ((pos 0))
+          (cond
+            ((> pos span) #f)		; nothing was found thru the whole str
+            ((not (char= c1 (string-ref str pos)))
+             (outer (+ 1 pos)))	; keep looking for the right beginning
+            ((not (char= c2 (string-ref str (+ 1 pos))))
+             (outer (+ 1 pos)))	 ; could've done pos+2 if c1 == c2....
+            (else			  ; two char matched: high probability
+              ; the rest will match too
+              (let inner ((pdx 2) (sdx (+ 2 pos)))
+                (if (>= pdx patlen) pos	; the whole pat matched
+                  (if (char= (string-ref pat pdx)
+                             (string-ref str sdx))
+                    (inner (+ 1 pdx) (+ 1 sdx))
+                    ;; mismatch after partial match
+                    (outer (+ 1 pos)))))))))))
 
   (begin
-
-    ;@
-    (define (string-index-ci str chr)
-      (string-index str (lambda (c) (char-ci=? chr c))))
-    
-    ;@
-    (define (string-reverse-index str chr)
-      (string-index-right str chr))
-    
-    ;@
-    (define (string-reverse-index-ci str chr)
-      (string-index-right str (lambda (c) (char-ci=? chr c))))
-
-    ;@
-    (define (substring? pat str)
-      (string-contains str pat))
-
-    ;@
-    (define (substring-ci? pat str)
-      (string-contains-ci str pat))
 
     ;@
     (define (find-string-from-port? str <input-port> . max-no-char-in)

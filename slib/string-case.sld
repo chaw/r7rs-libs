@@ -11,15 +11,44 @@
 ;; Changes to original:
 ;; 1. (scheme char) contains string-upcase / string-downcase
 ;; 2. SRFI 13 contains string-titlecase, equivalent to string-capitalize
+;;    so use if present to define string-capitalize
 
 (define-library
   (slib string-case)
-  (export string-ci->symbol
+  (export string-capitalize
+          string-capitalize!
+          string-ci->symbol
           symbol-append
           StudlyCapsExpand)
   (import (scheme base)
           (scheme char)
           (slib common))
+
+  (cond-expand 
+    ((library (srfi 13))
+     (import (only (srfi 13) string-titlecase string-titlecase!))
+     (begin
+       (define string-capitalize string-titlecase)
+       (define string-capitalize! string-titlecase!)))
+    (else
+      (begin
+        ;@
+        (define (string-capitalize! str)	; "hello" -> "Hello"
+          (let ((non-first-alpha #f)		; "hELLO" -> "Hello"
+                (str-len (string-length str)))	; "*hello" -> "*Hello"
+            (do ((i 0 (+ i 1)))			; "hello you" -> "Hello You"
+              ((= i str-len) str)
+              (let ((c (string-ref str i)))
+                (if (char-alphabetic? c)
+                  (if non-first-alpha
+                    (string-set! str i (char-downcase c))
+                    (begin
+                      (set! non-first-alpha #t)
+                      (string-set! str i (char-upcase c))))
+                  (set! non-first-alpha #f))))))
+        ;@
+        (define (string-capitalize str)
+          (string-capitalize! (string-copy str))))))
 
   (begin
 

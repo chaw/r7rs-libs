@@ -64,8 +64,12 @@
 
     ;;;SCALE is a list of numerator and denominator.
     (define charplot:scale-it
-      (lambda (z scale)
-        (exact (round (/ (* z (car scale)) (cadr scale))))))
+      (if (provided? 'inexact)
+        (lambda (z scale)
+          (exact (round (/ (* z (car scale)) (cadr scale)))))
+        (lambda (z scale)
+          (quotient (+ (* z (car scale)) (quotient (cadr scale) 2))
+                    (cadr scale)))))
 
     ;;; Given the width or height (in characters) and the data-span,
     ;;; returns a list of numerator and denominator (NUM DEN) suitable for

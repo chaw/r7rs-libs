@@ -21,6 +21,7 @@
 ;; -- adapted for R7RS implementations
 ;;    1. Chibi Scheme
 ;;    2. Kawa Scheme
+;;    3. Larceny Scheme -- TODO make-directory is not working
 
 (define-library
   (slib directory)
@@ -28,7 +29,7 @@
           make-directory
           directory-for-each
           directory*-for-each)
-  (import (scheme base) (scheme write)
+  (import (scheme base) 
           (scheme case-lambda)
           (slib common)
           (slib filename))
@@ -48,8 +49,14 @@
         (define (list-directory-files dir)
           (map (lambda (file) (invoke file 'toString)) 
                (invoke (java.io.File dir) 'listFiles)))))
+    (larceny
+      (import (primitives current-directory make-directory list-directory))
+      (begin 
+        ; current-directory exported
+        ; make-directory exported
+        (define list-directory-files list-directory)))
     (else
-      (error "directory not supported for current R7RS Scheme implementation")))
+      (error "(slib directory) not supported for current R7RS Scheme implementation")))
 
   (cond-expand
     ((library (chibi pathname))
@@ -63,8 +70,10 @@
           (if (char=? #\. (car chars)) ; Kawa adds a 'dot' to end, so remove it
             (list->string (reverse (cdr chars)))
             path))))
+    ((library (srfi 59)) ; works on Larceny
+      (import (only (srfi 59) pathname->vicinity)))
     (else
-      (error "directory not supported for current R7RS Scheme implementation")))
+      (error "(slib directory) not supported for current R7RS Scheme implementation")))
 
   (begin
 

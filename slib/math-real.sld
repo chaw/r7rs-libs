@@ -72,16 +72,16 @@
                (proc x1)
                (slib:error name x1)))))
     ;@
-    (define ln log)
+    (define ln (and (provided? 'real) log))
     (define real-abs  (must-be-real 'abs abs))
-    (define real-sin  (must-be-real 'real-sin sin))
-    (define real-cos  (must-be-real 'real-cos cos))
-    (define real-tan  (must-be-real 'real-tan tan))
-    (define real-exp  (must-be-real 'real-exp exp))
+    (define real-sin  (must-be-real 'real-sin (and (provided? 'real) sin)))
+    (define real-cos  (must-be-real 'real-cos (and (provided? 'real) cos)))
+    (define real-tan  (must-be-real 'real-tan (and (provided? 'real) tan)))
+    (define real-exp  (must-be-real 'real-exp (and (provided? 'real) exp)))
     (define real-ln   (must-be-real+ 'ln ln))
-    (define real-sqrt (must-be-real+ 'real-sqrt sqrt))
-    (define real-asin (must-be-real-1+1 'real-asin asin))
-    (define real-acos (must-be-real-1+1 'real-acos acos))
+    (define real-sqrt (must-be-real+ 'real-sqrt (and (provided? 'real) sqrt)))
+    (define real-asin (must-be-real-1+1 'real-asin (and (provided? 'real) asin)))
+    (define real-acos (must-be-real-1+1 'real-acos (and (provided? 'real) acos)))
 
     (define (must-be-real2 name proc)
       (and proc
@@ -91,9 +91,11 @@
                (slib:error name x1 x2)))))
     ;@
     (define make-rectangular
-      (must-be-real2 'make-rectangular make-rectangular))
+      (must-be-real2 'make-rectangular 
+                     (and (provided? complex) make-rectangular)))
     (define make-polar
-      (must-be-real2 'make-polar make-polar))
+      (must-be-real2 'make-polar 
+                     (and (provided? complex) make-polar)))
 
     ;@
     (define real-log
@@ -113,12 +115,13 @@
 
     ;@
     (define real-atan
-      (lambda (y . x)
-        (if (and (real? y)
-                 (or (null? x)
-                     (and (= 1 (length x))
-                          (real? (car x)))))
-          (atan y x)
-          (slib:error 'real-atan y x))))
+      (and (provided? real)
+           (lambda (y . x)
+             (if (and (real? y)
+                      (or (null? x)
+                          (and (= 1 (length x))
+                               (real? (car x)))))
+               (atan y x)
+               (slib:error 'real-atan y x)))))
 
     ))

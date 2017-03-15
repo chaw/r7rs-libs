@@ -12,10 +12,6 @@
 ; Version 3.0
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
-;;
-;; Changes to original:
-;; 1. Assumes inexact/complex supported
-;; 2. Uses srfi 13 / string-titlecase in place of string-capitalize
 
 (define-library
   (slib format)
@@ -27,12 +23,8 @@
           (scheme write)
           (slib common)
           (slib pretty-print)
+          (slib string-case)
           (slib string-port))
-  (cond-expand
-    ((library (srfi 13))
-     (import (only (srfi 13) string-titlecase)))
-    (else
-      (error "No support for (srfi 13)")))
 
   (begin
 
@@ -58,10 +50,10 @@
     (define format:max-iterations 100)
     ;; Compatible with previous versions.
 
-    (define format:floats #t) ; (provided? 'inexact))
+    (define format:floats (provided? 'inexact))
     ;; Detects if the scheme system implements flonums (see at eof).
 
-    (define format:complex-numbers #t) ; (provided? 'complex))
+    (define format:complex-numbers (provided? 'complex))
     ;; Detects if the scheme system implements complex numbers.
 
     (define format:radix-pref (char=? #\# (string-ref (number->string 8 8) 0)))
@@ -1171,7 +1163,7 @@
                      (set! format:case-conversion
                        (case modifier
                          ((at) format:string-capitalize-first)
-                         ((colon) string-titlecase)
+                         ((colon) string-capitalize)
                          ((colon-at) string-upcase)
                          (else string-downcase)))
                      (anychar-dispatch))

@@ -10,7 +10,7 @@
     (display (string-append "Found file: " filename "\n")))
   ".")
 
-;(make-directory "test-me")
+(make-directory "test-me")
 (display "\n../slib/t*.sld\n")
 (directory*-for-each 
   (lambda (filename) 
