@@ -7,11 +7,11 @@ The converted libraries are from slib and srfis.
 
 A set of libraries written for R7RS Scheme: 
 
-* abbrev - create set of unambiguous abbreviations for strings (like Ruby Abbrev)
-
-A set of libraries currently being written for R7RS Scheme:
-
+* abbrev - create set of unambiguous abbreviations for strings (like Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
+* logger - a logging framework (based on Ruby's Logger class)
+* statistics - some descriptive statistical functions for lists
+* text - formatting or manipulating text documents
 
 ## SLIB
 
@@ -61,7 +61,7 @@ TODO: defmacro - required?
 * printf
 * scanf
 * getopt
-  * added option-index/option-name/option-value/next-option! to control variables
+  * provided option-index/option-arg/option-name as parameters to access values
   * TODO: runs in Chibi and Kawa, not in Larceny
 * html-form: TODO
 * db->html: TODO?
@@ -78,7 +78,7 @@ TODO: defmacro - required?
 * Time and Date: ? srfi 19
 * tzfile
 * ncbi-dma
-* schmooz: TODO?
+* schmooz: TODO - in progress: needs srfi 59 
 
 5: Mathematical libraries
 
@@ -94,10 +94,11 @@ TODO: defmacro - required?
 * dft
 * crc
 * charplot
-  * provides (charplot:dimensions) and (charplot:dimensions-set! ) to get/change dimensions
+  * provides (charplot:dimensions) as a parameter to get/change dimensions
 * eps-graph: TODO
 * solid: TODO
 * color: TODO
+* color-space
 * root
 * minimize
 * limit
@@ -107,8 +108,11 @@ TODO: defmacro - required?
 6: Database Packages
 
 * relational-database
-* database: TODO
-* relational infrastructure: TODO
+* database: TODO - in progress
+* database-interpolate
+* database-commands
+* within-database: TODO?
+* database-browse
 * wt-tree
   * tests pass with Chibi and Larceny, fails to compile with Kawa -- TODO
 
@@ -123,7 +127,6 @@ TODO: defmacro - required?
 * alist
 * byte
 * byte-number
-* matfile: NOT PLANNED
 * pnm
 * collect: TODO (requires yasos)
 * dynamic
@@ -193,6 +196,7 @@ only with particular implementations:
 * srfi 42  simply the reference implementation
 * srfi 63  SLIB's array.scm implemented as a srfi library
 
+The srfis are organised in the 'srfis' folder, by implementation.
 
 ## R7RS Implementations
 
@@ -225,7 +229,7 @@ Add this directory to the search path when running programs, e.g.:
 
 Add this directory to the search path when running programs, e.g.:
 
-    > chibi-scheme -I ~/r7rs-libs/ examples/plot1.sps
+    > chibi-scheme -I ~/r7rs-libs/:~/r7rs-libs/srfis/chibi/ examples/plot1.sps
 
 ### Cyclone
 

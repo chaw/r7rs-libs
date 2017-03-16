@@ -18,11 +18,12 @@
 ;each case.
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
+;;
+;; Replaced charplot:dimensions variable as a parameter
 
 (define-library
   (slib charplot)
   (export charplot:dimensions
-          charplot:dimensions-set!
           plot
           histograph)
   (import (except (scheme base) equal?)
@@ -37,8 +38,7 @@
     ;;;@ These determine final graph size.
     (define charplot:dimensions-value #f)
 
-    (define (charplot:dimensions)
-      charplot:dimensions-value)
+    (define charplot:dimensions (make-parameter charplot:dimensions-value))
 
     ;; provide a mutator for dimensions
     (define (charplot:dimensions-set! val)

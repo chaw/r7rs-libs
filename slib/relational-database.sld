@@ -26,6 +26,7 @@
   (export make-relational-system)
   (import (scheme base)
           (scheme cxr)
+          (scheme eval)
           (slib common))
 
   (begin

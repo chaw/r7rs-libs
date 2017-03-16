@@ -15,7 +15,9 @@
           slib:warn
           software-type
           tmpnam
-          with-load-pathname)
+          with-load-pathname
+          base-table-implementations
+          add-base-table-implementation)
   (import (scheme base)
           (scheme write))
 
@@ -98,6 +100,13 @@
               (lambda () (set! old (exchange path)))
               thunk
               (lambda () (exchange old)))))))
+
+    ;; support for database tables
+    (define *base-table-implementations* '())
+    (define (base-table-implementations)
+      *base-table-implementations*)
+    (define (add-base-table-implementation impl)
+      (set! *base-table-implementations* (cons impl *base-table-implementations*)))
 
     ))
 

@@ -18,14 +18,15 @@
 ;each case.
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
+;;
+;; Parameters exported for option-index/option-arg/option-name
 
 (define-library
   (slib getopt)
   (export getopt
           getopt--
           option-index
-          next-option!
-          option-value
+          option-arg
           option-name)
   (import (scheme base)
           (scheme process-context))
@@ -34,15 +35,10 @@
 
     (define getopt:scan #f)
     (define getopt:char #\-)
-    ;@
-    (define getopt:opt #f)
-    (define *optind* 1)
-    (define *optarg* 0)
 
-    (define (option-index) *optind*)
-    (define (next-option!) (set! *optind* (+ 1 *optind*)))
-    (define (option-value) *optarg*)
-    (define (option-name) getopt:opt)
+    (define option-index (make-parameter 1)) ;; *optind* now a parameter
+    (define option-arg (make-parameter 0))   ;; *optarg* now a parameter
+    (define option-name (make-parameter #f)) ;; getopt:opt now a parameter
 
     ;@
     (define (getopt optstring)
@@ -50,10 +46,10 @@
              (opts (string->list optstring))
              (place #f)
              (arg #f)
-             (argref (lambda () (list-ref args *optind*))))
+             (argref (lambda () (list-ref args (option-index)))))
         (and
           (cond ((and getopt:scan (not (string=? "" getopt:scan))) #t)
-                ((>= *optind* (length args)) #f)
+                ((>= (option-index) (length args)) #f)
                 (else
                   (set! arg (argref))
                   (cond ((or (<= (string-length arg) 1)
@@ -61,42 +57,42 @@
                          #f)
                         ((and (= (string-length arg) 2)
                               (char=? (string-ref arg 1) getopt:char))
-                         (set! *optind* (+ *optind* 1))
+                         (option-index (+ (option-index) 1))
                          #f)
                         (else
                           (set! getopt:scan (substring arg 1 (string-length arg)))
                           #t))))
           (begin
-            (set! getopt:opt (string-ref getopt:scan 0))
+            (option-name (string-ref getopt:scan 0))
             (set! getopt:scan
               (substring getopt:scan 1 (string-length getopt:scan)))
-            (if (string=? "" getopt:scan) (set! *optind* (+ *optind* 1)))
-            (set! place (member getopt:opt opts))
+            (if (string=? "" getopt:scan) (option-index (+ (option-index) 1)))
+            (set! place (member (option-name) opts))
             (cond ((not place) #\?)
                   ((or (null? (cdr place)) (not (char=? #\: (cadr place))))
-                   getopt:opt)
+                   (option-name))
                   ((not (string=? "" getopt:scan))
-                   (set! *optarg* getopt:scan)
-                   (set! *optind* (+ *optind* 1))
+                   (option-arg getopt:scan)
+                   (option-index (+ (option-index) 1))
                    (set! getopt:scan #f)
-                   getopt:opt)
-                  ((< *optind* (length args))
-                   (set! *optarg* (argref))
-                   (set! *optind* (+ *optind* 1))
-                   getopt:opt)
+                   (option-name))
+                  ((< (option-index) (length args))
+                   (option-arg (argref))
+                   (option-index (+ (option-index) 1))
+                   (option-name))
                   ((and (not (null? opts)) (char=? #\: (car opts))) #\:)
                   (else #\?))))))
 
     ;@
     (define (getopt-- optstring)
       (let* ((opt (getopt (string-append optstring "-:")))
-             (optarg *optarg*))
+             (optarg (option-arg)))
         (cond ((eqv? #\- opt)		;long option
-               (do ((l (string-length *optarg*))
+               (do ((l (string-length (option-arg)))
                     (i 0 (+ 1 i)))
                  ((or (>= i l) (char=? #\= (string-ref optarg i)))
-                  (cond ((>= i l) (set! *optarg* #f) optarg)
-                        (else (set! *optarg* (substring optarg (+ 1 i) l))
+                  (cond ((>= i l) (option-arg #f) optarg)
+                        (else (option-arg (substring optarg (+ 1 i) l))
                               (substring optarg 0 i))))))
               (else opt))))
 
