@@ -65,8 +65,8 @@
     (define (harmonic-mean lst)
       (if (null? lst)
         0
-        (/ 1 (* (/ 1 (length lst))
-                (fold (lambda (n v) (+ (/ 1 n) v)) 0 lst)))))
+        (/ (length lst) 
+           (fold (lambda (n v) (+ (/ 1 n) v)) 0 lst))))
 
     (define (median lst)
       (percentile lst 50))

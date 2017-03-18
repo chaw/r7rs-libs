@@ -39,9 +39,9 @@
       '((1 #t table-name		#f symbol)
         (2 #f column-limit		#f ordinal)
         (3 #f coltab-name		#f symbol)
-        (4 #f bastab-id		#f ordinal)
-        (5 #f user-integrity-rule	#f expression)
-        (6 #f view-procedure	#f expression)))
+        (4 #f bastab-id		        #f ordinal)
+        (5 #f user-integrity-rule       #f expression)
+        (6 #f view-procedure	        #f expression)))
 
     (define catalog:column-limit-pos 2)
     (define catalog:coltab-name-pos 3)

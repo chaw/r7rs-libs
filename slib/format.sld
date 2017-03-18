@@ -15,7 +15,14 @@
 
 (define-library
   (slib format)
-  (export format)
+  (export format
+          ;
+          format:iobj->str
+          format:symbol-case-conv
+          format:iobj-case-conv
+          format:max-iterations
+          format:iteration-bounded
+          )
   (import (scheme base)
           (scheme char)
           (scheme complex)
@@ -30,24 +37,24 @@
 
     ;;; Configuration ------------------------------------------------------------
 
-    (define format:symbol-case-conv #f)
+    (define format:symbol-case-conv (make-parameter #f))
     ;; Symbols are converted by symbol->string so the case of the printed
     ;; symbols is implementation dependent. format:symbol-case-conv is a
     ;; one arg closure which is either #f (no conversion), string-upcase!,
     ;; string-downcase! or string-titlecase!.
 
-    (define format:iobj-case-conv #f)
+    (define format:iobj-case-conv (make-parameter #f))
     ;; As format:symbol-case-conv but applies for the representation of
     ;; implementation internal objects.
 
     (define format:expch #\E)
     ;; The character prefixing the exponent value in ~e printing.
 
-    (define format:iteration-bounded #t)
+    (define format:iteration-bounded (make-parameter #t))
     ;; If #t, "~{...~}" iterates no more than format:max-iterations times;
     ;; if #f, there is no bound.
 
-    (define format:max-iterations 100)
+    (define format:max-iterations (make-parameter 100))
     ;; Compatible with previous versions.
 
     (define format:floats (provided? 'inexact))
@@ -1270,7 +1277,7 @@
                         (if (not max-iterations) (set! max-iterations 1)))
                        ((colon-at at) (slib:error 'format "illegal modifier" modifier))
                        (else (if (not max-iterations)
-                               (set! max-iterations format:max-iterations))))
+                               (set! max-iterations (format:max-iterations)))))
                      (if (not (null? params))
                        (slib:error 'format "no parameters allowed in ~~}" params))
                      (if (zero? iteration-nest)
@@ -1292,7 +1299,7 @@
                                                    (list-tail args arg-pos))))
                                    (i 0 (+ i 1)))
                                 ((or (>= arg-pos args-len)
-                                     (and format:iteration-bounded
+                                     (and (format:iteration-bounded)
                                           (>= i max-iterations)))))))
                            ((sublists)
                             (let ((args (next-arg))
@@ -1302,7 +1309,7 @@
                               (set! args-len (length args))
                               (do ((arg-pos 0 (+ arg-pos 1)))
                                 ((or (>= arg-pos args-len)
-                                     (and format:iteration-bounded
+                                     (and (format:iteration-bounded)
                                           (>= arg-pos max-iterations))))
                                 (let ((sublist (list-ref args arg-pos)))
                                   (if (not (list? sublist))
@@ -1320,7 +1327,7 @@
                                                             args arg-pos))))
                                           (i 0 (+ i 1)))
                                        ((or (>= arg-pos args-len)
-                                            (and format:iteration-bounded
+                                            (and (format:iteration-bounded)
                                                  (>= i max-iterations)))
                                         arg-pos))))
                               (add-arg-pos usedup-args)))
@@ -1330,7 +1337,7 @@
                                    (usedup-args
                                      (do ((arg-pos 0 (+ arg-pos 1)))
                                        ((or (>= arg-pos args-len)
-                                            (and format:iteration-bounded
+                                            (and (format:iteration-bounded)
                                                  (>= arg-pos max-iterations)))
                                         arg-pos)
                                        (let ((sublist (list-ref args arg-pos)))
@@ -1515,8 +1522,8 @@
         ((number? obj) (number->string obj))
 
         ((symbol? obj)
-         (if format:symbol-case-conv
-           (format:symbol-case-conv (symbol->string obj))
+         (if (format:symbol-case-conv)
+           ((format:symbol-case-conv) (symbol->string obj))
            (symbol->string obj)))
 
         ((char? obj)
@@ -1566,11 +1573,11 @@
 
     (define (format:iobj->str iobj format:read-proof)
       (if (or format:read-proof
-              format:iobj-case-conv)
+              (format:iobj-case-conv))
         (string-append
           (if format:read-proof "\"" "")
-          (if format:iobj-case-conv
-            (format:iobj-case-conv
+          (if (format:iobj-case-conv)
+            ((format:iobj-case-conv)
               (call-with-output-string (lambda (p) (display iobj p))))
             (call-with-output-string (lambda (p) (display iobj p))))
           (if format:read-proof "\"" ""))

@@ -4,7 +4,7 @@
         (only (srfi 63) array->list)
         (srfi 64))
 
-(test-begin "(slib diff)")
+(test-begin "slib-diff")
 
 (test-equal (diff:longest-common-subsequence "fghiejcklm" "fgehijkpqrlm")
             "fghijklm")

@@ -32,7 +32,8 @@ Small changes are:
 * (slib common) created to hold generally used definitions
 * code uses SRFIs where possible
 
-List of Libraries with notes on progress (no comment means done):
+The following list of packages reflects the contents page of the slib
+documentation.  Each package has notes on progress (no comment means done):
 
 1: The Library System
 
@@ -42,8 +43,9 @@ List of Libraries with notes on progress (no comment means done):
 
 * vicinity: use (srfi 59)
 
-Functions in configuration, input/output, system and miscellany are either no longer 
-needed (e.g. much of input/output is now present in R7RS) or have been moved into (slib common).
+Functions in configuration, input/output, system and miscellany are either no
+longer needed (e.g. much of input/output is now present in R7RS) or have been
+moved into (slib common).
 
 3: Scheme Syntax Extension Packages 
 
@@ -57,13 +59,18 @@ TODO: defmacro - required?
 
 * precedence-parse
 * format
+  * format:symbol-case-conv format:iobj-case-conv format:max-iterations format:iteration-bounded
+    available as parameters
   * alternatively use (srfi 28)
 * printf
 * scanf
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
   * TODO: runs in Chibi and Kawa, not in Larceny
-* html-form: TODO
+* comparse
+* paramlst
+* getparam
+* html-form
 * db->html: TODO?
 * http: TODO?
 * html-for-each
@@ -72,13 +79,17 @@ TODO: defmacro - required?
   * TODO: Fix warning on use of sscanf in case statement (line 452)
 * xml-parse
 * generic-write
-* object->string: TODO?
+* object->string
 * pretty-print
 * pprint-file
-* Time and Date: ? srfi 19
+* time-core
+* time-zone
+  * TODO: Fix warning on use of sscanf with case statement
+* posix-time
+* common-lisp-time
 * tzfile
-* ncbi-dma
-* schmooz: TODO - in progress: needs srfi 59 
+* ncbi-dna
+* schmooz
 
 5: Mathematical libraries
 
@@ -96,9 +107,10 @@ TODO: defmacro - required?
 * charplot
   * provides (charplot:dimensions) as a parameter to get/change dimensions
 * eps-graph: TODO
-* solid: TODO
-* color: TODO
+* solid
+* color
 * color-space
+* daylight
 * root
 * minimize
 * limit
@@ -111,7 +123,8 @@ TODO: defmacro - required?
 * database: TODO - in progress
 * database-interpolate
 * database-commands
-* within-database: TODO?
+* within-database
+  * without the macro support
 * database-browse
 * wt-tree
   * tests pass with Chibi and Larceny, fails to compile with Kawa -- TODO
@@ -131,6 +144,7 @@ TODO: defmacro - required?
 * collect: TODO (requires yasos)
 * dynamic
 * hash-table: use (srfi 125) or (srfi 69)
+* hash
 * object
 * priority-queue
 * queue
@@ -165,6 +179,7 @@ TODO: defmacro - required?
 7.6: Systems Interface
 
 * directory
+  * exports pathname->vicinity
   * Working with Chibi Scheme
   * Mostly working with Kawa - the pattern matching is not correct
   * Mostly working with Larceny - the pattern matching is not correct

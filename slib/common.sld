@@ -17,11 +17,14 @@
           tmpnam
           with-load-pathname
           base-table-implementations
-          add-base-table-implementation)
+          add-base-table-implementation
+          slib:version)
   (import (scheme base)
           (scheme write))
 
   (begin
+
+    (define (slib:version) "3b5 (ported to R7RS)") ;; return the ported version of SLIB
 
     ;;@ CHAR-CODE-LIMIT is one greater than the largest integer which can
     ;;; be returned by CHAR->INTEGER.
@@ -64,6 +67,7 @@
         ((bignum) #t)
         ((complex) #t)
         ((inexact) #t)
+        ((object-hash) #f)
         ((real) #t)  ;; ?? same as inexact?
         (else
           (error "unknown feature " feature))))

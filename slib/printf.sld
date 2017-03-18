@@ -22,6 +22,7 @@
 (define-library
   (slib printf)
   (export printf
+          fprintf
           sprintf)
   (import (scheme base)
           (scheme char)

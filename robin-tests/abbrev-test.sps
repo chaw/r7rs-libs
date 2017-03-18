@@ -15,7 +15,7 @@
        (every (lambda (association) (in-alist? association alist2)) alist1)
        (every (lambda (association) (in-alist? association alist1)) alist2)))
 
-(test-begin "(robin abbrev)")
+(test-begin "robin-abbrev")
 
 (test-assert 
   (equal-assocs? (abbrev '("car" "cat"))

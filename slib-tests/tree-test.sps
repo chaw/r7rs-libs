@@ -3,7 +3,7 @@
         (slib tree)
         (srfi 64))
 
-(test-begin "(slib tree)")
+(test-begin "slib-tree")
 
 (define bar '(bar))
 (test-equal (copy-tree (list bar 'foo))

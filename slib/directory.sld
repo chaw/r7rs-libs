@@ -28,7 +28,8 @@
   (export current-directory
           make-directory
           directory-for-each
-          directory*-for-each)
+          directory*-for-each
+          pathname->vicinity)
   (import (scheme base) 
           (scheme case-lambda)
           (slib common)

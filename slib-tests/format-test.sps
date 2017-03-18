@@ -5,11 +5,13 @@
 
 ;; Packaged for R7RS Scheme and SRFI 64 tests by Peter Lane, 2017
 ;;
-;; Tests requiring access to internal functions in format library are ignored
 ;; -- passes all but 3 tests
 
 (import (scheme base)
+        (scheme char)
+        (scheme write)
         (slib format)
+        (slib string-case)
         (srfi 64))
 
 (define (test format-args out-str)
@@ -20,7 +22,7 @@
         (format #t "Failed ~a ~a ~a~&" format-args out-str format-out)
         (test-assert #f)))))
 
-(test-begin "(slib format)")
+(test-begin "slib-format")
 
 ; any object test
 
@@ -38,9 +40,9 @@
 (test '("~a" (a (b c) d)) "(a (b c) d)")
 (test '("~a" (a . b)) "(a . b)")
 (test '("~a" (a (b c . d))) "(a (b . (c . d)))") ; this is ugly
-;(test `("~a" ,display) (format:iobj->str display #f))
-;(test `("~a" ,(current-input-port)) (format:iobj->str (current-input-port) #f))
-;(test `("~a" ,(current-output-port)) (format:iobj->str (current-output-port) #f))
+(test `("~a" ,display) (format:iobj->str display #f))
+(test `("~a" ,(current-input-port)) (format:iobj->str (current-input-port) #f))
+(test `("~a" ,(current-output-port)) (format:iobj->str (current-output-port) #f))
 
 ; # argument test
 
@@ -249,31 +251,28 @@ def")
 
 ; symbol case force test
 
-;(define format:old-scc format:symbol-case-conv)
-;(set! format:symbol-case-conv string-upcase)
-;(test '("~a" abc) "ABC")
-;(set! format:symbol-case-conv string-downcase)
-;(test '("~s" abc) "abc")
-;(set! format:symbol-case-conv string-capitalize)
-;(test '("~s" abc) "Abc")
-;(set! format:symbol-case-conv format:old-scc)
+(parameterize ((format:symbol-case-conv string-upcase))
+              (test '("~a" abc) "ABC"))
+(parameterize ((format:symbol-case-conv string-downcase))
+              (test '("~s" abc) "abc"))
+(parameterize ((format:symbol-case-conv string-capitalize))
+              (test '("~s" abc) "Abc"))
 
 ; read proof test
 
-;(test `("~:s" ,display) (format:iobj->str display #t))
-;(test `("~:a" ,display) (format:iobj->str display #t))
-;(test `("~:a" (1 2 ,display)) (string-append "(1 2 " (format:iobj->str display #t) ")"))
+(test `("~:s" ,display) (format:iobj->str display #t))
+(test `("~:a" ,display) (format:iobj->str display #t))
+(test `("~:a" (1 2 ,display)) (string-append "(1 2 " (format:iobj->str display #t) ")"))
 (test '("~:a" "abc") "abc")
 
 ; internal object case type force test
 
-;(set! format:iobj-case-conv string-upcase)
-;(test `("~a" ,display) (string-upcase (format:iobj->str display #f)))
-;(set! format:iobj-case-conv string-downcase)
-;(test `("~s" ,display) (string-downcase (format:iobj->str display #f)))
-;(set! format:iobj-case-conv string-capitalize)
-;(test `("~s" ,display) (string-capitalize (format:iobj->str display #f)))
-;(set! format:iobj-case-conv #f)
+(parameterize ((format:iobj-case-conv string-upcase))
+              (test `("~a" ,display) (string-upcase (format:iobj->str display #f))))
+(parameterize ((format:iobj-case-conv string-downcase))
+              (test `("~s" ,display) (string-downcase (format:iobj->str display #f))))
+(parameterize ((format:iobj-case-conv string-capitalize))
+              (test `("~s" ,display) (string-capitalize (format:iobj->str display #f))))
 
 ; continuation line test
 
@@ -365,23 +364,19 @@ def")
 (test '("~2:@{ ~a,~a ~} ~a" (a 1) (b 2) (c 3)) " a,1  b,2  (c 3)")
 (test '("~{~}" "<~a,~a>" (a 1 b 2 c 3)) "<a,1><b,2><c,3>")
 (test '("~{ ~a ~{<~a>~}~} ~a" (a (1 2) b (3 4)) 10) " a <1><2> b <3><4> 10")
-#;(let ((nums (let iter ((ns '()) (l 0))
-(if (> l 105) (reverse ns) (iter (cons l ns) (+ l 1))))))
-;; Test default, only 100 items formatted out:
-(test `("~D~{, ~D~}" ,(car nums) ,(cdr nums))
-      "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100")
-;; Test control of number of items formatted out:
-(set! format:max-iterations 90)
-(test `("~D~{, ~D~}" ,(car nums) ,(cdr nums))
-      "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90")
-;; Test control of imposing bound on number of items formatted out:
-(set! format:iteration-bounded #f)
-(test `("~D~{, ~D~}" ,(car nums) ,(cdr nums))
-      "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105")
-;; Restore defaults:
-(set! format:iteration-bounded #t)
-(set! format:max-iterations 100)
-)
+(let ((nums (let iter ((ns '()) (l 0))
+              (if (> l 105) (reverse ns) (iter (cons l ns) (+ l 1))))))
+  ;; Test default, only 100 items formatted out:
+  (test `("~D~{, ~D~}" ,(car nums) ,(cdr nums))
+        "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100")
+  ;; Test control of number of items formatted out:
+  (parameterize ((format:max-iterations 90))
+                (test `("~D~{, ~D~}" ,(car nums) ,(cdr nums))
+                      "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90")
+                ;; Test control of imposing bound on number of items formatted out:
+                (parameterize ((format:iteration-bounded #f))
+                              (test `("~D~{, ~D~}" ,(car nums) ,(cdr nums))
+                                    "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105"))))
 
 ; up and out
 

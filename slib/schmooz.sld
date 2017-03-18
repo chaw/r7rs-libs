@@ -29,10 +29,10 @@
           (scheme read)
           (scheme write)
           (slib common)
+          (slib directory)
           (slib filename)
           (slib string-search)
-          (only (srfi 1) any)
-          (srfi 59)) 
+          (only (srfi 1) any)) 
   
   (begin
 
@@ -384,7 +384,8 @@
       (let ((vlen (string-length vic)))
         (if (and (substring? vic path)
                  (< vlen plen))
-          (in-vicinity (user-vicinity) (substring path vlen plen))
+          ; (in-vicinity (user-vicinity) (substring path vlen plen))
+          (string-append (current-directory) (substring path vlen plen))
           (slib:error 'pathname->local-filename path))))
 
     ;;;@ SCHMOOZ files.

@@ -488,9 +488,9 @@
         ((>= wlen 780) )
         (when (not (eqv? wlen (caar data)))
           (slib:error *cie1931* 'expected wlen 'not (caar data)))
-        (vector-set! cie:x-bar idx (list-ref 1 (car data)))
-        (vector-set! cie:y-bar idx (list-ref 2 (car data)))
-        (vector-set! cie:z-bar idx (list-ref 3 (car data)))))
+        (vector-set! cie:x-bar idx (list-ref (car data) 1))
+        (vector-set! cie:y-bar idx (list-ref (car data) 2))
+        (vector-set! cie:z-bar idx (list-ref (car data) 3))))
   
     ;@
     (define (read-cie-illuminant path)

@@ -38,11 +38,8 @@
     ;;;@ These determine final graph size.
     (define charplot:dimensions-value #f)
 
+    ;; wrap as a parameter for export
     (define charplot:dimensions (make-parameter charplot:dimensions-value))
-
-    ;; provide a mutator for dimensions
-    (define (charplot:dimensions-set! val)
-      (set! charplot:dimensions-value val))
 
     ;;; The left margin and legends
     (define charplot:left-margin 12)

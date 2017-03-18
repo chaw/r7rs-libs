@@ -30,10 +30,11 @@
 (define-library
   (robin text)
   (export word-wrap
-          list->with-commas)
+          words->with-commas)
   (import (scheme base)
+          (scheme case-lambda)
           (scheme write)
-          (only (srfi 13) string-tokenize))
+          (only (srfi 13) string-join string-tokenize))
 
   (begin
 
@@ -42,42 +43,49 @@
     (define (word-wrap str width)
       (let loop ((words (string-tokenize str))
                  (line-length 0)
-                 (line '())
+                 (line "")
                  (lines '()))
         (cond ((null? words)
-               (reverse (cons (reverse line) lines)))
+               (reverse (cons line lines)))
               ((> (+ line-length (string-length (car words)))
                   width)
-               (if (null? line) 
+               (if (zero? (string-length line))
                  (loop (cdr words) ; case where word exceeds line length
                        0
-                       '()
-                       (cons (list (car words)) lines))
+                       "" 
+                       (cons (car words) lines))
                  (loop words ; word must go to next line, so finish current line
                        0
-                       '()
-                       (cons (reverse line) lines))))
+                       ""
+                       (cons line lines))))
               (else
                 (loop (cdr words) ; else, add word to current line
                       (+ 1 line-length (string-length (car words)))
-                      (cons (car words) line)
+                      (if (zero? (string-length line))
+                        (car words)
+                        (string-join (list line (car words))))
                       lines)))))
 
-    ;; given a list of strings, 
-    ;; return a string with list separated by commas, 
-    ;; with last separated by 'and'.
-    (define (list->with-commas strings)
-      (parameterize ((current-output-port (open-output-string)))
-                    (display "{")
-                    (do ((rem strings (cdr rem)))
-                      ((null? rem) (display "}\n"))
-                      (display (car rem))
-                      (cond ((= 1 (length rem)) )
-                            ((= 2 (length rem))
-                             (display " and "))
-                            (else
-                              (display ", "))))
-                    (get-output-string (current-output-port))))
+    ;; given a list of strings, each string representing a word, 
+    ;; return a string with each word separated by commas, 
+    ;; but last separated by 'and'.
+    ;; Optional flag is used to include the comma before 'and', if required.
+    (define words->with-commas 
+      (case-lambda
+        ((words) ; default to no optional comma
+         (words->with-commas words #f))
+        ((words add-comma?)
+         (parameterize ((current-output-port (open-output-string)))
+                       (do ((rem words (cdr rem)))
+                         ((null? rem) )
+                         (display (car rem))
+                         (cond ((= 1 (length rem)) )
+                               ((= 2 (length rem))
+                                (when add-comma? (display ","))
+                                (display " and "))
+                               (else
+                                 (display ", "))))
+                       (get-output-string (current-output-port))))))
 
     ))
 
