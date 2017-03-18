@@ -11,6 +11,7 @@
           output-port-height
           output-port-width
           provided?
+          system
           slib:error
           slib:warn
           software-type
@@ -69,8 +70,16 @@
         ((inexact) #t)
         ((object-hash) #f)
         ((real) #t)  ;; ?? same as inexact?
+        ((system) #f) ;; TODO
         (else
           (error "unknown feature " feature))))
+
+    ;; Use underlying 'system' implementation, if it exists
+    ;; TODO: find this using cond-expand
+    (define system
+      (if (provided? 'system)
+        identity ; system
+        (lambda (str) 1)))
 
     ;@
     (define slib:warn

@@ -40,17 +40,12 @@
           list-table-definition)
   (import (scheme base)
           (scheme cxr)
+          (slib alist-table)
           (slib common)
           (slib printf)
           (slib relation-database)
+          (slib transact)
           (only (srfi 1) take drop))
-
-;(require 'common-list-functions)	;for nthcdr and butnthcdr
-;(require 'relational-database)
-;(require 'dynamic-wind)
-;(require 'transact)
-;(require-if 'compiling 'printf)		;used only by mdbm:report
-;(require-if 'compiling 'alist-table)
 
   (begin
 
@@ -140,19 +135,16 @@
         (cond ((procedure? rdb) (list rdb 1 (caar bti) certificate))
               ((null? (cdr bti)) #f)
               (else (loop (cdr bti)))))
-      (if (null? (base-table-implementations)) (require 'alist-table))
       (cond ((and (not (and mutable? (not certificate)))
                   (loop (base-table-implementations))))
             ((and (not (memq 'alist-table (base-table-implementations)))
                   (let ()
-                    (require 'alist-table)
                     (loop (list (car (base-table-implementations)))))))
             (else
               (and certificate (file-unlock! filename certificate))
               #f)))
 
     (define (mdbm:open-type filename type mutable?)
-      (require type)
       (let ((certificate (and mutable? (file-lock! filename))))
         (and (not (and mutable? (not certificate)))
              (let* ((sys (cadr (assq type (base-table-implementations))))
@@ -180,7 +172,6 @@
     ;;(define my-rdb (create-database "my.db" 'alist-table))
     ;;@end example
     (define (create-database filename type)
-      (require type)
       (let ((dbs #f)
             (certificate (and filename (file-lock! filename))))
         (and

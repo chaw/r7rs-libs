@@ -30,8 +30,10 @@
           color->string
           string->color
           color->xRGB
+          sRGB->color
           xRGB->color
           CIEXYZ->color
+          color:sRGB
           color->sRGB
           D65
           D50

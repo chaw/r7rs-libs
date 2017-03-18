@@ -51,7 +51,7 @@ moved into (slib common).
 
 (These mostly appear to be included in R7RS Scheme or SRFIs.)
 
-* yasos: TODO?
+* yasos
 
 TODO: defmacro - required?
 
@@ -61,6 +61,7 @@ TODO: defmacro - required?
 * format
   * format:symbol-case-conv format:iobj-case-conv format:max-iterations format:iteration-bounded
     available as parameters
+  * three test cases fail
   * alternatively use (srfi 28)
 * printf
 * scanf
@@ -71,8 +72,9 @@ TODO: defmacro - required?
 * paramlst
 * getparam
 * html-form
-* db->html: TODO?
-* http: TODO?
+* db->html
+* http
+  * http:byline is a parameter object
 * html-for-each
   * TODO: Fix warning on use of sscanf in case statement (line 452)
 * uri
@@ -106,21 +108,22 @@ TODO: defmacro - required?
 * crc
 * charplot
   * provides (charplot:dimensions) as a parameter to get/change dimensions
-* eps-graph: TODO
+* eps-graph
 * solid
 * color
+* color-names
 * color-space
 * daylight
 * root
 * minimize
 * limit
-* commutative-ring: TODO? (needs databases)
+* commutative-ring
 * determinant
 
 6: Database Packages
 
 * relational-database
-* database: TODO - in progress
+* database
 * database-interpolate
 * database-commands
 * within-database
@@ -141,7 +144,7 @@ TODO: defmacro - required?
 * byte
 * byte-number
 * pnm
-* collect: TODO (requires yasos)
+* collect
 * dynamic
 * object
 * priority-queue

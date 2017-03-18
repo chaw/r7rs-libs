@@ -7,6 +7,8 @@
   (begin
 
     ;@
+    ;; note, list-index in srfi-1 uses a procedure to test for the object
+    ;; this is effectively (list-index (lambda (o) (eqv? o obj)) lst)
     (define (position obj lst)
       (define pos (lambda (n lst)
                     (cond ((null? lst) #f)
