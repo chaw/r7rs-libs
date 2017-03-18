@@ -248,25 +248,26 @@
                                        (set! element (string-append element (string (read-char port))))
                                        (loop (peek-char port)))
                                       ((char-whitespace? chr) (read-char port) (loop (peek-char port)))
-                                      ((case (fscanf port "%[-a-zA-Z0-9:] %[=] %[-.a-zA-Z0-9]"
-                                                     name junk value)
-                                         ((3 1) #t)
-                                         ((2)
-                                          (case (peek-char port)
-                                            ((#\") (cond ((eqv? 1 (fscanf port "\"%[^\"]\"" value)) #t) ;; PCL Added #t
-                                                         ((eqv? #\" (peek-char port))
-                                                          (read-char port)
-                                                          (set! value "")
-                                                          #t)                                           ;; PCL Added #t
-                                                         (else #f)))
-                                            ((#\') (cond ((eqv? 1 (fscanf port "'%[^']'" value)) #t)    ;; PCL Added #t
-                                                         ((eqv? #\' (peek-char port))
-                                                          (read-char port)
-                                                          (set! value "") 
-                                                          #t)                                           ;; PCL Added #t
-                                                         (else #f)))
-                                            (else #f)))
-                                         (else #f))
+                                      ((let ((scan (fscanf port "%[-a-zA-Z0-9:] %[=] %[-.a-zA-Z0-9]"
+                                                           name junk value)))
+                                         (case (if (list? scan) (length scan) 0)
+                                           ((3 1) #t)
+                                           ((2)
+                                            (case (peek-char port)
+                                              ((#\") (cond ((eqv? 1 (fscanf port "\"%[^\"]\"" value)) #t) ;; PCL Added #t
+                                                           ((eqv? #\" (peek-char port))
+                                                            (read-char port)
+                                                            (set! value "")
+                                                            #t)                                           ;; PCL Added #t
+                                                           (else #f)))
+                                              ((#\') (cond ((eqv? 1 (fscanf port "'%[^']'" value)) #t)    ;; PCL Added #t
+                                                           ((eqv? #\' (peek-char port))
+                                                            (read-char port)
+                                                            (set! value "") 
+                                                            #t)                                           ;; PCL Added #t
+                                                           (else #f)))
+                                              (else #f)))
+                                           (else #f)))
                                        (set! fields (cons (cons (string-ci->symbol name) value)
                                                           fields))
                                        (loop (peek-char port)))

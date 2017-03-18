@@ -96,6 +96,7 @@
           wt-tree/delete-min!
           wt-tree/valid?)
   (import (scheme base)
+          (scheme case-lambda)
           (slib common))
 
   (begin
@@ -210,7 +211,7 @@
     (define (set-tree/root! t v) (vector-set! t 2 v))
 
     ;;  Nodes are the thing from which the real trees are built.  There are
-    ;;  lots of these and the uninquisitibe user will never see them, so
+    ;;  lots of these and the uninquisitive user will never see them, so
     ;;  they are represented as untagged to save the slot that would be
     ;;  used for tagging structures.
     ;;  In MIT-Scheme these were all DEFINE-INTEGRABLE
@@ -358,22 +359,20 @@
 
       (define (key>? x y)  (key<? y x))
 
-      (define (node/find k node)
-        ;; Returns either the node or #f.
-        ;; Loop takes D comparisons where D is the depth of the tree
-        ;; rather than the traditional compare-low, compare-high which
-        ;; takes on average 1.5(D-1) comparisons
-        (let loop ((this node)
-                   (best #f))
-          (cond ((empty? this) 
-                 (if (or (not best)
-                         (key<? (node/k best) k))
-                   #f
-                   best))
-                ((key<? k (node/k this)) 
-                 (loop (node/l this) best))
-                (else 
-                  (loop (node/r this) this)))))
+      (define node/find ; rewritten to avoid internal loop, to compile with Kawa
+        (case-lambda 
+          ((k node)
+           (node/find k node #f))
+          ((k node best)
+           (cond ((empty? node) 
+                  (if (or (not best)
+                          (key<? (node/k best) k))
+                    #f
+                    best))
+                 ((key<? k (node/k node)) 
+                  (node/find k (node/l node) best))
+                 (else 
+                   (node/find k (node/r node) node))))))
 
       (define (node/rank k node rank)
         (cond ((empty? node)             #f)
@@ -381,7 +380,7 @@
               ((key>? k (node/k node))
                (node/rank k (node/r node)
                           (fix:+ 1 (fix:+ rank (node/size (node/l node))))))
-              (else                     (fix:+ rank (node/size (node/l node))))))
+              (else (fix:+ rank (node/size (node/l node))))))
 
       (define (node/add node k v)
         (if (empty? node)
@@ -501,7 +500,7 @@
             (and (fix:<= (node/size tree1) (node/size tree2))
                  (with-n-node tree1
                               (lambda (k v l r)
-                                v
+                                ; v is ignored
                                 (cond ((key<? k (node/k tree2))
                                        (and (node/subset? l (node/l tree2))
                                             (node/find k tree2)

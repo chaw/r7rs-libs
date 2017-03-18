@@ -33,8 +33,17 @@
           words->with-commas)
   (import (scheme base)
           (scheme case-lambda)
-          (scheme write)
-          (only (srfi 13) string-join string-tokenize))
+          (scheme write))
+
+  (cond-expand
+    ((library (srfi 13))
+     (import (only (srfi 13) string-join string-tokenize)))
+    ((library (chibi string))
+     (import (only (chibi string) string-join string-split))
+     (begin
+       (define string-tokenize string-split)))
+    (else
+      (error "Scheme implementation does not support a suitable string library")))
 
   (begin
 
@@ -63,7 +72,7 @@
                       (+ 1 line-length (string-length (car words)))
                       (if (zero? (string-length line))
                         (car words)
-                        (string-join (list line (car words))))
+                        (string-join (list line (car words)) " "))
                       lines)))))
 
     ;; given a list of strings, each string representing a word, 

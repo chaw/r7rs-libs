@@ -572,7 +572,7 @@
                               ((number? str) (make-string str))
                               ((not str) (make-string 100))
                               (else (slib:error 'sprintf "first argument not understood"
-                                           str))))
+                                                str))))
                      (end (string-length s)))
                 (apply stdio:iprintf
                        (lambda (x)

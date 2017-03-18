@@ -29,6 +29,7 @@
         (slib wt-tree)
         (srfi 1)
         (srfi 27)
+        (srfi 64)
         (srfi 95))
 
 (define (sort1 lst)
@@ -209,6 +210,8 @@
 ;; main
 ;;
 
+(test-begin "slib-wt-tree")
+
 (define number-of-tests 300)
 
 (define (run-test prop)
@@ -223,6 +226,7 @@
 	(flush-output-port))
        (else
 	(let ((ret (try-test test i)))
+          (test-assert ret)
 	  (cond
 	   ((eq? ret #t)
 	    (loop (+ 1 i)))
@@ -231,3 +235,6 @@
 	    (format #t "~d/~d: ~a\n" i number-of-tests ret)))))))))
 
 (for-each run-test test-alist)
+
+(test-end)
+

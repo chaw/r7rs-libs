@@ -1,7 +1,7 @@
 # Scheme Libraries
 
-Some libraries written for or converted to run in R7RS Scheme.  
-The converted libraries are from slib and srfis.
+Some libraries written for, or converted to run in, R7RS Scheme.  
+The converted libraries are from SLIB and SRFIs.
 
 ## Robin
 
@@ -9,6 +9,7 @@ A set of libraries written for R7RS Scheme:
 
 * abbrev - create set of unambiguous abbreviations for strings (like Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
+* disjoint-set - data structure to hold sets of items in disjoint sets
 * logger - a logging framework (based on Ruby's Logger class)
 * statistics - some descriptive statistical functions for lists
 * text - formatting or manipulating text documents
@@ -31,9 +32,10 @@ Small changes are:
 
 * (slib common) created to hold generally used definitions
 * code uses SRFIs where possible
+* defmacro not included
 
 The following list of packages reflects the contents page of the slib
-documentation.  Each package has notes on progress (no comment means done):
+documentation, and gives some notes on any changes or choices made:
 
 1: The Library System
 
@@ -45,7 +47,7 @@ documentation.  Each package has notes on progress (no comment means done):
 
 Functions in configuration, input/output, system and miscellany are either no
 longer needed (e.g. much of input/output is now present in R7RS) or have been
-moved into (slib common).
+moved, as required, into `(slib common)`.
 
 3: Scheme Syntax Extension Packages 
 
@@ -53,21 +55,19 @@ moved into (slib common).
 
 * yasos
 
-TODO: defmacro - required?
-
 4: Textual Conversion Packages
 
 * precedence-parse
 * format
   * format:symbol-case-conv format:iobj-case-conv format:max-iterations format:iteration-bounded
     available as parameters
-  * three test cases fail
+  * three test cases fail (a known issue in this implementation)
   * alternatively use (srfi 28)
 * printf
 * scanf
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
-  * TODO: runs in Chibi and Kawa, not in Larceny
+  * TODO: example fails in Larceny
 * comparse
 * paramlst
 * getparam
@@ -76,9 +76,7 @@ TODO: defmacro - required?
 * http
   * http:byline is a parameter object
 * html-for-each
-  * TODO: Fix warning on use of sscanf in case statement (line 452)
 * uri
-  * TODO: Fix warning on use of sscanf in case statement (line 452)
 * xml-parse
 * generic-write
 * object->string
@@ -86,7 +84,6 @@ TODO: defmacro - required?
 * pprint-file
 * time-core
 * time-zone
-  * TODO: Fix warning on use of sscanf with case statement
 * posix-time
 * common-lisp-time
 * tzfile
@@ -130,7 +127,7 @@ TODO: defmacro - required?
   * without the macro support
 * database-browse
 * wt-tree
-  * tests pass with Chibi and Larceny, fails to compile with Kawa -- TODO
+  * TODO: Some tests fail on Kawa
 
 7: Other Packages
 
@@ -187,7 +184,7 @@ TODO: defmacro - required?
   * Mostly working with Larceny - the pattern matching is not correct
     * and make-directory is exported (from primitives) but not into example
 
-(Remainder mostly in R7RS already: some added to (slib common) if necessary.)
+(Remainder mostly in R7RS already: some added to `(slib common)` if necessary.)
 
 ### Required SRFIs
 
@@ -200,20 +197,19 @@ Some of the libraries require the following SRFIs (in place of related SLIB file
 * srfi 60  Integers as Bits
 * srfi 63  Arrays
 * srfi 69  Hash Tables 
-
+* srfi 95  Sorting
 
 ## SRFIs
 
 A few SRFIs are implemented here.  These fill gaps in those SRFIs provided by
-some implementations, mostly to use all of SLIB.  You should only install those
-SRFIs which you need, and note that some of the SRFIs here are designed to work
-only with particular implementations:
+some implementations, mostly to use all of SLIB.  Provided SRFIs:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
 * srfi 42  simply the reference implementation
 * srfi 63  SLIB's array.scm implemented as a srfi library
+* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test)
 
-The srfis are organised in the 'srfis' folder, by implementation.
+The SRFIs are organised in the 'srfis' folder, by implementation.
 
 ## R7RS Implementations
 

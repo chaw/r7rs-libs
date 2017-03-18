@@ -2,6 +2,7 @@
         (scheme write)
         (robin abbrev))
 
+;; Examples from Ruby Abbrev documentation
 (display (abbrev '("car" "cone")))
 (newline)
 (display (abbrev '("ruby" "rules")))

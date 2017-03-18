@@ -1,4 +1,4 @@
-;;;;"scanf.scm" implemenation of formatted input
+;;;;"scanf.scm" implementation of formatted input
 ;Copyright (C) 1996, 1997, 2003, 2010 Aubrey Jaffer
 ;
 ;Permission to copy this software, to modify it, to redistribute it,
