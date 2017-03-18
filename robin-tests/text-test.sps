@@ -16,6 +16,7 @@
 (test-equal "" (words->with-commas '()))
 (test-equal "a" (words->with-commas '("a")))
 (test-equal "a and b" (words->with-commas '("a" "b")))
+(test-equal "a and b" (words->with-commas '("a" "b") #t))
 (test-equal "a, b and c" (words->with-commas '("a" "b" "c")))
 (test-equal "a, b and c" (words->with-commas '("a" "b" "c") #f))
 (test-equal "a, b, and c" (words->with-commas '("a" "b" "c") #t))

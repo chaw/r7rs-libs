@@ -143,8 +143,6 @@ TODO: defmacro - required?
 * pnm
 * collect: TODO (requires yasos)
 * dynamic
-* hash-table: use (srfi 125) or (srfi 69)
-* hash
 * object
 * priority-queue
 * queue
@@ -157,7 +155,8 @@ TODO: defmacro - required?
 * chapter-order
 * sort: use (srfi 132) or (srfi 95)
 * topological-sort
-* hash: use (srfi 128)
+* hash-table: use (srfi 125) or (srfi 69)
+* hash: or use (srfi 128)
 * space-filling
 * hilbert-fill
 * peano-fill

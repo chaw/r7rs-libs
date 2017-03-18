@@ -81,7 +81,9 @@
                          (display (car rem))
                          (cond ((= 1 (length rem)) )
                                ((= 2 (length rem))
-                                (when add-comma? (display ","))
+                                (when (and add-comma? 
+                                           (> (length words) 2))
+                                  (display ","))
                                 (display " and "))
                                (else
                                  (display ", "))))
