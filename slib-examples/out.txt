@@ -1,5 +1,0 @@
-Args: 6 Option: 1
-option a: 1
-Args: 6 Option: 3
-option c
-Args: 6 Option: 4

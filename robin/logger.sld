@@ -105,7 +105,11 @@
     (define (log-add logger msg level)
       (if (valid-level? level)
         (when (level<=? level (level-get logger))
-          (display msg (port-get logger)))
+          (parameterize ((current-output-port (port-get logger)))
+                        (display level)
+                        (display ": ")
+                        (display msg)
+                        (newline)))
         (error "log-add given invalid level")))
 
     ;; log messages at a known level
@@ -116,13 +120,13 @@
     (define (log-info logger msg) (log-add logger msg 'info))
     (define (log-debug logger msg) (log-add logger msg 'debug))
 
-    ;; check if level is as indicated
-    (define (log-unknown? logger) (eq? 'unknown (level-get logger)))
-    (define (log-fatal? logger) (eq? 'fatal (level-get logger)))
-    (define (log-error? logger) (eq? 'error (level-get logger)))
-    (define (log-warn? logger) (eq? 'warn (level-get logger)))
-    (define (log-info? logger) (eq? 'info (level-get logger)))
-    (define (log-debug? logger) (eq? 'debug (level-get logger)))
+    ;; check if level permits message at given level to be logged
+    (define (log-unknown? logger) (level<=? 'unknown (level-get logger)))
+    (define (log-fatal? logger) (level<=? 'fatal (level-get logger)))
+    (define (log-error? logger) (level<=? 'error (level-get logger)))
+    (define (log-warn? logger) (level<=? 'warn (level-get logger)))
+    (define (log-info? logger) (level<=? 'info (level-get logger)))
+    (define (log-debug? logger) (level<=? 'debug (level-get logger)))
 
   ))
 
