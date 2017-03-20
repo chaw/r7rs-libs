@@ -2,6 +2,20 @@
 
 Some libraries written for, or converted to run in, R7RS Scheme.  
 
+## NLTK
+
+A repackaging of files from the Natural Language ToolKit:
+https://sourceforge.net/projects/snltk/
+
+* dfsa
+* lang-en
+* lang-hr 
+* n-grams
+* sequence
+* vectorspace
+
+(not cgi, as required R6RS libraries not present)
+
 ## PFDS
 
 A repackaging of the Purely Functional Data Structures, originally written for
@@ -230,7 +244,7 @@ some implementations, mostly to use all of SLIB.  Provided SRFIs:
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
 * srfi 42  simply the reference implementation
 * srfi 63  SLIB's array.scm implemented as a srfi library
-* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test)
+* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for all tests with Chibi
 
 The SRFIs are organised in the 'srfis' folder, by implementation.
 

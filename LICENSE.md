@@ -3,6 +3,10 @@
 The different libraries, and even code within the libraries, have different 
 licenses.
 
+## NLTK
+
+Released under the GNU GPL Version 3.0.
+
 ## PFDS
 
 Purely Functional Data Structures, originally written for R6RS Scheme:
