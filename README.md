@@ -1,7 +1,30 @@
 # Scheme Libraries
 
 Some libraries written for, or converted to run in, R7RS Scheme.  
-The converted libraries are from SLIB and SRFIs.
+
+## PFDS
+
+A repackaging of the Purely Functional Data Structures, originally written for
+R6RS Scheme: https://github.com/ijp/pfds
+
+* bounded-balance-tree 
+* deque
+* difference-list
+* fingertree - check 9 failing tests
+* hash-array-mapped-trie - all tests pass Chibi/Larceny - crashes Kawa
+* heap
+* priority-search-queue
+* queue
+* sequence - check 2 failing tests
+* set
+
+And, to support implementation:
+
+* alist
+* bitwise
+* lazy-list
+* list-helpers
+* vector
 
 ## Robin
 

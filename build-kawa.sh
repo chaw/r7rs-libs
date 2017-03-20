@@ -1,7 +1,25 @@
 # Compile Kawa files into bin folder
 OPTS="--r7rs -d bin "
+
 cd srfis/kawa
-kawa --r7rs -d ../../bin -C srfi/*.sld
+for file in srfi/*.sld
+do
+  kawa --r7rs -d ../../bin -C $file
+done
 cd ../..
-kawa $OPTS -C slib/*.sld
-kawa $OPTS -C robin/*.sld
+
+for file in slib/*.sld
+do
+  kawa $OPTS -C $file
+done
+
+for file in robin/*.sld
+do
+  kawa $OPTS -C $file
+done
+
+for file in pfds/*.sld
+do
+  kawa $OPTS -C $file
+done
+

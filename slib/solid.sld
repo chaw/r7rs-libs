@@ -68,8 +68,8 @@
           (slib array-for-each)
           (slib color)
           (slib color-space)
-          (slib daylight)
           (slib common)
+          (slib daylight)
           (slib printf)
           (srfi 63))
 

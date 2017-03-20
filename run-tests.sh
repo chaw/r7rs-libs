@@ -13,6 +13,11 @@ fi
 fi
 fi
 
+for file in pfds-tests/*-test.sps
+do
+  $PROG $file
+done
+
 for file in robin-tests/*-test.sps
 do
   $PROG $file

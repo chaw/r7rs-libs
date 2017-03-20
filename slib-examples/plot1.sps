@@ -4,7 +4,7 @@
         (scheme inexact)
         (slib charplot))
 
-(charplot:dimensions-set! '(20 55))
+(charplot:dimensions '(20 55))
 
 (define (make-points n)
   (if (zero? n)

@@ -1,6 +1,7 @@
 ;;;; "table.scm" Bluestone table on patio.
 
 (import (scheme base)
+        (scheme inexact)
         (robin constants)
         (slib solid))
 

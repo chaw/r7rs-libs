@@ -33,7 +33,7 @@
           (scheme write)
           (slib common)
           (slib common-list-functions)
-          (slib relation-database)
+          (slib relational-database)
           (only (srfi 1) delete every filter)
           (srfi 95))
 

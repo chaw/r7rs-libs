@@ -46,7 +46,7 @@
   (import (scheme base)
           (slib databases)
           (slib database-commands)
-          (slib relation-database))
+          (slib relational-database))
 
   (begin
 

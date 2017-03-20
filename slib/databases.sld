@@ -19,9 +19,6 @@
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 
-;; TODO: Needs transactions for file-lock! file-unlock!
-;; Also look at require and database types
-
 (define-library
   (slib databases)
   (export create-database
@@ -43,7 +40,7 @@
           (slib alist-table)
           (slib common)
           (slib printf)
-          (slib relation-database)
+          (slib relational-database)
           (slib transact)
           (only (srfi 1) take drop))
 
