@@ -42,6 +42,8 @@
           variance
           coefficient-of-variation
           standard-error-of-the-mean
+          ;
+          sign
           )
   (import (scheme base)
           (scheme case-lambda)
@@ -153,6 +155,12 @@
   (define (standard-error-of-the-mean lst)
     (/ (standard-deviation lst)
        (sqrt (length lst))))
+
+  (define (sign x)
+    (cond ((negative? x) -1)
+          ((positive? x) 1)
+          ((zero? x) 0)
+          (else '())))
 
   ))
 

@@ -1,10 +1,26 @@
 
 (define-library
   (slib common-list-functions)
-  (export position)
+  (export fold-left
+          fold-right
+          position)
   (import (scheme base))
 
   (begin
+
+    ;; note, R6RS fold-left has different order of args in f to SRFI 1
+    (define (fold-left f i l)
+      (if (null? l)
+        i
+        (fold-left f (f i (car l)) (cdr l))))
+
+    (define (fold-right f i l)
+      (define (iter rest)
+        (if (null? rest)
+          i
+          (f (car rest)
+             (iter (cdr rest)))))
+      (iter l))
 
     ;@
     ;; note, list-index in srfi-1 uses a procedure to test for the object

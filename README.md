@@ -40,6 +40,15 @@ And, to support implementation:
 * list-helpers
 * vector
 
+## Rebottled
+
+Some smaller libraries, containing a single or few files:
+
+* cl-pdf - Port of a Common Lisp library for writing PDF files
+* cl-pdf-utils
+* pregexp - Dorai Sitaram's Portable regular expressions for Scheme
+* schelog - not working on Kawa (due to call/cc)
+
 ## Robin
 
 A set of libraries written for R7RS Scheme: 

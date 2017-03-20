@@ -8,18 +8,16 @@ do
 done
 cd ../..
 
-for file in slib/*.sld
-do
-  kawa $OPTS -C $file
+# work through each directory in turn
+for dir in slib robin rebottled pfds nltk; do
+  for file in $dir/*.sld
+  do
+    kawa $OPTS -C $file
+  done
 done
 
-for file in robin/*.sld
-do
-  kawa $OPTS -C $file
-done
-
-for file in pfds/*.sld
-do
-  kawa $OPTS -C $file
-done
-
+# Create jar file to finish
+cd bin
+jar cf r7rs-libs.jar .
+cd ..
+mv bin/r7rs-libs.jar .
