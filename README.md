@@ -2,6 +2,9 @@
 
 Some libraries written for, or converted to run in, R7RS Scheme.  
 
+Download as a zip file, or clone the repository, using the 'Download or clone'
+button above.
+
 ## NLTK
 
 A repackaging of files from the Natural Language ToolKit:
@@ -42,7 +45,8 @@ And, to support implementation:
 
 ## Rebottled
 
-Some smaller libraries, containing a single or few files:
+Some smaller libraries, containing a single or few files, ported from various 
+sources:
 
 * cl-pdf - Port of a Common Lisp library for writing PDF files
 * cl-pdf-utils
@@ -74,7 +78,7 @@ at http://people.csail.mit.edu/jaffer/slib
 
 Version ported: 3b5 
 
-Small changes are:
+Main changes are:
 
 * (slib common) created to hold generally used definitions
 * code uses SRFIs where possible
@@ -173,7 +177,6 @@ moved, as required, into `(slib common)`.
   * without the macro support
 * database-browse
 * wt-tree
-  * TODO: Some tests fail on Kawa
 
 7: Other Packages
 
@@ -224,11 +227,6 @@ moved, as required, into `(slib common)`.
 7.6: Systems Interface
 
 * directory
-  * exports pathname->vicinity
-  * Working with Chibi Scheme
-  * Mostly working with Kawa - the pattern matching is not correct
-  * Mostly working with Larceny - the pattern matching is not correct
-    * and make-directory is exported (from primitives) but not into example
 
 (Remainder mostly in R7RS already: some added to `(slib common)` if necessary.)
 
@@ -248,60 +246,14 @@ Some of the libraries require the following SRFIs (in place of related SLIB file
 ## SRFIs
 
 A few SRFIs are implemented here.  These fill gaps in those SRFIs provided by
-some implementations, mostly to use all of SLIB.  Provided SRFIs:
+some implementations and support the above libraries.  Provided SRFIs:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
-* srfi 42  simply the reference implementation
+* srfi 42  simply the reference implementation (not needed)
+* srfi 59  for Chibi and Kawa
+* srfi 60  for Chibi
 * srfi 63  SLIB's array.scm implemented as a srfi library
-* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for all tests with Chibi
+* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for running tests with Chibi
 
 The SRFIs are organised in the 'srfis' folder, by implementation.
-
-## R7RS Implementations
-
-The libraries are currently tested on the following R7RS implementations.
-
-### Kawa
-
-A script is provided to compile all the files: 
-
-    > sh build-kawa.sh
-
-These put all the class files into ./bin  (equivalent .bat files provided for windows).
-
-To make the libraries available for importing, add the ./bin directory to your CLASSPATH.
-Alternatively, package up the class files into a jar file:
-
-    > cd bin
-    > jar cf r7rs-libs.jar slib srfi
-
-then include the jar file on your classpath before launching kawa (e.g. in 
-the kawa startup script: bin/kawa).
-
-### Larceny
-
-Add this directory to the search path when running programs, e.g.:
-
-    > larceny -path .:~/r7rs-libs/ -r7rs -program examples/plot1.sps
-
-### Chibi
-
-Add this directory to the search path when running programs, e.g.:
-
-    > chibi-scheme -I ~/r7rs-libs/:~/r7rs-libs/srfis/chibi/ examples/plot1.sps
-
-### Cyclone
-
-Cyclone compiles scheme code to self-contained executables.  It works with 
-some of SLIB currently (there are limitations in number sizes, srfis etc).
-
-Cyclone requires the library files to be compiled before compiling the 
-programs.
-
-e.g. to compile the examples/alist.sps program and run it:
-
-    > cyclone slib/alist.sld
-    > cyclone examples/alist.sps
-    > examples/alist
-
 

@@ -70,16 +70,18 @@
         ((inexact) #t)
         ((object-hash) #f)
         ((real) #t)  ;; ?? same as inexact?
-        ((system) #f) ;; TODO
         (else
           (error "unknown feature " feature))))
 
     ;; Use underlying 'system' implementation, if it exists
-    ;; TODO: find this using cond-expand
-    (define system
-      (if (provided? 'system)
-        identity ; system
-        (lambda (str) 1)))
+    (cond-expand
+      (kawa
+        (define (system str)
+          (invoke (invoke-static java.lang.Runtime 'getRuntime) 'exec str)))
+      (larceny
+        (import (primitives system)))
+      (else ; raise error, if not
+        (error "system calls not supported on this implementation")))
 
     ;@
     (define slib:warn

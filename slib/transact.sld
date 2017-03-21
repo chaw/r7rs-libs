@@ -40,7 +40,8 @@
           (slib line-io)
           (slib printf)
           (slib scanf)
-          (only (srfi 13) string-contains string-index-right))
+          (only (srfi 13) string-contains string-index-right)
+          (only (srfi 59) pathname->vicinity))
 
   (begin
 

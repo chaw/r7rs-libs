@@ -18,22 +18,20 @@
 ;each case.
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
-;; -- adapted for R7RS implementations
-;;    1. Chibi Scheme
-;;    2. Kawa Scheme
-;;    3. Larceny Scheme -- TODO make-directory is not working
+;;
+;; Note, minor differences in which files are listed in a directory
 
 (define-library
   (slib directory)
   (export current-directory
           make-directory
           directory-for-each
-          directory*-for-each
-          pathname->vicinity)
+          directory*-for-each)
   (import (scheme base) 
           (scheme case-lambda)
-          (slib common)
-          (slib filename))
+          (slib common) 
+          (slib filename)
+          (only (srfi 59) pathname->vicinity))
 
   ;; functions must be defined in platform specific ways
   (cond-expand 
@@ -48,31 +46,16 @@
         (define current-directory current-path)
         (define make-directory create-directory)
         (define (list-directory-files dir)
-          (map (lambda (file) (invoke file 'toString)) 
+          (map (lambda (file) ; list-directory-files must return just the filenames
+                 (let ((path (invoke file 'toString)))
+                   (string-copy path (string-length (pathname->vicinity path)))))
                (invoke (java.io.File dir) 'listFiles)))))
     (larceny
-      (import (primitives current-directory make-directory list-directory))
+      (import (primitives current-directory list-directory))
       (begin 
         ; current-directory exported
-        ; make-directory exported
+        (define (make-directory str) (system (string-append "mkdir " str)))
         (define list-directory-files list-directory)))
-    (else
-      (error "(slib directory) not supported for current R7RS Scheme implementation")))
-
-  (cond-expand
-    ((library (chibi pathname))
-     (import (chibi pathname))
-     (begin
-       (define pathname->vicinity path-directory)))
-    (kawa
-      (define (pathname->vicinity str)
-        (let* ((path (path-directory str))
-               (chars (reverse (string->list path))))
-          (if (char=? #\. (car chars)) ; Kawa adds a 'dot' to end, so remove it
-            (list->string (reverse (cdr chars)))
-            path))))
-    ((library (srfi 59)) ; works on Larceny
-      (import (only (srfi 59) pathname->vicinity)))
     (else
       (error "(slib directory) not supported for current R7RS Scheme implementation")))
 
@@ -91,7 +74,7 @@
 
     (define (directory*-for-each proc path-glob)
       (let* ((dir (pathname->vicinity path-glob))
-             (glob (string-copy path-glob (+ 1 (string-length dir)))))
+             (glob (string-copy path-glob (string-length dir))))
         (directory-for-each proc
                             (if (equal? "" dir) "." dir)
                             glob)))

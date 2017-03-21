@@ -28,3 +28,5 @@
   (check-error (sequence-ref s -1))
   (check-error (sequence-ref s 3)))
 
+(test-end)
+

@@ -24,6 +24,8 @@
 ;; Preamble
 ;;
 
+;; Note: Kawa needs = not eq? in the lset operations
+
 (import (scheme base)
         (slib format)
         (slib wt-tree)
@@ -150,7 +152,7 @@
 (define (prop-wt-tree/union-model alst1 alst2)
   (let* ((l1 (uniq (sort1 (map car alst1))))
 	 (l2 (uniq (sort1 (map car alst2))))
-	 (model (sort1 (lset-union eq? l1 l2)))
+	 (model (sort1 (lset-union = l1 l2)))
 	 (t1 (from-alist alst1))
 	 (t2 (from-alist alst2))
 	 (this (sort1 (to-list (wt-tree/union t1 t2)))))
@@ -164,7 +166,7 @@
 (define (prop-wt-tree/intersection-model alst1 alst2)
   (let* ((l1 (uniq (sort1 (map car alst1))))
 	 (l2 (uniq (sort1 (map car alst2))))
-	 (model (sort1 (lset-intersection eq? l1 l2)))
+	 (model (sort1 (lset-intersection = l1 l2)))
 	 (t1 (from-alist alst1))
 	 (t2 (from-alist alst2))
 	 (this (sort1 (to-list (wt-tree/intersection t1 t2)))))
@@ -178,7 +180,7 @@
 (define (prop-wt-tree/difference-model alst1 alst2)
   (let* ((l1 (uniq (sort1 (map car alst1))))
 	 (l2 (uniq (sort1 (map car alst2))))
-	 (model (sort1 (lset-difference eq? l1 l2)))
+	 (model (sort1 (lset-difference = l1 l2)))
 	 (t1 (from-alist alst1))
 	 (t2 (from-alist alst2))
 	 (this (sort1 (to-list (wt-tree/difference t1 t2)))))
@@ -190,21 +192,22 @@
 
 (define test-alist
   (list
-   (list "alist->wt-tree" prop-alist->wt-tree 'alist)
-   (list "wt-tree/index" prop-wt-tree/index 'ulist)
-   (list "wt-tree/fold" prop-wt-tree/fold 'alist)
-   (list "wt-tree/add" prop-wt-tree/add 'alist 'int 'int)
-   (list "wt-tree/delete" prop-wt-tree/delete 'alist)
-   (list "wt-tree/delete-min" prop-wt-tree/delete-min 'alist)
-   (list "wt-tree/lookup" prop-wt-tree/lookup 'alist)
-   (list "wt-tree/add-lookup" prop-wt-tree/add-lookup 'alist 'int 'int)
-   (list "wt-tree/union" prop-wt-tree/union 'alist 'alist)
-   (list "wt-tree/union-merge" prop-wt-tree/union-merge 'alist 'alist)
-   (list "wt-tree/union-model" prop-wt-tree/union-model 'alist 'alist)
-   (list "wt-tree/intersection" prop-wt-tree/intersection 'alist 'alist)
-   (list "wt-tree/intersection-model" prop-wt-tree/intersection-model 'alist 'alist)
-   (list "wt-tree/difference" prop-wt-tree/difference 'alist 'alist)
-   (list "wt-tree/difference-model" prop-wt-tree/difference-model 'alist 'alist)))
+    (list "alist->wt-tree" prop-alist->wt-tree 'alist)
+    (list "wt-tree/index" prop-wt-tree/index 'ulist)
+    (list "wt-tree/fold" prop-wt-tree/fold 'alist)
+    (list "wt-tree/add" prop-wt-tree/add 'alist 'int 'int)
+    (list "wt-tree/delete" prop-wt-tree/delete 'alist)
+    (list "wt-tree/delete-min" prop-wt-tree/delete-min 'alist)
+    (list "wt-tree/lookup" prop-wt-tree/lookup 'alist)
+    (list "wt-tree/add-lookup" prop-wt-tree/add-lookup 'alist 'int 'int)
+    (list "wt-tree/union" prop-wt-tree/union 'alist 'alist)
+    (list "wt-tree/union-merge" prop-wt-tree/union-merge 'alist 'alist)
+    (list "wt-tree/union-model" prop-wt-tree/union-model 'alist 'alist)
+    (list "wt-tree/intersection" prop-wt-tree/intersection 'alist 'alist)
+    (list "wt-tree/intersection-model" prop-wt-tree/intersection-model 'alist 'alist)
+    (list "wt-tree/difference" prop-wt-tree/difference 'alist 'alist)
+    (list "wt-tree/difference-model" prop-wt-tree/difference-model 'alist 'alist)
+    ))
 
 ;;
 ;; main

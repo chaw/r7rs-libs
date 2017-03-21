@@ -20,9 +20,9 @@ your programs.
 
 ## Kawa
 
-For use in Kawa I recommend precompiling the libraries into class files.  The script 'build-kawa',
-for bash or msdos, compiles all the libraries and packs them into a single jar file: 
-r7rs-libs.jar
+For use in Kawa I recommend precompiling the libraries into class files.  The
+script 'build-kawa', for bash or msdos, compiles all the libraries and packs
+them into a single jar file: r7rs-libs.jar
 
 Add this jar file to your CLASSPATH for use within Kawa.
 
