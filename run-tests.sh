@@ -13,23 +13,10 @@ fi
 fi
 fi
 
-for file in nltk-tests/*-test.sps
-do
-  $PROG $file
-done
-
-for file in pfds-tests/*-test.sps
-do
-  $PROG $file
-done
-
-for file in robin-tests/*-test.sps
-do
-  $PROG $file
-done
-
-for file in slib-tests/*-test.sps
-do
-  $PROG $file
+for dir in nltk-tests pfds-tests robin-tests slib-tests; do
+  for file in $dir/*-test.sps
+  do
+    $PROG $file
+  done
 done
 

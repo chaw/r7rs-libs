@@ -28,5 +28,9 @@
 (test-approx-same 52.705 (coefficient-of-variation '(1 2 3 4 5)))
 (test-approx-same 0.707 (standard-error-of-the-mean '(1 2 3 4 5)))
 
+(test-equal 1 (sign 3))
+(test-equal 0 (sign 0))
+(test-equal -1 (sign -3))
+
 (test-end)
 
