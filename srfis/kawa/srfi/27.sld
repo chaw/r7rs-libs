@@ -16,28 +16,31 @@
           random-source-make-reals)
   (import (scheme base)
           (class java.lang
-                 System)
+                 Long System)
+          (class java.lang.reflect
+                 Field)
           (class java.math
                  BigInteger)
           (class java.util
                  Random)
-          (srfi 60))
+          (srfi 60)
+          (only (kawa base) as))
 
   (begin
 
     ;; -- private method
 
-    (define MAX-INTEGER 2147483647) ; ??? java.lang.Integer:MAX_VALUE)
-    (define MAX-LONG 9223372036854775807) ; ??? java.lang.Long:MAX_VALUE)
+    (define MAX-INTEGER java.lang.Integer:MAX_VALUE)
+    (define MAX-LONG java.lang.Long:MAX_VALUE)
 
     ;; Uses BigInteger to permit arbitrarily large n
     (define (random-integer-from-source source n)
       (if (<= n MAX-LONG)
-        (invoke source 'nextInt n)
+        ((as Random source):nextInt n)
         (let* ((input (BigInteger (number->string n)))
-               (bits (invoke input 'bitLength)))
-          (do ((r (BigInteger bits source)
-                  (BigInteger bits source)))
+               (bits (input:bitLength)))
+          (do ((r (BigInteger bits (as Random source))
+                  (BigInteger bits (as Random source))))
             ((< r input) r)))))
 
     ;; -- exported methods
@@ -48,7 +51,7 @@
       (random-integer-from-source default-random-source n))
 
     (define (random-real)
-      (invoke default-random-source 'nextFloat))
+      (default-random-source:nextFloat))
 
     (define (make-random-source)
       (Random 0))
@@ -58,16 +61,16 @@
 
     ;; Use reflection to retrieve value of seed in source
     (define (random-source-state-ref source)
-      (let ((field (invoke (invoke source 'getClass) 'getDeclaredField "seed")))
-        (invoke field 'setAccessible #t)
-        (logxor (invoke (invoke field 'get source) 'longValue)
+      (let ((field ((source:getClass):getDeclaredField "seed")))
+        ((as Field field):setAccessible #t)
+        (logxor ((as Long ((as Field field):get source)):longValue)
                 #x5DEECE66D)))
 
     (define (random-source-state-set! source seed)
-      (invoke source 'setSeed seed))
+      ((as Random source):setSeed seed))
 
     (define (random-source-randomize! source)
-      (invoke source 'setSeed (invoke-static System 'currentTimeMillis)))
+      ((as Random source):setSeed (System:currentTimeMillis)))
 
     ;; constructs a long from i j in a simple but deterministic manner
     (define (random-source-pseudo-randomize! source i j)
@@ -79,7 +82,7 @@
       (lambda (n) (random-integer-from-source source n)))
 
     (define (random-source-make-reals source)
-      (lambda () (invoke source 'nextFloat)))
+      (lambda () ((as Random source):nextFloat)))
 
     ))
 

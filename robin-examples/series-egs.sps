@@ -25,6 +25,10 @@
 
 (try-it '(collect-fn (lambda () 3) + (scan '(1 2 3))))
 
+(try-it '(positions (scan '(a #f b c #f #f))))
+
+(try-it '(choose (scan '(#f #t #t #f)) (scan '(1 2 3 4))))
+
 ;; -- try with vectors
 
 (try-it '(collect-sum (choose-if positive? (scan #(1 -2 3 -4)))))

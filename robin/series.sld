@@ -11,6 +11,8 @@
     ; transducers
     choose-if
     subseries
+    positions
+    choose
     ; collectors
     collect-sum
     collect
@@ -57,6 +59,23 @@
     (define (subseries series start end)
       (make-series (take (drop (series-lst series) start)
                          (- end start) )))
+
+    ;; return a new series of positions of non-#f items (in Lisp, nil)
+    (define (positions series)
+      (do ((i 0 (+ 1 i))
+           (rem (series-lst series) (cdr rem))
+           (res '() (if (not (car rem))
+                      res
+                      (cons i res))))
+        ((null? rem) (make-series (reverse res)))))
+
+    ;; return a new series with members of second series only where first is not #f
+    (define (choose flags series)
+      (make-series 
+        (remove not 
+                (map (lambda (flag item) (if flag item flag))
+                     (series-lst flags)
+                     (series-lst series)))))
 
     ;; Collectors
 

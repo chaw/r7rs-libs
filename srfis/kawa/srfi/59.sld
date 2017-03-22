@@ -12,7 +12,8 @@
           pathname->vicinity 
           vicinity:suffix?)
   (import (scheme base)
-          (scheme process-context))
+          (scheme process-context)
+          (only (kawa lib files) path-directory))
 
   (begin
 

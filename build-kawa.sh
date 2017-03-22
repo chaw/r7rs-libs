@@ -2,10 +2,12 @@
 OPTS="--r7rs -d bin "
 
 cd srfis/kawa
-for file in srfi/*.sld
-do
-  kawa --r7rs -d ../../bin -C $file
-done
+# 27 needs compiling as a Java module
+# 63 as a Scheme module
+kawa -d ../../bin -C srfi/27.sld
+kawa --r7rs -d ../../bin -C srfi/42.sld
+kawa --r7rs -d ../../bin -C srfi/59.sld
+kawa --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 
 # work through each directory in turn

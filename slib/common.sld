@@ -84,8 +84,10 @@
     ;; Use underlying 'system' implementation, if it exists
     (cond-expand
       (kawa
-        (define (system str)
-          (invoke (invoke-static java.lang.Runtime 'getRuntime) 'exec str)))
+        (import (only (kawa base) as invoke invoke-static))
+        (begin
+          (define (system str)
+            (invoke (invoke-static java.lang.Runtime 'getRuntime) 'exec (as String str)))))
       (larceny
         (import (primitives system)))
       (else ; raise error, if not
