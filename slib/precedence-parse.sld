@@ -461,7 +461,7 @@
     ;;; On MS-DOS systems, <ctrl>-Z (26) needs to be ignored in order to
     ;;; avoid problems at end of files.
     (case (software-type)
-      ((ms-dos)
+      ((windows ms-dos)
        (if (not (char-whitespace? (integer->char 26)))
          (prec:define-grammar (tok:char-group 0 (integer->char 26) #f))
          )))

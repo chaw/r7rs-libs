@@ -2,7 +2,7 @@
 
 Some libraries written for, or converted to run in, R7RS Scheme.  
 
-Download as a zip file, or clone the repository, using the 'Download or clone'
+Download as a zip file, or clone the repository, using the 'Clone or Download'
 button above.
 
 ## NLTK

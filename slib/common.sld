@@ -33,7 +33,15 @@
 
     ;;@ (software-type) should be set to the generic operating system type.
     ;;; unix, vms, macos, amiga and ms-dos are supported.
-    (define (software-type) 'unix) ;; TODO: use posix/windows flag in (features)
+    (define (software-type) 
+      (cond ((memv 'windows (features))
+             'windows)
+            ((memv 'posix (features))
+             'posix)
+            ((memv 'unix (features))
+             'unix)
+            (else
+              'unknown)))
 
     (define gentemp
       (let ((c 100))
@@ -81,7 +89,7 @@
       (larceny
         (import (primitives system)))
       (else ; raise error, if not
-        (error "system calls not supported on this implementation")))
+        (define (system str) (error "system calls not supported on this implementation"))))
 
     ;@
     (define slib:warn

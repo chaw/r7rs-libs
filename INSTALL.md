@@ -9,7 +9,7 @@ Download and unpack these files into a directory, say SCHEME_LIBS.
 
 Call your implementation with SCHEME_LIBS in its library path.  e.g.
 
-    > chibi -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
+    > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
 
 Note that Larceny has all required SRFIs to support the libraries.  For Chibi, you also need 
