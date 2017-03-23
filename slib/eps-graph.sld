@@ -650,8 +650,8 @@
                           (pair? (caar args))))
                  (apply graph:plot (cons tmp args)))
                 (else (let ((dats (apply functions->array args)))
-                        (graph:plot tmp dats "" ""))))
-          (system (string-append "gv '" tmp "'")))
+                        (graph:plot tmp dats "" "")))))
+;          (system (string-append "gv '" tmp "'"))) ; gv not universally available
         ".eps"))
 
     ;; Writes the graph library:
@@ -1137,110 +1137,6 @@
         "gsave"
         "% End of \"graph-eps\""
         ))
-
-
-    ;;@node Example Graph,  , Legacy Plotting, PostScript Graphing
-    ;;@subsubsection Example Graph
-
-    ;;@noindent
-    ;;The file @file{am1.5.html}, a table of solar irradiance, is fetched
-    ;;with @samp{wget} if it isn't already in the working directory.  The
-    ;;file is read and stored into an array, @var{irradiance}.
-    ;;
-    ;;@code{create-postscript-graph} is then called to create an
-    ;;encapsulated-PostScript file, @file{solarad.eps}.  The size of the
-    ;;page is set to 600 by 300.  @code{whole-page} is called and leaves
-    ;;the rectangle on the PostScript stack.  @code{setup-plot} is called
-    ;;with a literal range for x and computes the range for column 1.
-    ;;
-    ;;Two calls to @code{top-title} are made so a different font can be
-    ;;used for the lower half.  @code{in-graphic-context} is used to limit
-    ;;the scope of the font change.  The graphing area is outlined and a
-    ;;rule drawn on the left side.
-    ;;
-    ;;Because the X range was intentionally reduced,
-    ;;@code{in-graphic-context} is called and @code{clip-to-rect} limits
-    ;;drawing to the plotting area.  A black line is drawn from data
-    ;;column 1.  That line is then overlayed with a mountain plot of the
-    ;;same column colored "Bright Sun".
-    ;;
-    ;;After returning from the @code{in-graphic-context}, the bottom ruler
-    ;;is drawn.  Had it been drawn earlier, all its ticks would have been
-    ;;painted over by the mountain plot.
-    ;;
-    ;;The color is then changed to @samp{seagreen} and the same graphrect
-    ;;is setup again, this time with a different Y scale, 0 to 1000.  The
-    ;;graphic context is again clipped to @var{plotrect}, linedash is set,
-    ;;and column 2 is plotted as a dashed line.  Finally the rightedge is
-    ;;ruled.  Having the line and its scale both in green helps
-    ;;disambiguate the scales.
-
-    ;;@example
-    ;;(require 'eps-graph)
-    ;;(require 'line-i/o)
-    ;;(require 'string-port)
-    ;;
-    ;;(define irradiance
-    ;;  (let ((url "http://www.pv.unsw.edu.au/am1.5.html")
-    ;;        (file "am1.5.html"))
-    ;;    (define (read->list line)
-    ;;      (define elts '())
-    ;;      (call-with-input-string line
-    ;;        (lambda (iprt) (do ((elt (read iprt) (read iprt)))
-    ;;                           ((eof-object? elt) elts)
-    ;;                         (set! elts (cons elt elts))))))
-    ;;    (if (not (file-exists? file))
-    ;;        (system (string-append "wget -c -O" file " " url)))
-    ;;    (call-with-input-file file
-    ;;      (lambda (iprt)
-    ;;        (define lines '())
-    ;;        (do ((line (read-line iprt) (read-line iprt)))
-    ;;            ((eof-object? line)
-    ;;             (let ((nra (make-array (A:floR64b)
-    ;;                                      (length lines)
-    ;;                                      (length (car lines)))))
-    ;;               (do ((lns lines (cdr lns))
-    ;;                    (idx (+ -1 (length lines)) (+ -1 idx)))
-    ;;                   ((null? lns) nra)
-    ;;                 (do ((kdx (+ -1 (length (car lines))) (+ -1 kdx))
-    ;;                      (lst (car lns) (cdr lst)))
-    ;;                     ((null? lst))
-    ;;                   (array-set! nra (car lst) idx kdx)))))
-    ;;          (if (and (positive? (string-length line))
-    ;;                   (char-numeric? (string-ref line 0)))
-    ;;              (set! lines (cons (read->list line) lines))))))))
-    ;;
-    ;;(let ((xrange '(.25 2.5)))
-    ;;  (create-postscript-graph
-    ;;   "solarad.eps" '(600 300)
-    ;;   (whole-page)
-    ;;   (setup-plot xrange (column-range irradiance 1))
-    ;;   (title-top
-    ;;    "Solar Irradiance   http://www.pv.unsw.edu.au/am1.5.html")
-    ;;   (in-graphic-context
-    ;;    (set-font "Helvetica-Oblique" 12)
-    ;;    (title-top
-    ;;     ""
-    ;;     "Key Centre for Photovoltaic Engineering UNSW - Air Mass 1.5 Global Spectrum"))
-    ;;   (outline-rect plotrect)
-    ;;   (rule-vertical leftedge "W/(m^2.um)" 10)
-    ;;   (in-graphic-context (clip-to-rect plotrect)
-    ;;                       (plot-column irradiance 0 1 'line)
-    ;;                       (set-color "Bright Sun")
-    ;;                       (plot-column irradiance 0 1 'mountain)
-    ;;                       )
-    ;;   (rule-horizontal bottomedge "Wavelength in .um" 5)
-    ;;   (set-color 'seagreen)
-    ;;
-    ;;   (setup-plot xrange '(0 1000) graphrect)
-    ;;   (in-graphic-context (clip-to-rect plotrect)
-    ;;                       (set-linedash 5 2)
-    ;;                       (plot-column irradiance 0 2 'line))
-    ;;   (rule-vertical rightedge "Integrated .W/(m^2)" -10)
-    ;;   ))
-    ;;
-    ;;(system "gv solarad.eps")
-    ;;@end example
 
     ))
 

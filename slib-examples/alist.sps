@@ -17,7 +17,8 @@
                                           "\n")))
                 alist)
 
-;; TODO: Remover removes all remaining associations ?
+(display "---------------\n")
+
 (define rem (alist-remover string-ci=?))
 (set! alist (rem alist "ben"))
 

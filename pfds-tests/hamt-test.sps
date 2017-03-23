@@ -1,7 +1,7 @@
 ;; Original Test Suite from https://github.com/ijp/pfds
 ;; converted to use SRFI 64 tests by Peter Lane
 
-(import (scheme base)
+(import (scheme base) (scheme write)
         (pfds hash-array-mapped-trie)
         (only (srfi 1) fold iota)
         (srfi 64)
@@ -70,6 +70,8 @@
               (map (lambda (x) (hamt-ref h x #f)) (list "a" "b" "c"))))
 ;; hamt->alist / distinct keys means left inverse
 (let ((l '(("a" . 1) ("b" . 2) ("c" . 3))))
+  (display (alist->hamt l string-hash string=?)) (newline)
+  (hamt->alist (alist->hamt l string-hash string=?))
   (test-compare compare-string-alist l
                 (hamt->alist (alist->hamt l string-hash string=?))))
 
