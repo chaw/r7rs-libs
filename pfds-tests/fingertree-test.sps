@@ -6,16 +6,8 @@
                 (make-fingertree %make-fingertree)
                 (list->fingertree %list->fingertree))
         (only (pfds list-helpers) fold-left)
-        (srfi 64))
-
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
+        (srfi 64)
+        (robin srfi64-utils))
 
 ;; Right now, I am not testing the monoidal parts of fingertrees, so
 ;; we use constructor that replaces these with arbitrary values

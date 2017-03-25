@@ -4,16 +4,8 @@
 (import (scheme base)
         (pfds heap)
         (srfi 64)
+        (robin srfi64-utils)
         (srfi 95))
-
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
 
 (test-begin "pfds-heap")
 

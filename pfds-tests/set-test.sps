@@ -6,24 +6,8 @@
         (only (pfds list-helpers) fold-left)
         (only (srfi 1) any every)
         (srfi 64)
+        (robin srfi64-utils)
         (srfi 95))
-
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-                ((check-error code)
-                 (guard (err
-                          (else (test-assert #t)))
-                        code
-                        (test-assert #f)))))
-
-(define-syntax check-no-error
-  (syntax-rules ()
-                ((check-error code)
-                 (guard (err
-                          (else (test-assert #f)))
-                        code
-                        (test-assert #t)))))
 
 (test-begin "pfds-set")
 

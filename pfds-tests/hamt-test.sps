@@ -8,18 +8,6 @@
         (only (srfi 69) string-hash)
         (srfi 95))
 
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
-
-(define (test-compare proc l1 l2)
-  (test-assert (proc l1 l2)))
-
 (define (make-string-hamt)
   (make-hamt string-hash string=?))
 

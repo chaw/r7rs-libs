@@ -4,26 +4,10 @@
 (import (scheme base)
         (pfds bounded-balance-tree)
         (srfi 64)
+        (robin srfi64-utils)
         (srfi 95))
 
 (test-begin "pfds-bounded-balance-tree")
-
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
-
-(define-syntax check-no-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #f)))
-            code
-            (test-assert #t)))))
 
 ;; empty tree
 (test-assert (bbtree? (make-bbtree <)))

@@ -5,18 +5,10 @@
         (pfds deque)
         (only (srfi 1) fold)
         (srfi 64)
+        (robin srfi64-utils)
         (srfi 95))
 
 (test-begin "pfds-deque")
-
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
 
 ;; empty-deque
 (test-assert (deque? (make-deque)))

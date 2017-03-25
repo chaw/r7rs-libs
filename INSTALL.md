@@ -5,7 +5,8 @@ may be needed to make them work completely on other implementations of R7RS.
 
 In most cases, installation is straightforward:
 
-Download and unpack these files into a directory, say SCHEME_LIBS.
+Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
+button above: the directory containing the files is SCHEME_LIBS.
 
 Call your implementation with SCHEME_LIBS in its library path.  e.g.
 
@@ -29,4 +30,11 @@ Add this jar file to your CLASSPATH for use within Kawa.
 Alternatively, for making the libraries permanently available, place the .jar file in your 
 kawa/lib directory, and add the .jar file to the list in KAWA_EXTRA_PATH in the relevant 
 kawa/bin script.
+
+### Note: method names with colons
+
+Kawa uses the colon in symbol names specially to refer to Java method calls.
+When you want to mix Java calls with libraries containing names with colons,
+you should rename on import or use the | ... | vertical bar syntax when
+referring to the library names.
 

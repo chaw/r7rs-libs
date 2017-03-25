@@ -2,9 +2,6 @@
 
 Some libraries written for, or converted to run in, R7RS Scheme.  
 
-Download as a zip file, or clone the repository, using the 'Clone or Download'
-button above.
-
 ## NLTK
 
 A repackaging of files from the Natural Language ToolKit:
@@ -57,11 +54,14 @@ sources:
 
 A set of libraries written for R7RS Scheme: 
 
-* abbrev - create set of unambiguous abbreviations for strings (like Ruby's Abbrev class)
+* abbrev - creates a set of unambiguous abbreviations for strings (like Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
 * disjoint-set - data structure to hold sets of items in disjoint sets
 * logger - a logging framework (based on Ruby's Logger class)
-* statistics - some descriptive statistical functions for lists
+* series - a mostly complete (though inefficient) version of Richard Waters' Lisp Series package
+** Larceny fails with scan-file
+* srfi64-utils - some helper functions for SRFI 64 testing
+* statistics - some descriptive statistical functions
 * text - formatting or manipulating text documents
 
 ## SLIB

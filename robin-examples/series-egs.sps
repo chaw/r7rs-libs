@@ -1,38 +1,24 @@
-;; EXPERIMENTAL - only runs in Chibi Scheme currently
+;; Examples of using Series package
+;; -- see tests for main examples
 
 (import (scheme base)
         (scheme eval)
+        (scheme file)
+        (scheme write)
         (robin series)
-        (slib format))
+        (slib format)
+        (slib line-io))
 
-(define (try-it expr)
-  (format #t "~a~&=> ~a~&" expr (eval expr (environment '(scheme base)
-                                                        '(scheme inexact)
-                                                        '(robin series)))))
+(define *test-file* "test-series.txt")
 
-;; Examples from Waters - Part 1
+;; write a test file
+(collect-file *test-file* (scan '("a line" "a second line")) write-line)
 
-(try-it '(collect-sum (scan '(1 2 3 4))))
+;; read from a file, and display each line
+(let ((file-scanner (scan-file *test-file*)))
+  (collect
+    (map-fn (lambda (line) (format #t "> ~a~&" line))
+            file-scanner)))
 
+(delete-file *test-file*)
 
-;; -- try first with lists
-
-(try-it '(collect-sum (choose-if positive? (scan '(1 -2 3 -4)))))
-
-; TODO Requires x to be operated on by multiple collectors
-;(try-it '(let ((x (subseries (scan-range 100 0 2) 0 5)))
-;           (values (collect x) (collect-sum x))))
-
-(try-it '(collect (map-fn sqrt (scan '(4 9 16)))))
-
-(try-it '(collect (scan-fn (lambda () 3) (lambda (n) (- n 1)) negative?)))
-
-(try-it '(collect-fn (lambda () 3) + (scan '(1 2 3))))
-
-(try-it '(collect (positions (scan '(a #f b c #f #f)))))
-
-(try-it '(collect (choose (scan '(#f #t #t #f)) (scan '(1 2 3 4)))))
-
-;; -- try with vectors
-
-(try-it '(collect-sum (choose-if positive? (scan #(1 -2 3 -4)))))
