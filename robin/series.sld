@@ -45,9 +45,13 @@
   (export 
     ; series datatype
     series
+    series?
     make-series
     ; scanners 
     scan
+    scan-list
+    scan-vector
+    scan-string
     scan-range
     scan-sublists
     scan-alist
@@ -144,26 +148,41 @@
 
     ;;  ***** Scanners *****
 
-    (define (scan seq) ;; TODO add Strings
-      (cond ((list? seq)
-             (new-series (let ((lst seq))
-                           (lambda (query)
-                             (case query
-                               ((more?) (not (null? lst)))
-                               ((next) (let ((next (car lst)))
-                                         (set! lst (cdr lst))
-                                         next))
-                               (else
-                                 (error "unknown query to series")))))))
-            ((vector? seq)
-             (new-series (let ((posn 0))
-                           (lambda (query)
-                             (case query
-                               ((more?) (< posn (vector-length seq)))
-                               ((next) (set! posn (+ 1 posn))
-                                       (vector-ref seq (- posn 1)))
-                               (else
-                                 (error "unknown query to series")))))))))
+    (define (scan seq) 
+      (cond ((list? seq) (scan-list seq))
+            ((vector? seq) (scan-vector seq))
+            ((string? seq) (scan-string seq))))
+
+    (define (scan-list seq)
+      (new-series (let ((lst seq))
+                    (lambda (query)
+                      (case query
+                        ((more?) (not (null? lst)))
+                        ((next) (let ((next (car lst)))
+                                  (set! lst (cdr lst))
+                                  next))
+                        (else
+                          (error "unknown query to series")))))))
+
+    (define (scan-vector seq)
+      (new-series (let ((posn 0))
+                    (lambda (query)
+                      (case query
+                        ((more?) (< posn (vector-length seq)))
+                        ((next) (set! posn (+ 1 posn))
+                                (vector-ref seq (- posn 1)))
+                        (else
+                          (error "unknown query to series")))))))
+
+    (define (scan-string seq)
+      (new-series (let ((posn 0))
+                    (lambda (query)
+                      (case query
+                        ((more?) (< posn (string-length seq)))
+                        ((next) (set! posn (+ 1 posn))
+                                (string-ref seq (- posn 1)))
+                        (else
+                          (error "unknown query to series")))))))
 
     ; scan-multiple
 

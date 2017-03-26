@@ -56,6 +56,7 @@ sources:
 * cl-pdf - Port of a Common Lisp library for writing PDF files
 * cl-pdf-utils
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme
+* quaternion - Dorai Sitaram's quaternion numbers
 * schelog - Dorai Sitaram's logic-style programming in Scheme
   * not working on Kawa (due to call/cc)
 

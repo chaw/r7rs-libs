@@ -125,5 +125,9 @@
 ;; tests with vectors
 (test-equal 4 (collect-sum (choose-if positive? (scan #(1 -2 3 -4)))))
 
+;; tests with strings
+(test-equal 2 (collect-length (choose-if (lambda (c) (memv c '(#\a #\e #\i #\o #\u)))
+                                         (scan "scheme"))))
+
 (test-end)
 
