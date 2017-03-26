@@ -12,12 +12,11 @@
           pathname->vicinity 
           vicinity:suffix?)
   (import (scheme base)
+          (scheme process-context)
           (chibi pathname))
 
   (begin
     
-    (define program-vicinity home-vicinity)
-
     ;; (This function probably means the location of SLIB)
     ;; If SCHEME_LIBRARY_PATH not defined, return current directory
     (define (library-vicinity)
@@ -73,6 +72,8 @@
                     (else 
                       '(#\/)))))
         (lambda (chr) (and (memv chr suffi) #t))))
+
+    (define program-vicinity home-vicinity)
 
 
     ))

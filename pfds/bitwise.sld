@@ -15,6 +15,7 @@
 (define-library 
   (pfds bitwise)
   (export bitwise-bit-set
+          bitwise-bit-set?
           bitwise-bit-unset
           bitwise-arithmetic-shift-right
           )
@@ -25,6 +26,12 @@
 
     (define (bitwise-bit-set bits i)
       (bitwise-ior bits (arithmetic-shift 1 i)))
+
+    (define (bitwise-bit-set? bits i)
+      (not (zero?
+             (bitwise-and
+               (arithmetic-shift 1 i)
+               bits))))
 
     (define (bitwise-bit-unset bits i)
       (bitwise-and bits (bitwise-not (arithmetic-shift 1 i))))

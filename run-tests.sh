@@ -20,3 +20,11 @@ for dir in nltk-tests pfds-tests rebottled-tests robin-tests slib-tests; do
   done
 done
 
+read -r -p "Test Weinholt? (y to run tests) " response
+if [ "$response" = "y" ]; then
+  for file in weinholt-tests/*-test.sps
+  do
+    $PROG $file
+  done
+fi
+

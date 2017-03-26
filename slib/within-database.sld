@@ -81,36 +81,36 @@
                                     ((database 'command) arg-1 ...)))
                             (within-database database rest ...)))))
 
-    #| ; Currently not defined for R7RS (Peter Lane)
-    (define (define-*macros* rdb . specs)
-      (define defmac
-        (((rdb 'open-table) '*macros* #t) 'row:update))
-      (for-each (lambda (spec)
-                  (let* ((procname (caar spec))
-                         (args     (cdar spec))
-                         (body-1   (cdr  spec))
-                         (comment  (and (string? (car body-1))
-                                        (car body-1)))
-                         (body     (if comment (cdr body-1) body-1)))
-                    (defmac (list procname
-                                  `(lambda ,args . ,body)
-                                  (or comment "")))))
-                specs))
-
-    ;@
-    (define (add-macro-support rdb)
-      (define-tables rdb
-                     '(*macros*
-                        ((name symbol))
-                        ((procedure expression)
-                         (documentation string))
-                        ((define-macro (lambda (db . args)
-                                         (define-*macros* db args)
-                                         #t) ""))))
-      (define-*commands* rdb
-                         '((*macro* rdb)
-                           (((rdb 'open-table) '*macros* #f) 'get 'procedure)))
-      rdb)
-    |#
+     ; Currently not defined for R7RS (Peter Lane)
+;    (define (define-*macros* rdb . specs)
+;      (define defmac
+;        (((rdb 'open-table) '*macros* #t) 'row:update))
+;      (for-each (lambda (spec)
+;                  (let* ((procname (caar spec))
+;                         (args     (cdar spec))
+;                         (body-1   (cdr  spec))
+;                         (comment  (and (string? (car body-1))
+;                                        (car body-1)))
+;                         (body     (if comment (cdr body-1) body-1)))
+;                    (defmac (list procname
+;                                  `(lambda ,args . ,body)
+;                                  (or comment "")))))
+;                specs))
+;
+;    ;@
+;    (define (add-macro-support rdb)
+;      (define-tables rdb
+;                     '(*macros*
+;                        ((name symbol))
+;                        ((procedure expression)
+;                         (documentation string))
+;                        ((define-macro (lambda (db . args)
+;                                         (define-*macros* db args)
+;                                         #t) ""))))
+;      (define-*commands* rdb
+;                         '((*macro* rdb)
+;                           (((rdb 'open-table) '*macros* #f) 'get 'procedure)))
+;      rdb)
+    
     ))
 

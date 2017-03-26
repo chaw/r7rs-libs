@@ -27,8 +27,6 @@
           substring-move-right!
           substring-fill!
           string-null?
-          1+
-          -1+
           <?
           <=?
           =?
@@ -65,12 +63,13 @@
 
     ;;;; need to add code for OBJECT-HASH and OBJECT-UNHASH
     ;@
-    (define 1+
-      (let ((+ +))
-        (lambda (n) (+ n 1))))
-    (define -1+
-      (let ((+ +))
-        (lambda (n) (+ n -1))))
+    ;; These two methods upset 'read' in chibi-scheme
+;    (define 1+
+;      (let ((+ +))
+;        (lambda (n) (+ n 1))))
+;    (define -1+
+;      (let ((+ +))
+;        (lambda (n) (+ n -1))))
     ;@
     (define <? <)
     (define <=? <=)

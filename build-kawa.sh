@@ -11,7 +11,7 @@ kawa --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 
 # work through each directory in turn
-for dir in slib robin rebottled pfds nltk; do
+for dir in nltk pfds r6rs rebottled robin slib weinholt; do
   for file in $dir/*.sld
   do
     kawa $OPTS -C $file

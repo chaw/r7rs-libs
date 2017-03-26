@@ -78,6 +78,8 @@
     collect-first
     collect-nth
     collect
+    collect-string
+    collect-append
     collect-alist
     collect-file
     collect-length
@@ -243,11 +245,15 @@
                         #t)))
                    ((next) (if done
                              (error "eof reached")
-                             (let ((res (reader port)))
-                               (when (eof-object? res)
-                                 (close-input-port port)
-                                 (set! done #t))
-                               res)))))))
+                             (guard (condition ; silently catch and ignore any reader errors
+                                      (else (close-input-port port)
+                                            (set! done #t)
+                                            #f))
+                                    (let ((res (reader port)))
+                                      (when (eof-object? res)
+                                        (close-input-port port)
+                                        (set! done #t))
+                                      res))))))))
            (error "File does not exist")))))
 
     ;; Higher-order function supports generic concept of scanning
@@ -665,7 +671,24 @@
       (do ((res '() (cons (next series) res)))
         ((not (more? series)) (reverse res))))
 
-    ;; collect-append
+    ;; Returns a string from appending given series
+    (define (collect-string series)
+      (do ((res "" (string-append res (next series))))
+        ((not (more? series)) res)))
+
+    ;; Given a series of series, return a list with all appended together
+    (define (collect-append serieses)
+      (if (more? serieses)
+        (let loop ((series (next serieses))
+                   (res '()))
+          (cond ((more? series)
+                 (loop series (cons (next series) res)))
+                ((more? serieses)
+                 (loop (next serieses) res))
+                (else
+                  (reverse res))))
+        '()))
+
     ;; collect-nconc
 
     ;; returns an association list, pairing the given keys and values

@@ -40,6 +40,14 @@ And, to support implementation:
 * list-helpers
 * vector
 
+## R6RS
+
+Some R6RS libraries used to support other libraries.  These are taken from http://snow-fort.org
+
+* base
+* bytevectors
+* fixnums
+
 ## Rebottled
 
 Some smaller libraries, containing a single or few files, ported from various 
@@ -48,7 +56,8 @@ sources:
 * cl-pdf - Port of a Common Lisp library for writing PDF files
 * cl-pdf-utils
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme
-* schelog - not working on Kawa (due to call/cc)
+* schelog - Dorai Sitaram's logic-style programming in Scheme
+  * not working on Kawa (due to call/cc)
 
 ## Robin
 
@@ -56,10 +65,11 @@ A set of libraries written for R7RS Scheme:
 
 * abbrev - creates a set of unambiguous abbreviations for strings (like Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
+* directory - portable directory-handling functions
 * disjoint-set - data structure to hold sets of items in disjoint sets
 * logger - a logging framework (based on Ruby's Logger class)
 * series - a mostly complete (though inefficient) version of Richard Waters' Lisp Series package
-** Larceny fails with scan-file
+  * Larceny fails with scan-file
 * srfi64-utils - some helper functions for SRFI 64 testing
 * statistics - some descriptive statistical functions
 * text - formatting or manipulating text documents
@@ -256,4 +266,16 @@ some implementations and support the above libraries.  Provided SRFIs:
 * srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for running tests with Chibi
 
 The SRFIs are organised in the 'srfis' folder, by implementation.
+
+## Weinholt (in progress)
+
+Repackaging of cryptography libraries from weinholt/industria: https://github.com/weinholt/industria
+
+* arcfour
+* bytevector
+* hmac
+* maths
+* sha-1
+* sha-2
+* strings
 

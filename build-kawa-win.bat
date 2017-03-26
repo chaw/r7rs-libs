@@ -7,7 +7,7 @@ kawa --r7rs -d ../../bin -C srfi/59.sld
 kawa --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 
-for %%d in (nltk pfds rebottled robin slib) do (
+for %%d in (nltk pfds r6rs rebottled robin slib weinholt) do (
   for %%f in (%%d/*.sld) do (
     echo %%d/%%f
     call kawa -d bin -C "%%d/%%~nf.sld"
