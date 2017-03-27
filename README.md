@@ -268,13 +268,20 @@ The SRFIs are organised in the 'srfis' folder, by implementation.
 
 ## Weinholt (in progress)
 
-Repackaging of cryptography libraries from weinholt/industria: https://github.com/weinholt/industria
+Repackaging of R6RS compression/cryptography libraries from https://github.com/weinholt/industria
 
+* adler-32
 * arcfour
+* bitstream
 * bytevector
 * hmac
 * maths
+* md5
 * sha-1
 * sha-2
+* sliding-buffer
 * strings
 
+Following contain syntax-case and need extra work to convert: aes.sls, crc.sls, huffman.sls, pack.sls
+
+which also affects: otr.sls; gzip.sls, inflate.sls, xz.sls, zip.sls; lzma2.sls, zlib.sls, openpgp.sls, ssh-public-key.sls, uuid.sls, x509.sls, buffer.sls, dns.sls, otr.sls, ssh.sls, tls.sls, internet.sls
