@@ -21,16 +21,15 @@
 ;;
 ;; Changes to original:
 ;; 1. Relies on srfi-60 from host scheme
-;; 2. quotient/remainder/modulo renamed as quotient-ei/remainder-ei/modulo-ei
 
 (define-library
   (slib math-integer)
   (export integer-expt
           integer-log
           integer-sqrt
-          quotient-ei
-          remainder-ei
-          modulo-ei
+          (rename quotient-ei quotient)
+          (rename remainder-ei remainder)
+          (rename modulo-ei modulo)
           round-quotient)
   (import (scheme base)
           (slib common)

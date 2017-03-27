@@ -155,10 +155,8 @@ moved, as required, into `(slib common)`.
 
 * logical: use (srfi 60)
 * modular
-* math-integer: 
-  * with quotient/remainder/modulo renamed as quotient-ei/remainder-ei/modulo-ei
-* math-real: 
-  * with abs renamed as real-abs
+* math-integer
+* math-real
 * factor
 * random: use (srfi 27)
 * random-inexact
