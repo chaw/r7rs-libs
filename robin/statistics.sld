@@ -45,7 +45,9 @@
           ;
           sign
           ;
-          sorenson-dice-coefficient
+          jaccard-index
+          jaccard-distance
+          sorenson-dice-index
           )
   (import (scheme base)
           (scheme case-lambda)
@@ -64,7 +66,9 @@
     (define mean arithmetic-mean) ;; make popular synonym
 
     (define (geometric-mean lst)
-      (expt (fold * 1 lst) (/ 1 (length lst))))
+     (if (null? lst)
+      0
+      (expt (fold * 1 lst) (/ 1 (length lst)))))
 
     (define (harmonic-mean lst)
       (if (null? lst)
@@ -164,15 +168,37 @@
           ((zero? x) 0)
           (else '())))
 
-  (define sorenson-dice-coefficient
+  (define jaccard-index
+    (case-lambda 
+      ((items-1 items-2)
+       (jaccard-index items-1 items-2 equal?))
+      ((items-1 items-2 eq-test?)
+       (let* ((set-1 (delete-duplicates items-1 eq-test?))
+              (set-2 (delete-duplicates items-2 eq-test?))
+              (union (lset-union eq-test? set-1 set-2)))
+         (if (null? union)
+           1
+           (/ (length (lset-intersection eq-test? set-1 set-2))
+              (length union)))))))
+
+  (define jaccard-distance
+    (case-lambda 
+      ((items-1 items-2)
+       (jaccard-distance items-1 items-2 equal?))
+      ((items-1 items-2 eq-test?)
+       (- 1 (jaccard-index items-1 items-2 eq-test?)))))
+
+  (define sorenson-dice-index
     (case-lambda
       ((items-1 items-2)
-       (sorenson-dice-coefficient items-1 items-2 equal?))
+       (sorenson-dice-index items-1 items-2 equal?))
       ((items-1 items-2 eq-test?)
        (let ((set-1 (delete-duplicates items-1 eq-test?))
              (set-2 (delete-duplicates items-2 eq-test?)))
-         (/ (* (length (lset-intersection eq-test? set-1 set-2)) 2)
-            (+ (length set-1) (length set-2)))))))
+         (if (and (null? set-1) (null? set-2))
+           1
+           (/ (* (length (lset-intersection eq-test? set-1 set-2)) 2)
+              (+ (length set-1) (length set-2))))))))
 
   ))
 

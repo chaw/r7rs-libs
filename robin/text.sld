@@ -43,7 +43,7 @@
           (scheme char)
           (scheme write)
           (rebottled pregexp)
-          (only (robin statistics) sorenson-dice-coefficient)
+          (only (robin statistics) sorenson-dice-index)
           (slib soundex)                                      (slib format)
           (srfi 1))
 
@@ -113,8 +113,14 @@
     ;; Some metrics for text comparisons
     ;; -- borrowed list from https://github.com/threedaymonk/text
 
+    ; russell-soundex (like slib soundex)
+    ; daitch-mokotoff-soundex
+    ; metaphone
+    ; double-metaphone
+    ; levenshtein
+
     (define (sorenson-dice-similarity string-1 string-2)
-      (sorenson-dice-coefficient 
+      (sorenson-dice-index 
         (string->n-grams string-1 2) 
         (string->n-grams string-2 2) 
         string-ci=?))
