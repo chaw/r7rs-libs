@@ -30,10 +30,22 @@
 (define-library
   (robin text)
   (export word-wrap
-          words->with-commas)
+          words->with-commas
+          ; metrics and similarity measures
+          sorenson-dice-similarity
+          soundex ; straight from (slib soundex)
+          porter-stem
+          ;
+          string->n-grams
+          )
   (import (scheme base)
           (scheme case-lambda)
-          (scheme write))
+          (scheme char)
+          (scheme write)
+          (rebottled pregexp)
+          (only (robin statistics) sorenson-dice-coefficient)
+          (slib soundex)                                      (slib format)
+          (srfi 1))
 
   (cond-expand
     ((library (srfi 13))
@@ -97,6 +109,163 @@
                                (else
                                  (display ", "))))
                        (get-output-string (current-output-port))))))
+
+    ;; Some metrics for text comparisons
+    ;; -- borrowed list from https://github.com/threedaymonk/text
+
+    (define (sorenson-dice-similarity string-1 string-2)
+      (sorenson-dice-coefficient 
+        (string->n-grams string-1 2) 
+        (string->n-grams string-2 2) 
+        string-ci=?))
+
+    ;; Porter stemming algorithm
+    ;; https://tartarus.org/martin/PorterStemmer/
+    (define (porter-stem initial-word)
+      ; regexps - after Ruby version
+      (define MGR0 "^([^aeiou][^aeiouy]*)?([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)")
+      (define MEQ1 "^([^aeiou][^aeiouy]*)?([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)([aeiouy][aeiou]*)?")
+      (define MGR1 "^([^aeiou][^aeiouy]*)?([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)")
+      (define VOWEL-STEM "^([^aeiou][^aeiouy]*)?[aeiouy]")
+      ;
+      (define (step-1a word) ; removes plurals 
+        (cond ((pregexp-match "(ss|i)es$" word) ; kill the es
+               (pregexp-replace "es$" word ""))
+              ((pregexp-match "[^s]s$" word) ; kill the s
+               (pregexp-replace "s$" word ""))
+              (else
+                word)))
+      (define (step-1b word) ; remove -ed -ing
+        (cond ((pregexp-match "eed$" word)
+               (if (pregexp-match MGR0 (pregexp-replace "eed$" word ""))
+                 (pregexp-replace "eed$" word "ee")
+                 word))
+              ((pregexp-match "(ed|ing)$" word)
+               (let ((stem (pregexp-replace "(ed|ing)$" word "")))
+                 (if (pregexp-match VOWEL-STEM stem)
+                   (cond ((pregexp-match "(at|bl|iz)$" stem)
+                          (string-append stem "e"))
+                         ((pregexp-match "([^aeiouylsz])\\1$" stem)
+                          (string-copy stem 0 (- (string-length stem) 1)))
+                         ((pregexp-match "^([^aeiou][^aeiouy]*)[aeiouy][^aeiouwxy]$" stem)
+                          (string-append stem "e"))
+                         (else 
+                           stem))
+                   word)))
+              (else
+                word)))
+      (define (step-1c word) ; turns terminal y to i when another vowel in stem
+        (if (and (pregexp-match "y$" word)
+                 (pregexp-match VOWEL-STEM (string-copy word 0 (- (string-length word) 1))))
+          (pregexp-replace "y$" word "i")
+          word))
+      ;
+      (define (remove-pairs word pairs)
+        (cond ((null? pairs)
+               word)
+              ((pregexp-match (caar pairs) word)
+               (let ((stem (pregexp-replace (caar pairs) word "")))
+                 (if (pregexp-match MGR0 stem)
+                   (string-append stem (cdar pairs))
+                   word)))
+              (else
+                (remove-pairs word (cdr pairs)))))
+      (define (remove-pairs-1 word words)
+        (cond ((null? words)
+               word)
+              ((pregexp-match (car words) word)
+               (let ((stem (pregexp-replace (car words) word "")))
+                 (if (pregexp-match MGR1 stem)
+                   stem
+                   word)))
+              (else
+                (remove-pairs-1 word (cdr words)))))
+
+      (define (step-2 word) ; removes double suffices to single ones
+        (remove-pairs word '(("ational$" . "ate")
+                             ("tional$" . "tion")
+                             ("enci$" . "ence")
+                             ("anci$" . "ance")
+                             ("izer$" . "ize")
+                             ("iser$" . "ise")
+                             ("bli$"   . "ble")
+                             ("alli$"     . "al")
+                             ("entli$"    . "ent")
+                             ("eli$"      . "e")
+                             ("ousli$"    . "ous")
+                             ("ization$"  . "ize")
+                             ("isation$"  . "ise")
+                             ("ation$"    . "ate")
+                             ("ator$"     . "ate")
+                             ("alism$"    . "al")
+                             ("iveness$"  . "ive")
+                             ("fulness$"  . "ful")
+                             ("ousness$"  . "ous")
+                             ("aliti$"    . "al")
+                             ("iviti$"    . "ive")
+                             ("biliti$"   . "ble")
+                             ("logi$"     . "log"))))
+      (define (step-3 word) ; removes -ic- -full -ness
+        (remove-pairs word '(("icate$" . "ic")
+                             ("ative$" . "")
+                             ("alize$" . "al")
+                             ("alise$" . "al")
+                             ("iciti$" . "ic")
+                             ("ical$" . "ic")
+                             ("ful$" . "")
+                             ("ness$" . ""))))
+      (define (step-4 word)
+        (let ((rev-word (remove-pairs-1 word
+                                        '("al$" "ance$" "ence$" "er$" "ic$" "able$" "ible$"
+                                          "ant$" "ement$" "ment$" "ent$" "ou$" "ism$"
+                                          "ate$" "iti$" "ous$" "ive$" "ize$" "ise$"))))
+          (if (string=? rev-word word)
+            (if (pregexp-match "(s|t)ion$" word)
+              (let ((stem (pregexp-replace "ion$" word "")))
+                (if (pregexp-match MGR1 stem)
+                  stem
+                  word))
+              word)
+            rev-word)))
+      ;
+      (define (step-5 word)
+        (if (pregexp-match "e$" word)
+          (let ((stem (pregexp-replace "e$" word "")))
+            (if (or (pregexp-match MGR1 stem)
+                    (and (pregexp-match MEQ1 stem)
+                         (not (pregexp-match "^([^aeiou][^aeiouy]*)[aeiouy][^aeiouwxy]$" stem))))
+              stem
+              word))
+          word))
+      (define (step-6 word) ; replace ll
+        (if (and (pregexp-match "ll$" word)
+                 (pregexp-match MGR1 word))
+          (pregexp-replace "ll$" word "l")
+          word))
+      ;
+      (if (< (string-length initial-word) 3)
+        initial-word
+        (step-6
+          (step-5
+            (step-4
+              (step-3
+                (step-2
+                  (step-1c
+                    (step-1b 
+                      (step-1a 
+                        initial-word))))))))))
+
+    ;; reduce a string to a list of letter n-grams
+    (define (string->n-grams str n)
+      (let ((len (string-length str)))
+        (cond ((<= n 0)
+               (error "string->n-grams needs n >= 1"))
+              ((> n len)
+               (list str))
+              (else
+                (do ((i 0 (+ 1 i))
+                     (res '() (cons (string-copy str i (+ i n)) res)))
+                  ((> (+ i n) len) (reverse res)))))))
 
     ))
 

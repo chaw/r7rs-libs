@@ -37,9 +37,7 @@
       (bitwise-and bits (bitwise-not (arithmetic-shift 1 i))))
 
     (define (bitwise-arithmetic-shift-right n r)
-      (if (negative? r)
-        (error "arithmetic shift right only valid for positive shifts")
-        (exact (floor (/ n (expt 2 r))))))
+      (arithmetic-shift n (- r)))
 
     ))
 

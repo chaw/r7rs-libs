@@ -73,7 +73,8 @@ A set of libraries written for R7RS Scheme:
   * Larceny fails with scan-file
 * srfi64-utils - some helper functions for SRFI 64 testing
 * statistics - some descriptive statistical functions
-* text - formatting or manipulating text documents
+* text - formatting, similarity measures etc for text documents
+  * 21 fails in porter-stemmer to fix
 
 ## SLIB
 
@@ -273,7 +274,10 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * adler-32
 * arcfour
 * bitstream
+* blowfish
+  * Tests pass with Chibi and Larceny, not Kawa
 * bytevector
+* (des - tests fail in Kawa / overflow Larceny)
 * hmac
 * maths
 * md5

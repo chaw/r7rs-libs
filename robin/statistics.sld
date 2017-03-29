@@ -44,6 +44,8 @@
           standard-error-of-the-mean
           ;
           sign
+          ;
+          sorenson-dice-coefficient
           )
   (import (scheme base)
           (scheme case-lambda)
@@ -161,6 +163,16 @@
           ((positive? x) 1)
           ((zero? x) 0)
           (else '())))
+
+  (define sorenson-dice-coefficient
+    (case-lambda
+      ((items-1 items-2)
+       (sorenson-dice-coefficient items-1 items-2 equal?))
+      ((items-1 items-2 eq-test?)
+       (let ((set-1 (delete-duplicates items-1 eq-test?))
+             (set-2 (delete-duplicates items-2 eq-test?)))
+         (/ (* (length (lset-intersection eq-test? set-1 set-2)) 2)
+            (+ (length set-1) (length set-2)))))))
 
   ))
 

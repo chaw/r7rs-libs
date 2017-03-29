@@ -27,15 +27,13 @@
   (export expand-arcfour-key arcfour!
           arcfour-discard!
           clear-arcfour-keystream!)
-  (import (except (scheme base) bytevector-copy!)
+  (import (except (scheme base) bytevector-copy! error)
+          (r6rs base)
           (r6rs bytevectors)
           (r6rs fixnums)
           (only (srfi 1) iota))
 
   (begin
-
-    (define (assert expr)
-      (unless expr (error "Error in assertion")))
 
     (define (bytevector-u8-swap! bv i j)
       (let ((tmp (bytevector-u8-ref bv i)))

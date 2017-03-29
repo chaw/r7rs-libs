@@ -55,11 +55,9 @@
         (lambda (name)
           (let ((char-list
                   (map char-upcase
-                       (remove (lambda (c)
-                                 (not (char-alphabetic? c)))
-                               (string->list name)))))
+                       (filter char-alphabetic? (string->list name)))))
             (if (null? char-list)
-              name
+              "" ; name ; Changed by Peter Lane to return empty string
               (let* ( ;; Replace letters except first with codes:
                       (n1 (cons (car char-list) (map xform char-list)))
                       ;; If 2 or more letter with same code are adjacent
