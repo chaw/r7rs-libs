@@ -6,15 +6,6 @@
         (only (srfi 1) fold)
         (srfi 64))
 
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
-
 (test-begin "pfds-queue")
 
 ;; empty-queue
@@ -47,7 +38,7 @@
                (test-equal 'bar second)
                (test-equal 1 (queue-length queue*))
                (test-equal 0 (queue-length queue)))
-  (check-error (dequeue empty)))
+  (test-error (dequeue empty)))
 
 ;; queue-ordering
 (let* ((list '(bar quux foo zot baz))

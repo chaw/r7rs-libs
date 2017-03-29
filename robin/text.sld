@@ -31,12 +31,12 @@
   (robin text)
   (export word-wrap
           words->with-commas
+          string->n-grams
           ; metrics and similarity measures
           sorenson-dice-similarity
           soundex ; straight from (slib soundex)
-          porter-stem
           ;
-          string->n-grams
+          porter-stem
           )
   (import (scheme base)
           (scheme case-lambda)
@@ -44,7 +44,7 @@
           (scheme write)
           (rebottled pregexp)
           (only (robin statistics) sorenson-dice-index)
-          (slib soundex)                                      (slib format)
+          (slib soundex)
           (srfi 1))
 
   (cond-expand
@@ -110,8 +110,20 @@
                                  (display ", "))))
                        (get-output-string (current-output-port))))))
 
+    ;; Convert a string to a list of letter n-grams
+    (define (string->n-grams str n)
+      (let ((len (string-length str)))
+        (cond ((<= n 0)
+               (error "string->n-grams needs n >= 1"))
+              ((> n len)
+               (list str))
+              (else
+                (do ((i 0 (+ 1 i))
+                     (res '() (cons (string-copy str i (+ i n)) res)))
+                  ((> (+ i n) len) (reverse res)))))))
+
     ;; Some metrics for text comparisons
-    ;; -- borrowed list from https://github.com/threedaymonk/text
+    ;; -- inspired by https://github.com/threedaymonk/text
 
     ; russell-soundex (like slib soundex)
     ; daitch-mokotoff-soundex
@@ -193,14 +205,12 @@
                              ("enci$" . "ence")
                              ("anci$" . "ance")
                              ("izer$" . "ize")
-                             ("iser$" . "ise")
                              ("bli$"   . "ble")
                              ("alli$"     . "al")
                              ("entli$"    . "ent")
                              ("eli$"      . "e")
                              ("ousli$"    . "ous")
                              ("ization$"  . "ize")
-                             ("isation$"  . "ise")
                              ("ation$"    . "ate")
                              ("ator$"     . "ate")
                              ("alism$"    . "al")
@@ -215,7 +225,6 @@
         (remove-pairs word '(("icate$" . "ic")
                              ("ative$" . "")
                              ("alize$" . "al")
-                             ("alise$" . "al")
                              ("iciti$" . "ic")
                              ("ical$" . "ic")
                              ("ful$" . "")
@@ -224,7 +233,7 @@
         (let ((rev-word (remove-pairs-1 word
                                         '("al$" "ance$" "ence$" "er$" "ic$" "able$" "ible$"
                                           "ant$" "ement$" "ment$" "ent$" "ou$" "ism$"
-                                          "ate$" "iti$" "ous$" "ive$" "ize$" "ise$"))))
+                                          "ate$" "iti$" "ous$" "ive$" "ize$"))))
           (if (string=? rev-word word)
             (if (pregexp-match "(s|t)ion$" word)
               (let ((stem (pregexp-replace "ion$" word "")))
@@ -251,27 +260,20 @@
       ;
       (if (< (string-length initial-word) 3)
         initial-word
-        (step-6
-          (step-5
-            (step-4
-              (step-3
-                (step-2
-                  (step-1c
-                    (step-1b 
-                      (step-1a 
-                        initial-word))))))))))
+        (string-downcase
+          (step-6
+            (step-5
+              (step-4
+                (step-3
+                  (step-2
+                    (step-1c
+                      (step-1b 
+                        (step-1a 
+                          (let ((word (string-downcase initial-word)))
+                            (if (char=? (string-ref word 0) #\y)
+                              (string-append "Y" (string-copy word 1))
+                              word)))))))))))))
 
-    ;; reduce a string to a list of letter n-grams
-    (define (string->n-grams str n)
-      (let ((len (string-length str)))
-        (cond ((<= n 0)
-               (error "string->n-grams needs n >= 1"))
-              ((> n len)
-               (list str))
-              (else
-                (do ((i 0 (+ 1 i))
-                     (res '() (cons (string-copy str i (+ i n)) res)))
-                  ((> (+ i n) len) (reverse res)))))))
 
     ))
 

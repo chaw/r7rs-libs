@@ -15,15 +15,6 @@
 
 (define (add1 n) (+ 1 n))
 
-;; check that given code raises an error when turned to tokens
-(define-syntax check-error
-  (syntax-rules ()
-    ((check-error code)
-     (guard (err
-              (else (test-assert #t)))
-            code
-            (test-assert #f)))))
-
 (test-begin "pfds-priority-search-queue")
 
 (test-assert (psq? (make-psq string<? <)))
@@ -37,7 +28,7 @@
        (psq3  (psq-set psq2 #\c 3))
        (psq4  (psq-set psq3 #\a 12)))
   (test-equal 10 (psq-ref psq1 #\a))
-  (check-error (psq-ref psq1 #\b))
+  (test-error (psq-ref psq1 #\b))
   (test-equal 1 (psq-size psq1))
 
   (test-equal 10 (psq-ref psq2 #\a))
@@ -102,7 +93,7 @@
        (psq4 (make-psq < <)))
   (test-equal #\c (psq-min psq1))
   (test-equal #\e (psq-min psq2))
-  (check-error (psq-delete-min psq4))
+  (test-error (psq-delete-min psq4))
   (test-equal #\a (psq-min (psq-set psq1 #\a 0)))
   (call-with-values
     (lambda ()

@@ -49,9 +49,9 @@
   (test-equal '(7 9 11 13)
               (heap->list
                 (heap-delete-min (heap-delete-min (heap-delete-min h1)))))
-  (check-error (heap-pop (make-heap <)))
-  (check-error (heap-delete-min (make-heap <)))
-  (check-error (heap-min (make-heap <))))
+  (test-error (heap-pop (make-heap <)))
+  (test-error (heap-delete-min (make-heap <)))
+  (test-error (heap-min (make-heap <))))
 
 ;; sorting
 (let ((l1 '(129 109 146 175 229 48 225 239 129 41

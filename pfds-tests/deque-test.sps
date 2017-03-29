@@ -63,8 +63,8 @@
                (test-equal 3 item2)
                (test-equal 3 (deque-length deque2))))
 (let ((empty (make-deque)))
-  (check-error (dequeue-front empty))
-  (check-error (dequeue-rear empty)))
+  (test-error (dequeue-front empty))
+  (test-error (dequeue-rear empty)))
 
 ;; mixed-operations
 (let ((deque (fold (lambda (pair deque)

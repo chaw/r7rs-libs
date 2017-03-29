@@ -4,14 +4,8 @@
         (scheme case-lambda)
         (robin statistics)
         (srfi 1)
-        (srfi 64))
-
-(define test-approx-same 
-  (case-lambda 
-    ((x y)
-     (test-approx-same x y 0.001))
-    ((x y tolerance)
-     (test-assert (< (abs (- x y)) tolerance)))))
+        (srfi 64)
+        (robin srfi64-utils))
 
 (test-begin "robin-statistics")
 

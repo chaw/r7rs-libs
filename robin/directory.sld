@@ -22,7 +22,7 @@
               (only (kawa base) as invoke)
               (only (srfi 59) pathname->vicinity))
       (begin
-        (define current-directory current-path)
+        (define (current-directory) (as String current-path))
         (define make-directory create-directory)
         (define (list-directory-files dir)
           (map (lambda (file) ; list-directory-files must return just the filenames

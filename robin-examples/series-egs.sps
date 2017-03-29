@@ -6,7 +6,6 @@
         (scheme file)
         (scheme write)
         (robin series)
-        (slib format)
         (slib line-io))
 
 (define *test-file* "test-series.txt")
@@ -16,9 +15,11 @@
 
 ;; read from a file, and display each line
 (let ((file-scanner (scan-file *test-file*)))
-  (collect
-    (map-fn (lambda (line) (format #t "> ~a~&" line))
-            file-scanner)))
+  (collect 
+    (map-fn
+      (lambda (line) 
+        (display (string-append "> " line "\n")))
+      file-scanner)))
 
 (delete-file *test-file*)
 

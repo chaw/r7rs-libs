@@ -64,17 +64,15 @@ sources:
 
 A set of libraries written for R7RS Scheme: 
 
-* abbrev - creates a set of unambiguous abbreviations for strings (like Ruby's Abbrev class)
+* abbrev - creates a set of unambiguous abbreviations for strings (based on Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
 * directory - portable directory-handling functions
 * disjoint-set - data structure to hold sets of items in disjoint sets
 * logger - a logging framework (based on Ruby's Logger class)
 * series - a mostly complete (though inefficient) version of Richard Waters' Lisp Series package
-  * Larceny fails with scan-file
 * srfi64-utils - some helper functions for SRFI 64 testing
 * statistics - some descriptive statistical functions
-* text - formatting, similarity measures etc for text documents
-  * 21 fails in porter-stemmer to fix
+* text - formatting, similarity measures etc for text data
 
 ## SLIB
 

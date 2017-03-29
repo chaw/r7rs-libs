@@ -53,8 +53,8 @@
 
 ;; tests for string->n-grams
 (test-equal '("") (string->n-grams "" 2))
-(check-error (string->n-grams "ABCDE" 0))
-(check-error (string->n-grams "ABCDE" -10))
+(test-error (string->n-grams "ABCDE" 0))
+(test-error (string->n-grams "ABCDE" -10))
 (test-equal '("A" "B" "C" "D" "E") (string->n-grams "ABCDE" 1))
 (test-equal '("AB" "BC" "CD" "DE") (string->n-grams "ABCDE" 2))
 (test-equal '("ABC" "BCD" "CDE") (string->n-grams "ABCDE" 3))
