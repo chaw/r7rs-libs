@@ -106,17 +106,21 @@
           (values modes mode-count))))
 
   (define (percentile lst percent)
-    (if (null? lst)
-      (error "Percentile: List must not be null")
-      (let* ((sorted-vec (apply vector (sort lst <)))
-             (n (vector-length sorted-vec))
-             (k (* n (/ percent 100)))
-             (floor-k (floor k)))
-        (if (= k floor-k)
-          (/ (+ (vector-ref sorted-vec k)
-                (vector-ref sorted-vec (- k 1)))
-             2)
-          (vector-ref sorted-vec floor-k)))))
+    (cond ((or (<= percentile 0)
+               (>= percentile 100))
+           (error "Percentile: percent must be from 1 to 99, inclusive"))
+          ((null? lst)
+           (error "Percentile: List must not be null"))
+          (else
+            (let* ((sorted-vec (apply vector (sort lst <)))
+                   (n (vector-length sorted-vec))
+                   (k (* n (/ percent 100)))
+                   (floor-k (floor k)))
+              (if (= k floor-k)
+                (/ (+ (vector-ref sorted-vec k)
+                      (vector-ref sorted-vec (- k 1)))
+                   2)
+                (vector-ref sorted-vec floor-k))))))
 
   (define general-variance
     (case-lambda

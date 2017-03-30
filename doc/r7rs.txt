@@ -18,6 +18,10 @@ Chibi or Kawa are included in the collection, as are some R6RS libraries.
 
 See https://github.com/petercrlane/r7rs-libs/blob/master/LICENSE.md[] for license information.
 
+include::summary.txt[]
+
+include::subdata.txt[]
+
 === Getting Started
 
 The collection can be obtained by downloading or cloning from the github link
@@ -62,7 +66,7 @@ you should rename on import or use the | ... | vertical bar syntax when
 referring to the library names.
 ****
 
-=== Libraries
+=== Documentation
 
 Most of this document describes the libraries under the +robin+ subcollection.  These 
 libraries cover a range of functionality, including a logger, statistics library, 
@@ -214,7 +218,94 @@ indexterm2:[+make-directory+] creates a directory with the given name:
 == Disjoint Set: +(import (robin disjoin-set))+
 
 indexterm:[disjoint set]
+A disjoint-set data structure holds items in distinct sets (or groups).  Efficient procedures are 
+provided for finding a representative of the set any item is contained in, and also for 
+joining two sets together.
 
+=== make-disjoint-set
+          
+indexterm2:[+make-disjoint-set+] takes two parameters: the equality function to use on 
+terms, and a hash function (e.g. SRFI 69's +hash+, +string-hash+ or +hash-by-identity+).
+The return value is a disjoint set.
+
+=== disjoint-set?
+
+indexterm2:[+disjoint-set?+] 
+checks if its argument is a disjoint-set instance or not, returning a boolean value.
+
+=== disjoint-set:make 
+
+indexterm2:[+disjoint-set:make+] places an item into the disjoint-set as its own group.
+Takes two arguments: the disjoint set and the item.  Return value is undefined.
+
+=== disjoint-set:find 
+
+indexterm2:[+disjoint-set:find+] takes two arguments, the disjoint set and an item.  The 
+function returns the representative item for the group that the given item is in.
+
+=== disjoint-set:union
+
+indexterm2:[+disjoint-set:union+] takes three arguments, the disjoint set and two items.  The 
+disjoint set is modified to combine the groups that the two items are in.
+
+=== disjoint-set:size
+
+indexterm2:[+disjoint-set:size+] takes a disjoint set and returns the number of
+distinct groups it contains.
+
+=== Example: Kruskal's Algorithm
+
+indexterm:[Kruskal's Algorithm]
+This example illustrates how disjoint sets can be used in Kruskal's algorithm to find a 
+minimal spanning set.  (The complete code is in "robin-examples/kruskal.sps")
+
+[source,lisp]
+----
+(define (kruskal graph)
+  (let ((result '())
+        (nodes (delete-duplicates (append (map car graph) (map cadr graph)) eq?)))
+    ; 1. make a disjoint set, with each node an item
+    (let ((ds (make-disjoint-set eq? hash-by-identity)))        ; <1>
+      (for-each (lambda (node) (disjoint-set:make ds node))     ; <2>
+                nodes)
+      ; 2. set 'links' holds all the links in graph, sorted with the shortest first
+      (let loop ((links (sort graph (lambda (a b) (< (caddr a) (caddr b))))))
+        ; 3. if links non-empty and size > 1
+        (when (and (not (null? links))
+                   (> (disjoint-set:size ds) 1))                ; <3>
+          (let ((link (car links)))
+            (unless (eq? (disjoint-set:find ds (car link))      ; <4>
+                         (disjoint-set:find ds (cadr link)))
+              (set! result (cons link result))
+              (disjoint-set:union ds (car link) (cadr link))))  ; <5>
+          (loop (cdr links)))))
+    (reverse result)))
+
+;; using it
+(let* ((graph '((a b 3) (a e 1) (b c 5) (b e 4) (c d 2) (c e 6) (d e 7)))
+       (res (kruskal graph)))
+  (format #t "MST has ~a links~&" (length res))
+  (format #t "~{   : ~a~&~}" res)                               ; <6>         
+  (format #t "Total length: ~a~&" (fold + 0 (map caddr res))))
+----
+<1> Creates a disjoint set using +eq?+ for equality and +hash-by-identity+ for the hash function, 
+    because individual items are symbols.
+<2> Each node is added to the disjoint set, initially in its own group.
+<3> The number of groups in the disjoint set tells us how many links remain to be added.
+<4> Look for a link where its end points are in different groups: tested by finding the representative 
+    item of each end point's group in the disjoint set.
+<5> When we add a link, connect the groups in the disjoint set.
+<6> Note use of +format+ to print a list of items
+
+Output:
+----
+MST has 4 links
+   : (a e 1)
+   : (c d 2)
+   : (a b 3)
+   : (b c 5)
+Total length: 11
+----
 
 == Logger: +(import (robin logger))+
 
@@ -318,7 +409,193 @@ debug: but this included
 == Series: +(import (robin series))+
 
 indexterm:[series]
-A functional implementation of Richard Waters' Lisp Series package.
+An implementation of Richard Waters' Lisp Series package.
+
+.Note
+****
+This package is still experimental.  In particular, it is not optimised.
+****
+
+=== Scanners
+
+Scanners create series.
+
+==== series
+
+indexterm2:[series]
+
+==== series?
+
+indexterm2:[series?]
+
+==== make-series
+
+indexterm2:[make-series]
+
+==== scan
+
+indexterm2:[scan]
+
+==== scan-list
+
+indexterm2:[scan-list]
+
+==== scan-vector
+
+indexterm2:[scan-vector]
+
+==== scan-string
+
+indexterm2:[scan-string]
+
+==== scan-range
+
+indexterm2:[scan-range]
+
+==== scan-sublists
+
+indexterm2:[scan-sublists]
+
+==== scan-alist
+
+indexterm2:[scan-alist]
+
+==== scan-file
+
+indexterm2:[scan-file]
+
+==== scan-fn
+
+indexterm2:[scan-fn]
+
+==== scan-fn-inclusive
+
+indexterm2:[scan-fn-inclusive]
+
+=== Mapping
+
+==== map-fn
+
+indexterm2:[map-fn]
+
+=== Truncation
+
+==== until
+
+indexterm2:[until]
+
+==== until-if
+
+indexterm2:[until-if]
+
+=== Other On-Line Transducers
+
+==== previous
+
+indexterm2:[previous]
+
+=== Choosing and Expanding
+
+==== choose
+
+indexterm2:[choose]
+
+==== choose-if
+
+indexterm2:[choose-if]
+
+==== spread
+
+indexterm2:[spread]
+
+==== expand
+
+indexterm2:[expand]
+
+=== Other Off-Line Transducers
+
+==== catenate
+
+indexterm2:[catenate]
+
+==== subseries
+
+indexterm2:[subseries]
+
+==== positions
+
+indexterm2:[positions]
+
+==== mask
+
+indexterm2:[mask]
+
+==== mingle
+
+indexterm2:[mingle]
+
+=== Collectors
+
+==== collect-last
+
+indexterm2:[collect-last]
+
+==== collect-first
+
+indexterm2:[collect-first]
+
+==== collect-nth
+
+indexterm2:[collect-nth]
+
+==== collect
+
+indexterm2:[collect]
+
+==== collect-string
+
+indexterm2:[collect-string]
+
+==== collect-append
+
+indexterm2:[collect-append]
+
+==== collect-alist
+
+indexterm2:[collect-alist]
+
+==== collect-file
+
+indexterm2:[collect-file]
+
+==== collect-length
+
+indexterm2:[collect-length]
+
+==== collect-sum
+
+indexterm2:[collect-sum]
+
+==== collect-max
+
+indexterm2:[collect-max]
+
+==== collect-min
+
+indexterm2:[collect-min]
+
+==== collect-and
+
+indexterm2:[collect-and]
+
+==== collect-or
+
+indexterm2:[collect-or]
+
+==== collect-fn
+
+indexterm2:[collect-fn]
+
 
 == SRFI 64 Utilities: +(import (robin srfi64-utils))+
 
@@ -365,12 +642,18 @@ robin/srfi64-utils.sld:55: FAIL
 
 == Statistics: +(import (robin statistics))+
 
-indexterm:[statistics]  A library of statistical functions to compute 
-information about sets of data.
+indexterm:[statistics]  A library of functions to compute statistical or 
+other information about sets of data.
 
 === mean
 
-Computes the arithmetic indexterm2:[+mean+] of a list of numbers. 
+Computes the arithmetic indexterm2:[+mean+] of a list of numbers.  
+This is the familiar "add up all the numbers, divide by the total" average.
+
+----
+#|kawa:2|# (mean '(1 2 3 4 5))
+3
+----
 
 === arithmetic-mean
 
@@ -378,46 +661,288 @@ indexterm:[arithmetic-mean] Same as +mean+.
 
 === geometric-mean
 
-indexterm2:[+geometric-mean+]
+indexterm:[+geometric-mean+]  The geometric mean takes the nth root of the 
+product of the numbers, where +n+ is the size of the data.  This yields the 
+central number within a geometric progression.
+
+----
+#|kawa:3|# (geometric-mean '(1 2 3 4 5))
+2.605171084697352
+#|kawa:4|# (geometric-mean '(1 3 9 27 81))
+9.000000000000002
+#|kawa:5|# (geometric-mean '(1 3 9 27))
+5.196152422706632
+----
 
 === harmonic-mean
 
-indexterm2:[+harmonic-mean+]
+indexterm:[+harmonic-mean+]  The harmonic mean is the reciprocal of the arithmetic 
+mean of the reciprocals.
 
+----
+#|kawa:6|# (harmonic-mean '(1 2 3 4 5))
+300/137
+#|kawa:7|# (inexact (harmonic-mean '(1 2 3 4 5)))
+2.18978102189781
+----
 
 === median
 
-indexterm2:[+median+]
+The indexterm2:[+median+] is the central number, when all the numbers are put in order 
+(or, when there are an even number of numbers, the average of the two middle numbers).
+
+----
+#|kawa:8|# (median '(5 3 1 2 4))
+3
+----
 
 === mode
 
-indexterm2:[+mode+]
+The indexterm2:[+mode+] is the number appearing most often.  The +mode+ function returns 
+two values: a list of the most frequent number or numbers, and their number of occurrences.
+
+----
+#|kawa:9|# (mode '(5 3 1 2 4))
+(1 2 3 4 5) 1
+#|kawa:11|# (let-values (((items count) (mode '(5 3 5 1 2 4))))
+#|.....12|# (display items) (newline) (display count) (newline))
+(5)
+2
+----
 
 === percentile
 
-indexterm2:[+percentile+]
+indexterm2:[+percentile+] takes two arguments, a list of data and a +percent+
+value, and returns the item in the list at that percentile position along the
+list, or an average of the nearest two values.  +percent+ values must be in the
+range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
++median+.
+
+----
+#|kawa:13|# (percentile '(1 2 3 4 5) 50)
+3
+#|kawa:14|# (percentile '(1 2 3 4 5) 75)
+4
+#|kawa:16|# (percentile '(1 2 3 4 5) 99)
+5
+#|kawa:19|# (percentile '(1 2 3 4 5) 85)
+5
+#|kawa:20|# (percentile '(1 2 3 4 5) 80)
+9/2
+----
 
 === population-standard-deviation
 
-indexterm2:[+population-standard-deviation+]
+indexterm2:[+population-standard-deviation+] of a list of data:
+
+----
+#|kawa:28|# (population-standard-deviation '(1 2 3 4 5))
+1.4142135623730951
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it:
+
+----
+#|kawa:39|# (population-standard-deviation '(1 2 3 4 5) 3)
+1.4142135623730951
+----
 
 === population-variance
 
-indexterm2:[+population-variance+]
+indexterm2:[+population-variance+] of a list of data:
+
+----
+#|kawa:29|# (population-variance '(1 2 3 4 5))
+2
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
 
 === standard-deviation
 
-indexterm2:[+standard-deviation+]
+indexterm2:[+standard-deviation+] of a list of data:
+
+----
+#|kawa:30|# (standard-deviation '(1 2 3 4 5))
+1.5811388300841898
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
 
 === variance
 
-indexterm2:[+variance+]
+indexterm2:[+variance+] of a list of data:
+
+----
+#|kawa:31|# (variance '(1 2 3 4 5))
+5/2
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
+
+=== coefficient-of-variation
+
+indexterm2:[+coefficient-of-variation+] describes the amount of spread in a dataset relative to its mean.
+In the following example, both lists have the same mean (3), but the spread is greater in the second.
+
+----
+#|kawa:32|# (coefficient-of-variation '(1 2 3 4 5))
+52.70462766947299
+#|kawa:33|# (coefficient-of-variation '(-2 2 3 4 8))
+120.18504251546631
+----
+
+=== standard-error-of-the-mean
+
+indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling distribution.
+
+----
+#|kawa:35|# (standard-error-of-the-mean '(1 2 3 4 5))
+0.7071067811865476
+----
+
+=== sign
+
+indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers
+
+----
+#|kawa:36|# (sign 10)
+1
+#|kawa:37|# (sign 0)
+0
+#|kawa:38|# (sign -0.7)
+-1
+----
+
+=== jaccard-index
+
+The indexterm2:[+jaccard-index+] returns a number from 0 to 1 indicating how _similar_
+two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
+third argument provides the set-equality function (which defaults to +equal?+).
+
+----
+#|kawa:40|# (jaccard-index '(1 2 3 4 5) '(3 4 5 6 7))
+3/7
+#|kawa:42|# (jaccard-index '(1 2 3 4 5) '(3 4 5 1 2 2 1 1))
+1
+#|kawa:43|# (jaccard-index '("a" "b" "c") '("A" "B" "F"))
+0
+#|kawa:45|# (jaccard-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
+1/2
+----
+
+.Note
+****
+Interestingly, the Jaccard Index is a distance _metric_ satisfying, in particular, the triangle 
+inequality.
+****
+
+=== jaccard-distance
+
+The indexterm2:[+jaccard-distance+] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
+the two sets are.
+
+----
+#|kawa:46|# (jaccard-distance '(1 2 3 4 5) '(3 4 5 6 7))
+4/7
+----
+
+=== sorenson-dice-index
+
+The indexterm2:[+sorenson-dice-index+] is a measure of the similarity of two
+sets.  Sets here are represented as lists, and duplicates are ignored.  An
+optional third argument provides the set-equality function (which defaults to
++equal?+).
+
+----
+#|kawa:47|# (sorenson-dice-index '(1 2 3 4 5) '(3 4 5 6 7))
+3/5
+#|kawa:48|# (sorenson-dice-index '("a" "b" "c") '("A" "B" "D"))
+0
+#|kawa:49|# (sorenson-dice-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
+2/3
+----
 
 
 == Text: +(import (robin text))+
 
-indexterm:[text] The text library contains some functions for working with 
-larger strings or lists of strings.
+indexterm:[text] The text library contains a collection of functions for working with strings or 
+text documents.
+
+=== porter-stem
+
+indexterm2:[+porter-stem+] is an implementation of the well-known Porter Stemming Algorithm, for 
+reducing words to a base form.  More details of the algorithm are at https://tartarus.org/martin/PorterStemmer/[]
+
+The function simply takes the word to change, and returns the stemmed form:
+
+----
+> (porter-stem "running")
+"run"
+> (porter-stem "apples")
+"appl"
+> (porter-stem "apple")
+"appl"
+> (porter-stem "approximation")
+"approxim"
+> (porter-stem "sympathize")
+"sympath"
+> (porter-stem "sympathise") 
+"sympathis"
+----
+
+=== sorenson-dice-similarity
+
+indexterm2:[+sorenson-dice-similarity+] returns a measure of how similar two strings are, based 
+on bigrams of characters:
+
+----
+> (sorenson-dice-similarity "rabbit" "racket")
+1/5
+> (sorenson-dice-similarity "sympathize" "sympthise")
+10/17
+----
+
+=== soundex
+
+indexterm2:[+soundex+] is simply reexported from +(slib soundex)+.  The implementation is 
+from Knuth, Vol. 3 "Sorting and searching", pp.391-2.
+
+The soundex algorithm returns a code for a word, and equivalent sounding words should return 
+equivalent codes:
+
+----
+> (soundex "pair")
+"P600"
+> (soundex "pare")
+"P600"
+> (soundex "rabbit")
+"R130"
+> (soundex "racket")
+"R230"
+> (soundex "smith")
+"S530"
+> (soundex "smythe")
+"S530"
+----
+
+=== string->n-grams
+
+indexterm2:[+string->n-grams+] separates a string into overlapping groups of +n+ letters.
+
+----
+> (string->n-grams "ABCDE" 1)
+("A" "B" "C" "D" "E")
+> (string->n-grams "ABCDE" 3)
+("ABC" "BCD" "CDE")
+----
+
+For +n+ greater than the length of the string, the string itself is returned.
+If +n+ is less than 1, an error is raised.
 
 === words->with-commas
 
@@ -446,7 +971,46 @@ preceded by a comma.  The default is not to have the comma.
 
 === word-wrap
 
-indexterm2:[+word-wrap+]
+indexterm2:[+word-wrap+] takes two arguments, a string and a target width.
+It returns the string formatted so words do not go beyond the target width.
+The algorithm is a simple greedy algorithm.  If words are too long for the target 
+width, they are allowed to overlap.
+
+For example, setting:
+
+----
+(define *text* "Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary. Scheme demonstrates that a very small number of rules for forming expressions, with no restrictions on how they are composed, suffice to form a practical and efficient programming language that is flexible enough to support most of the major programming paradigms in use today.")
+----
+
+We can wrap to a width of 50 characters using:
+
+----
+> (word-wrap *text* 50)
+Programming languages should be designed not by
+piling feature on top of feature, but by removing
+the weaknesses and restrictions that make
+additional features appear necessary. Scheme
+demonstrates that a very small number of rules for
+forming expressions, with no restrictions on how
+they are composed, suffice to form a practical and
+efficient programming language that is flexible
+enough to support most of the major programming
+paradigms in use today.
+----
+
+and we can wrap to a width of 60 characters using:
+
+----
+> (word-wrap *text* 60)
+Programming languages should be designed not by piling
+feature on top of feature, but by removing the weaknesses
+and restrictions that make additional features appear
+necessary. Scheme demonstrates that a very small number of
+rules for forming expressions, with no restrictions on how
+they are composed, suffice to form a practical and efficient
+programming language that is flexible enough to support most
+of the major programming paradigms in use today.
+----
 
 == Repackaged or Ported Libraries
 
@@ -456,7 +1020,7 @@ implementations.  Modifications have been kept to a minimum to make the code
 work.  Test scripts and examples are available for some parts of these
 libraries and may be examined for ideas on how each library works. 
 
-=== Natural Language Tool Kit: +(import (nltk NNN))+
+=== Natural Language Tool Kit: +(import (nltk NNNN))+
 
 indexterm:[nltk]
 A repackaging of libraries from the Natural Language ToolKit: https://sourceforge.net/projects/snltk/[]
@@ -475,7 +1039,7 @@ displaying the n-grams, and working with a deterministic finite-state automaton.
 
 Some tests and examples are provided, but otherwise this collection needs documenting.
 
-=== Purely Functional Data Structures: +(import (pfds NNN))+
+=== Purely Functional Data Structures: +(import (pfds NNNN))+
 
 indexterm:[pfds]
 A repackaging of _Purely Functional Data Structures_, originally written for R6RS Scheme: https://github.com/ijp/pfds[]
@@ -520,7 +1084,7 @@ or very few files.
 
 indexterm:[cl-pdf]
 Originally written for Common Lisp by Marc Battyani, this library was then ported to Scheme 
-by Bruce Butterfield.  Packaged for R7RS Scheme by myself.
+by Bruce Butterfield.
 
 The library allows us to construct and output PDF documents.  The following example 
 displays two repeated blocks of text and a title in a variety of fonts, sizes and 
@@ -626,6 +1190,23 @@ working with compression algorithms, performing cryptography, and interacting wi
 Documentation is available at: https://weinholt.se/industria/manual/[]
 
 See https://github.com/petercrlane/r7rs-libs[] for information on which libraries are currently available.
+
+[appendix]
+== Information on Required Imports
+
+The following tables show, for each library, the non-R7RS imports which it
+requires, and also the libraries that it is imported into.  So no libraries
+such as +(scheme base)+ are shown.  The intention is to assist in deciding
+which parts of the collection are required to support specific functionality,
+making it easier to distribute only the libraries required for an application.
+e.g. +(robin statistics)+ relies on SRFIs 1, 69 and 95. 
+
+(WARNING: The lists do not currently list libraries imported using
++cond-expand+ statements.  For example +(robin text)+ requires SRFI 13 or
+equivalent functions from other libraries.)
+
+include::alldata.txt[]
+
 
 [index]
 == Index
