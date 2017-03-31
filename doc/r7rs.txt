@@ -32,7 +32,7 @@ interested in using the libraries.
 In most cases, installation is straightforward:
 
 Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
-button above: call the directory containing the files +SCHEME_LIBS+
+button on the github repository: call the directory containing the files +SCHEME_LIBS+
 
 Call your implementation with SCHEME_LIBS in its library path.  e.g.
 
@@ -215,7 +215,7 @@ indexterm2:[+make-directory+] creates a directory with the given name:
 ----
 
 
-== Disjoint Set: +(import (robin disjoin-set))+
+== Disjoint Set: +(import (robin disjoint-set))+
 
 indexterm:[disjoint set]
 A disjoint-set data structure holds items in distinct sets (or groups).  Efficient procedures are 
@@ -409,7 +409,10 @@ debug: but this included
 == Series: +(import (robin series))+
 
 indexterm:[series]
-An implementation of Richard Waters' Lisp Series package.
+An implementation of Richard Waters' Lisp Series package.  The original package is documented at:
+
+. Optimization of Series Expressions: Part I:User's Manual for the Series Macro Package, by Richard C. Waters, A.I. Memo No. 1082, MIT, 1989. ftp://publications.ai.mit.edu/ai-publications/pdf/AIM-1082.pdf[pdf]
+. Optimization of Series Expressions: Part II:Overview of the Theory and Implementation, by Richard C. Waters, A.I. Memo No. 1083, MIT, 1989. ftp://publications.ai.mit.edu/ai-publications/pdf/AIM-1083.pdf[pdf]
 
 .Note
 ****
@@ -844,9 +847,84 @@ indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative 
 -1
 ----
 
+=== random-normal
+
+indexterm2:[+random-normal+] is used to return a random number normally distributed with 
+a given mean and standard deviation.
+
+----
+#|kawa:2|# (random-normal 0 10)
+3017/1250
+#|kawa:3|# (inexact (random-normal 0 10))
+0.05948
+#|kawa:4|# (inexact (random-normal 0 10))
+0.48029
+#|kawa:5|# (inexact (random-normal 0 10))
+-3.83553
+#|kawa:7|# (inexact (random-normal 20 10))
+21.81053
+#|kawa:8|# (inexact (random-normal 20 10))
+15.54491
+----
+
+=== random-pick
+
+indexterm2:[+random-pick+] returns a random selection from a given list
+
+----
+#|kawa:20|# (random-pick '(1 2 3 4 5 6))
+6
+#|kawa:21|# (random-pick '(1 2 3 4 5 6))
+3
+#|kawa:22|# (random-pick '(1 2 3 4 5 6))
+2
+----
+
+=== random-sample
+
+indexterm2:[+random-sample+] returns a random sample of +n+ chosen from a list of items, 
+without replacement
+
+----
+#|kawa:25|# (random-sample 3 '(1 2 3 4 5 6))
+(1 4 5)
+#|kawa:26|# (random-sample 3 '(1 2 3 4 5 6))
+(6 5 1)
+#|kawa:27|# (random-sample 3 '(1 2 3 4 5 6))
+(2 3 6)
+----
+
+=== random-weighted-sample
+
+indexterm2:[+random-weighted-sample+] returns a random sample of +n+ chosen from a list of items, 
+without replacement, but with the items weighted by the given list of weights.
+
+The following gives a heavy bias to choosing 1 and 6:
+
+----
+#|kawa:28|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
+(6 1 5)
+#|kawa:29|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
+(1 6 4)
+#|kawa:30|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
+(1 6 5)
+----
+
+The following is a lighter bias to choosing 1 and 4:
+
+----
+#|kawa:34|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
+(4 6 2)
+#|kawa:35|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
+(5 4 3)
+#|kawa:36|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
+(1 3 2)
+----
+
 === jaccard-index
 
-The indexterm2:[+jaccard-index+] returns a number from 0 to 1 indicating how _similar_
+indexterm:[jaccard-index]
+The indexterm2:[Jaccard Index] returns a number from 0 to 1 indicating how _similar_
 two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
 third argument provides the set-equality function (which defaults to +equal?+).
 
@@ -869,7 +947,8 @@ inequality.
 
 === jaccard-distance
 
-The indexterm2:[+jaccard-distance+] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
+indexterm:[jaccard-distance]
+The indexterm2:[Jaccard Distance] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
 the two sets are.
 
 ----
@@ -879,10 +958,11 @@ the two sets are.
 
 === sorenson-dice-index
 
-The indexterm2:[+sorenson-dice-index+] is a measure of the similarity of two
-sets.  Sets here are represented as lists, and duplicates are ignored.  An
-optional third argument provides the set-equality function (which defaults to
-+equal?+).
+indexterm:[sorenson-dice-index] 
+The indexterm2:[Sorenson Dice Index] is a
+measure of the similarity of two sets.  Sets here are represented as lists, and
+duplicates are ignored.  An optional third argument provides the set-equality
+function (which defaults to +equal?+).
 
 ----
 #|kawa:47|# (sorenson-dice-index '(1 2 3 4 5) '(3 4 5 6 7))
@@ -901,8 +981,9 @@ text documents.
 
 === daitch-mokotoff-soundex
 
-The indexterm:[daitch-mokotoff-soundex] Daith-Mokotoff Soundex algorithm is a variant of the Russell Soundex 
-algorithm, designed to work better for Slavic and Yiddish names.  The implementation here uses the table 
+The indexterm:[daitch-mokotoff-soundex] indexterm2:[Daitch-Mokotoff Soundex]
+algorithm is a variant of the Russell Soundex algorithm, designed to work
+better for Slavic and Yiddish names.  The implementation here uses the table
 from http://www.jewishgen.org/InfoFiles/soundex.html[].
 
 ----
@@ -925,7 +1006,7 @@ For some words, multiple codes are possible - pass an optional second argument +
 
 === porter-stem
 
-indexterm2:[+porter-stem+] is an implementation of the well-known Porter Stemming Algorithm, for 
+indexterm2:[+porter-stem+] is an implementation of the well-known indexterm2:[Porter Stemming Algorithm], for 
 reducing words to a base form.  More details of the algorithm are at https://tartarus.org/martin/PorterStemmer/[]
 
 The function simply takes the word to change, and returns the stemmed form:
@@ -963,8 +1044,8 @@ on bigrams of characters:
 
 === soundex
 
-indexterm2:[+soundex+] is simply reexported from +(slib soundex)+.  This implementation of the Russell 
-soundex algorithm is basesd on Knuth, Vol. 3 "Sorting and searching", pp.391-2.
+indexterm2:[+soundex+] is simply reexported from +(slib soundex)+.  This implementation of the 
+indexterm2:[Russell Soundex] algorithm is basesd on Knuth, Vol. 3 "Sorting and searching", pp.391-2.
 
 The soundex algorithm returns a code for a word, and equivalent sounding words should return 
 equivalent codes:
@@ -1025,10 +1106,11 @@ preceded by a comma.  The default is not to have the comma.
 
 === word-wrap
 
-indexterm2:[+word-wrap+] takes two arguments, a string and a target width.
-It returns the string formatted so words do not go beyond the target width.
-The algorithm is a simple greedy algorithm.  If words are too long for the target 
-width, they are allowed to overlap.
+indexterm2:[+word-wrap+] takes two arguments, a string and a target width.  It
+returns a list of strings, each item in the list representing a line of text.
+Each line is formatted so words do not go beyond the target width.  The
+algorithm is a simple greedy algorithm.  If a single word is longer than the
+target width, it is allowed to overlap.
 
 For example, setting:
 
@@ -1249,11 +1331,10 @@ See https://github.com/petercrlane/r7rs-libs[] for information on which librarie
 == Information on Required Imports
 
 The following tables show, for each library, the non-R7RS imports which it
-requires, and also the libraries that it is imported into.  So no libraries
-such as +(scheme base)+ are shown.  The intention is to assist in deciding
-which parts of the collection are required to support specific functionality,
-making it easier to distribute only the libraries required for an application.
-e.g. +(robin statistics)+ relies on SRFIs 1, 69 and 95. 
+requires, and also the libraries that it is imported into - no libraries
+such as +(scheme base)+ are shown.  The intention is to help decide which 
+additional libraries you need to include when adding a library to an application.
+e.g. +(robin statistics)+ relies on SRFIs 1, 27, 69 and 95. 
 
 (WARNING: The lists do not currently list libraries imported using
 +cond-expand+ statements.  For example +(robin text)+ requires SRFI 13 or

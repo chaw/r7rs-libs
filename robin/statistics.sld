@@ -1,6 +1,7 @@
 ;; Statistics library for R7RS Scheme
 
 ;; Written by Peter Lane, 2017
+;; -- largely inspired by cl-stats.lisp, Statistical Functions in Common Lisp, by Larry Hunter
 
 ;; # Open Works License
 ;; 
@@ -45,6 +46,11 @@
           ;
           sign
           ;
+          random-normal
+          random-pick
+          random-sample
+          random-weighted-sample
+          ;
           jaccard-index
           jaccard-distance
           sorenson-dice-index
@@ -53,6 +59,7 @@
           (scheme case-lambda)
           (scheme inexact)
           (srfi 1)
+          (srfi 27)
           (srfi 69)
           (srfi 95))
 
@@ -172,6 +179,51 @@
           ((zero? x) 0)
           (else '())))
 
+  ;; random-normal:
+  ;; returns a random number with mean and standard-distribution as specified.
+  (define (random-normal mean sd)
+    (+ mean (* sd (/ (- (random-integer 1000000) 500000) 1000000))))
+
+  ;; random-pick:
+  ;; random selection from list
+  (define (random-pick items)
+    (if (and (list? items) (not (null? items)))
+      (list-ref items (random-integer (length items)))
+      #f))
+
+  ;; random-sample:
+  ;; Return a random sample of size N from sequence, without replacement.  
+  ;; If N is equal to or greater than the length of the sequence, return 
+  ;; the entire sequence.
+  (define (random-sample n items)
+    (cond ((<= n 0) 
+           '())
+          ((>= n (length items)) 
+           items)
+          (else
+            (let loop ((remaining items)
+                       (kept '()))
+              (if (= (length kept) n)
+                kept
+                (let ((one (random-pick remaining)))
+                  (loop (delete one remaining)
+                        (cons one kept))))))))
+
+  ;; random-weighted-sample:
+  ;; Return a random sample of size M from sequence of length N, 
+  ;; without replacement, where each element has a defined 
+  ;; probability of selection (weight) W.  If M is equal to
+  ;; or greater to N, return the entire sequence.
+  (define (random-weighted-sample m items weights)
+    (let ((n (length items)))
+      (cond ((<= m 0) '())
+            ((>= m n) items)
+            (else
+             (let* ((keys (map (lambda (w) (expt (random-real) (/ 1 w))) weights))
+                    (sorted-items (sort (zip keys items) (lambda (x y) (> (car x) (car y))))))
+               (map cadr (take sorted-items m)))))))
+
+  ;; jaccard-index:
   (define jaccard-index
     (case-lambda 
       ((items-1 items-2)
@@ -185,6 +237,7 @@
            (/ (length (lset-intersection eq-test? set-1 set-2))
               (length union)))))))
 
+  ;; jaccard-distance:
   (define jaccard-distance
     (case-lambda 
       ((items-1 items-2)
@@ -192,6 +245,7 @@
       ((items-1 items-2 eq-test?)
        (- 1 (jaccard-index items-1 items-2 eq-test?)))))
 
+  ;; sorenson-dice-index:
   (define sorenson-dice-index
     (case-lambda
       ((items-1 items-2)
