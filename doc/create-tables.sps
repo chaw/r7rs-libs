@@ -75,6 +75,9 @@
                          (scan *dataset*))))))
 
 ;; Overall statistics
+(when (file-exists? "doc/summary.txt")
+  (delete-file "doc/summary.txt"))
+
 (with-output-to-file
   "doc/summary.txt"
   (lambda ()
@@ -83,6 +86,9 @@
             (length *dataset*))))
 
 ;; Write table of statistics
+(when (file-exists? "doc/subdata.txt")
+  (delete-file "doc/subdata.txt"))
+
 (with-output-to-file 
   "doc/subdata.txt"
   (lambda ()
@@ -110,11 +116,14 @@
 
 ;; Write the table of import/imported-by data for each library in turn
 
+(when (file-exists? "doc/alldata.txt")
+  (delete-file "doc/alldata.txt"))
+
 (with-output-to-file
   "doc/alldata.txt"
   (lambda ()
     (define (write-table library)
-      (format #t ".Library ~a~&" (car library))
+      (format #t ".Library (~a indexterm2:[~a])~&" (caar library) (cadar library))
       (format #t "[width=\"80%\",frame=\"all\",options=\"header\"]~&")
       (format #t "|================================================~&")
       (format #t "| Imports | Imported by ~&")
@@ -129,7 +138,7 @@
                (set! lib-imported-by (append lib-imported-by filler))))
         (if (and (null? lib-imports)
                  (null? lib-imported-by))
-          (format #t "| None | None ~&")
+          (format #t "| only (scheme NNNN) |  ~&")
           (for-each (lambda (im by)
                       (format #t "| ~a | ~a~&" im by))
                     lib-imports

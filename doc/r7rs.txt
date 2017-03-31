@@ -601,6 +601,19 @@ indexterm2:[collect-fn]
 
 Some convenience functions for unit testing with SRFI 64.
 
+=== test-all-equal
+
+indexterm2:[+test-all-equal+] accepts two arguments: a function to test and an
+association list of +( argument . result )+ pairs.  The function effectively
+calls +(test-equal result (function argument))+ for all pairs.
+
+----
+(test-all-equal daitch-mokotoff-soundex '(("MANHEIM" . "665600")
+                                          ("MINTZ" . "664000")
+                                          ("TOPF" . "370000")
+                                          ("AUERBACH" . "097500")))
+----
+
 === test-approx-same
 
 indexterm2:[+test-approx-same+] checks if two inexact numbers are within a given bound.  This is 
@@ -626,6 +639,19 @@ just the first item of sublists are the same:
 #|kawa:43|# (test-compare equal-cars? '((1 2) (3 4)) '((1 5) (4 6)))
 robin/srfi64-utils.sld:69: FAIL
 ----
+
+=== test-for-error
+
+indexterm2:[+test-for-error+] is used to confirm that a piece of code _has_ thrown an error.
+In the following example, the first line raises an +error+, and so the test passes.
+The second line does not raise an +error+, and so the test fails.
+
+----
+#|kawa:24|# (test-for-error (if (zero? 0) (error "") #t))
+#|kawa:25|# (test-for-error (if (zero? 1) (error "") #t))
+robin/srfi64-utils.sld:55: FAIL
+----
+
 
 === test-no-error
 
@@ -873,6 +899,30 @@ optional third argument provides the set-equality function (which defaults to
 indexterm:[text] The text library contains a collection of functions for working with strings or 
 text documents.
 
+=== daitch-mokotoff-soundex
+
+The indexterm:[daitch-mokotoff-soundex] Daith-Mokotoff Soundex algorithm is a variant of the Russell Soundex 
+algorithm, designed to work better for Slavic and Yiddish names.  The implementation here uses the table 
+from http://www.jewishgen.org/InfoFiles/soundex.html[].
+
+----
+#|kawa:6|# (daitch-mokotoff-soundex "LONDON")
+863600
+#|kawa:9|# (daitch-mokotoff-soundex "LEWINSKY")
+876450
+#|kawa:10|# (daitch-mokotoff-soundex "LEVINSKI")
+876450
+----
+
+For some words, multiple codes are possible - pass an optional second argument +'all+ to get a list of codes:
+
+----
+#|kawa:2|# (daitch-mokotoff-soundex "auerbach")
+097500
+#|kawa:3|# (daitch-mokotoff-soundex "auerbach" 'all)
+(097500 097400)
+----
+
 === porter-stem
 
 indexterm2:[+porter-stem+] is an implementation of the well-known Porter Stemming Algorithm, for 
@@ -895,6 +945,10 @@ The function simply takes the word to change, and returns the stemmed form:
 "sympathis"
 ----
 
+=== russell-soundex
+
+indexterm2:[+russell-soundex+] is the same as +soundex+ (below)
+
 === sorenson-dice-similarity
 
 indexterm2:[+sorenson-dice-similarity+] returns a measure of how similar two strings are, based 
@@ -909,8 +963,8 @@ on bigrams of characters:
 
 === soundex
 
-indexterm2:[+soundex+] is simply reexported from +(slib soundex)+.  The implementation is 
-from Knuth, Vol. 3 "Sorting and searching", pp.391-2.
+indexterm2:[+soundex+] is simply reexported from +(slib soundex)+.  This implementation of the Russell 
+soundex algorithm is basesd on Knuth, Vol. 3 "Sorting and searching", pp.391-2.
 
 The soundex algorithm returns a code for a word, and equivalent sounding words should return 
 equivalent codes:

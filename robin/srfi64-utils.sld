@@ -28,14 +28,22 @@
 
 (define-library
   (robin srfi64-utils)
-  (export test-approx-same
+  (export test-all-equal
+          test-approx-same
           test-compare
+          test-for-error
           test-no-error)
   (import (scheme base)
           (scheme case-lambda)
           (srfi 64))
 
   (begin
+
+    ;; Uses test-equal on all pairs in given association list
+    (define (test-all-equal fn pairs)
+      (for-each (lambda (pair)
+                  (test-equal (cdr pair) (fn (car pair))))
+                pairs))
 
     ;; Test if two inexact numbers are within a given tolerance: default is 0.001
     (define test-approx-same 
@@ -48,6 +56,15 @@
     ;; Test if two given items satisfy the given comparison procedure
     (define (test-compare proc l1 l2)
       (test-assert (proc l1 l2)))
+
+    ;; Test fails if no error is raised
+    (define-syntax test-for-error
+      (syntax-rules ()
+                    ((test-no-error code)
+                     (guard (err
+                              (else (test-assert #t)))
+                            code
+                            (test-assert #f)))))
 
     ;; Test fails if an error is raised
     (define-syntax test-no-error

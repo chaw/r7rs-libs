@@ -25,13 +25,22 @@
 
 ;;; Metric tests rewritten from ruby/text gem https://github.com/threedaymonk/text/
 ;; tests for soundex
-(for-each (lambda (str res)
-            (test-equal res (soundex str)))
-          '("Euler" "Ellery" "Gauss" "Ghosh" "Hilbert" "Heilbronn" 
-            "Knuth" "Kant" "Lloyd" "Ladd" "Lukasiewicz" "Lissajous" 
-            "SanFrancisco" "\"SanFrancisco\"" "" "!$982")
-          '("E460" "E460" "G200" "G200" "H416" "H416" "K530" "K530" 
-            "L300" "L300" "L222" "L222" "S516" "S516" "" ""))
+(test-all-equal soundex '(("Euler" . "E460")
+                          ("Ellery" . "E460")
+                          ("Gauss" . "G200") 
+                          ("Ghosh" . "G200")
+                          ("Hilbert" . "H416")
+                          ("Heilbronn" . "H416")
+                          ("Knuth" . "K530")
+                          ("Kant" . "K530")
+                          ("Lloyd" . "L300")
+                          ("Ladd" . "L300")
+                          ("Lukasiewicz" . "L222")
+                          ("Lissajous" . "L222")
+                          ("SanFrancisco" . "S516")
+                          ("\"SanFrancisco\"" . "S516")
+                          ("" . "") 
+                          ("!$982" . "")))
 
 ;; tests for sorenson-dice-similarity
 (test-approx-same 0.8 (sorenson-dice-similarity "Healed" "Sealed") 0.01)
@@ -53,8 +62,8 @@
 
 ;; tests for string->n-grams
 (test-equal '("") (string->n-grams "" 2))
-(test-error (string->n-grams "ABCDE" 0))
-(test-error (string->n-grams "ABCDE" -10))
+(test-for-error (string->n-grams "ABCDE" 0))
+(test-for-error (string->n-grams "ABCDE" -10))
 (test-equal '("A" "B" "C" "D" "E") (string->n-grams "ABCDE" 1))
 (test-equal '("AB" "BC" "CD" "DE") (string->n-grams "ABCDE" 2))
 (test-equal '("ABC" "BCD" "CDE") (string->n-grams "ABCDE" 3))
@@ -62,7 +71,23 @@
 (test-equal '("ABCDE") (string->n-grams "ABCDE" 5))
 (test-equal '("ABCDE") (string->n-grams "ABCDE" 6))
 
+;; tests for Daitch-Mokotoff Soundex Algorithm
+;; -- check for single returns
+(test-all-equal daitch-mokotoff-soundex '(("MANHEIM" . "665600")
+                                          ("MINTZ" . "664000")
+                                          ("TOPF" . "370000")
+                                          ("AUERBACH" . "097500")
+                                          ("OHRBACH" . "097500")
+                                          ("LIPSHITZ" . "874400")
+                                          ("LIPPSZYC" . "877440")
+                                          ("LEWINSKY" . "876450")
+                                          ("LEVINSKI" . "876450")
+                                          ("SZLAMAWICZ" . "486740")
+                                          ("SHLAMOVITZ" . "486740")))
+;; -- test for multiple returns
+(test-equal '("097500" "097400") (daitch-mokotoff-soundex "AUERBACH" 'all))
+
 (test-end)
 
- 
+
 
