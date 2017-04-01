@@ -98,8 +98,7 @@
           (scheme case-lambda)
           (scheme file)
           (scheme write)
-          (slib format)
-          (only (srfi 1) every iota))
+          (only (srfi 1) iota))
 
   (begin
 

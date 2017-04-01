@@ -1,7 +1,7 @@
 # LICENSE information
 
-The different libraries, and even code within the libraries, have different 
-licenses.
+The different collections, and even libraries within each collection, have
+different licenses.
 
 ## NLTK
 

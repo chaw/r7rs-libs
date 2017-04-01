@@ -5,7 +5,7 @@ Peter Lane
 == Introduction
 
 The R7RS Libraries referred to here are a collection of libraries written for
-or, mostly, repackaged for R7RS Scheme by Peter Lane.  The library implementations 
+or, mostly, repackaged for R7RS Scheme.  The library implementations 
 are available from https://github.com/petercrlane/r7rs-libs[].
 
 The collection has been tested on Chibi, Kawa and Larceny implementations.  Any
@@ -103,6 +103,7 @@ Output:
 
 For example:
 
+[source,scheme]
 ----
 #|kawa:9|# (import (robin abbrev))
 #|kawa:10|# (abbrev '("scheme" "scala" "lisp"))
@@ -118,6 +119,7 @@ letters, as "s" and "sc" are prefixes to both.
 
 The optional prefix will only include words that have that prefix, allowing us to select a subset of the strings to generate abbreviations for.  For example:
 
+[source,scheme]
 ----
 #|kawa:11|# (abbrev '("scheme" "scala" "lisp") "s")
 ((scala . scala) (scal . scala) (sca . scala) 
@@ -125,6 +127,18 @@ The optional prefix will only include words that have that prefix, allowing us t
 ----
 
 With the "s" prefix included, "lisp" is no longer in the output.
+
+As a simple application, the abbreviations can be used as a word or 
+command expander:
+
+[source,scheme]
+----
+#|kawa:2|# (define shortcuts (abbrev '("scheme" "scala" "lisp")))
+#|kawa:3|# (cdr (assoc "l" shortcuts))
+lisp
+#|kawa:4|# (cdr (assoc "sch" shortcuts))
+scheme
+----
 
 == Constants: +(import (robin constants))+
 
@@ -145,6 +159,7 @@ some mathematical or physical constants for use in calculations. (You probably w
 
 Use very simply:
 
+[source,scheme]
 ----
 #|kawa:1|# (import (robin constants))
 #|kawa:2|# PI
@@ -169,6 +184,7 @@ The library only supports Chibi, Kawa and Larceny at present.
 
 indexterm2:[+current-directory+] returns the current working directory (as a string):
 
+[source,scheme]
 ----
 #|kawa:1|# (import (robin directory))
 #|kawa:2|# (current-directory)
@@ -179,6 +195,7 @@ indexterm2:[+current-directory+] returns the current working directory (as a str
 
 indexterm2:[+list-directory-files+] returns a list of the _filenames_ in the given directory:
 
+[source,scheme]
 ----
 #|kawa:4|# (list-directory-files (current-directory))
 (srfi64-utils.sld logger.sld series.sld abbrev.sld
@@ -193,6 +210,7 @@ indexterm2:[+list-directory-files+] returns a list of the _filenames_ in the giv
 
 indexterm2:[+list-directory-paths+] returns a list of the _pathnames_ of files in the given directory:
 
+[source,scheme]
 ----
 #|kawa:15|# (list-directory-paths (current-directory))
 (/home/peter/Software/r7rs-libs/robin/srfi64-utils.sld
@@ -210,6 +228,7 @@ indexterm2:[+list-directory-paths+] returns a list of the _pathnames_ of files i
 
 indexterm2:[+make-directory+] creates a directory with the given name:
 
+[source,scheme]
 ----
 #|kawa:16|# (make-directory "test-directory")
 ----
@@ -259,7 +278,7 @@ indexterm:[Kruskal's Algorithm]
 This example illustrates how disjoint sets can be used in Kruskal's algorithm to find a 
 minimal spanning set.  (The complete code is in "robin-examples/kruskal.sps")
 
-[source,lisp]
+[source,scheme]
 ----
 (define (kruskal graph)
   (let ((result '())
@@ -379,7 +398,7 @@ level would be output by the log object.
 
 The following example illustrates how these functions may be used:
 
-[source,lisp]
+[source,scheme]
 ----
 (define log (new-logger "log1.txt"))      ; <1>
 (log-level log 'info)                     ; <2>
@@ -610,6 +629,7 @@ indexterm2:[+test-all-equal+] accepts two arguments: a function to test and an
 association list of +( argument . result )+ pairs.  The function effectively
 calls +(test-equal result (function argument))+ for all pairs.
 
+[source,scheme]
 ----
 (test-all-equal daitch-mokotoff-soundex '(("MANHEIM" . "665600")
                                           ("MINTZ" . "664000")
@@ -622,6 +642,7 @@ calls +(test-equal result (function argument))+ for all pairs.
 indexterm2:[+test-approx-same+] checks if two inexact numbers are within a given bound.  This is 
 the same as +test-approximate+ except that the tolerance is optional, and defaults to 0.001.
 
+[source,scheme]
 ----
 #|kawa:32|# (test-approx-same 1 1.001)
 #|kawa:33|# (test-approx-same 1 1.001 0.0001)
@@ -635,6 +656,7 @@ indexterm2:[+test-compare+] checks if two given items satisfy the given comparis
 This is useful for testing equality of more complex data.  For example, we might want to check if 
 just the first item of sublists are the same:
 
+[source,scheme]
 ----
 #|kawa:34|# (import (srfi 1))
 #|kawa:41|# (define (equal-cars? i1 i2) (every (lambda (l1 l2) (equal? (car l1) (car l2))) i1 i2))
@@ -649,6 +671,7 @@ indexterm2:[+test-for-error+] is used to confirm that a piece of code _has_ thro
 In the following example, the first line raises an +error+, and so the test passes.
 The second line does not raise an +error+, and so the test fails.
 
+[source,scheme]
 ----
 #|kawa:24|# (test-for-error (if (zero? 0) (error "") #t))
 #|kawa:25|# (test-for-error (if (zero? 1) (error "") #t))
@@ -662,6 +685,7 @@ indexterm2:[+test-no-error+] is used to confirm that a piece of code has _not_ t
 In the following example, the first line raises an +error+, and so the test fails.
 The second line does not raise an +error+, and so the test passes.
 
+[source,scheme]
 ----
 #|kawa:27|# (test-no-error (if (zero? 0) (error "") #t))
 robin/srfi64-utils.sld:55: FAIL
@@ -679,6 +703,7 @@ other information about sets of data.
 Computes the arithmetic indexterm2:[+mean+] of a list of numbers.  
 This is the familiar "add up all the numbers, divide by the total" average.
 
+[source,scheme]
 ----
 #|kawa:2|# (mean '(1 2 3 4 5))
 3
@@ -694,6 +719,7 @@ indexterm:[+geometric-mean+]  The geometric mean takes the nth root of the
 product of the numbers, where +n+ is the size of the data.  This yields the 
 central number within a geometric progression.
 
+[source,scheme]
 ----
 #|kawa:3|# (geometric-mean '(1 2 3 4 5))
 2.605171084697352
@@ -708,6 +734,7 @@ central number within a geometric progression.
 indexterm:[+harmonic-mean+]  The harmonic mean is the reciprocal of the arithmetic 
 mean of the reciprocals.
 
+[source,scheme]
 ----
 #|kawa:6|# (harmonic-mean '(1 2 3 4 5))
 300/137
@@ -720,6 +747,7 @@ mean of the reciprocals.
 The indexterm2:[+median+] is the central number, when all the numbers are put in order 
 (or, when there are an even number of numbers, the average of the two middle numbers).
 
+[source,scheme]
 ----
 #|kawa:8|# (median '(5 3 1 2 4))
 3
@@ -730,6 +758,7 @@ The indexterm2:[+median+] is the central number, when all the numbers are put in
 The indexterm2:[+mode+] is the number appearing most often.  The +mode+ function returns 
 two values: a list of the most frequent number or numbers, and their number of occurrences.
 
+[source,scheme]
 ----
 #|kawa:9|# (mode '(5 3 1 2 4))
 (1 2 3 4 5) 1
@@ -747,6 +776,7 @@ list, or an average of the nearest two values.  +percent+ values must be in the
 range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 +median+.
 
+[source,scheme]
 ----
 #|kawa:13|# (percentile '(1 2 3 4 5) 50)
 3
@@ -764,6 +794,7 @@ range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 
 indexterm2:[+population-standard-deviation+] of a list of data:
 
+[source,scheme]
 ----
 #|kawa:28|# (population-standard-deviation '(1 2 3 4 5))
 1.4142135623730951
@@ -772,6 +803,7 @@ indexterm2:[+population-standard-deviation+] of a list of data:
 Optionally, if you know the mean of your data, pass that as a second argument so the 
 function does not have to recompute it:
 
+[source,scheme]
 ----
 #|kawa:39|# (population-standard-deviation '(1 2 3 4 5) 3)
 1.4142135623730951
@@ -781,6 +813,7 @@ function does not have to recompute it:
 
 indexterm2:[+population-variance+] of a list of data:
 
+[source,scheme]
 ----
 #|kawa:29|# (population-variance '(1 2 3 4 5))
 2
@@ -793,6 +826,7 @@ function does not have to recompute it.
 
 indexterm2:[+standard-deviation+] of a list of data:
 
+[source,scheme]
 ----
 #|kawa:30|# (standard-deviation '(1 2 3 4 5))
 1.5811388300841898
@@ -805,6 +839,7 @@ function does not have to recompute it.
 
 indexterm2:[+variance+] of a list of data:
 
+[source,scheme]
 ----
 #|kawa:31|# (variance '(1 2 3 4 5))
 5/2
@@ -818,6 +853,7 @@ function does not have to recompute it.
 indexterm2:[+coefficient-of-variation+] describes the amount of spread in a dataset relative to its mean.
 In the following example, both lists have the same mean (3), but the spread is greater in the second.
 
+[source,scheme]
 ----
 #|kawa:32|# (coefficient-of-variation '(1 2 3 4 5))
 52.70462766947299
@@ -829,6 +865,7 @@ In the following example, both lists have the same mean (3), but the spread is g
 
 indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling distribution.
 
+[source,scheme]
 ----
 #|kawa:35|# (standard-error-of-the-mean '(1 2 3 4 5))
 0.7071067811865476
@@ -838,6 +875,7 @@ indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling dis
 
 indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers
 
+[source,scheme]
 ----
 #|kawa:36|# (sign 10)
 1
@@ -852,6 +890,7 @@ indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative 
 indexterm2:[+random-normal+] is used to return a random number normally distributed with 
 a given mean and standard deviation.
 
+[source,scheme]
 ----
 #|kawa:2|# (random-normal 0 10)
 3017/1250
@@ -871,6 +910,7 @@ a given mean and standard deviation.
 
 indexterm2:[+random-pick+] returns a random selection from a given list
 
+[source,scheme]
 ----
 #|kawa:20|# (random-pick '(1 2 3 4 5 6))
 6
@@ -885,6 +925,7 @@ indexterm2:[+random-pick+] returns a random selection from a given list
 indexterm2:[+random-sample+] returns a random sample of +n+ chosen from a list of items, 
 without replacement
 
+[source,scheme]
 ----
 #|kawa:25|# (random-sample 3 '(1 2 3 4 5 6))
 (1 4 5)
@@ -901,6 +942,7 @@ without replacement, but with the items weighted by the given list of weights.
 
 The following gives a heavy bias to choosing 1 and 6:
 
+[source,scheme]
 ----
 #|kawa:28|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
 (6 1 5)
@@ -912,6 +954,7 @@ The following gives a heavy bias to choosing 1 and 6:
 
 The following is a lighter bias to choosing 1 and 4:
 
+[source,scheme]
 ----
 #|kawa:34|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
 (4 6 2)
@@ -928,6 +971,7 @@ The indexterm2:[Jaccard Index] returns a number from 0 to 1 indicating how _simi
 two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
 third argument provides the set-equality function (which defaults to +equal?+).
 
+[source,scheme]
 ----
 #|kawa:40|# (jaccard-index '(1 2 3 4 5) '(3 4 5 6 7))
 3/7
@@ -951,6 +995,7 @@ indexterm:[jaccard-distance]
 The indexterm2:[Jaccard Distance] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
 the two sets are.
 
+[source,scheme]
 ----
 #|kawa:46|# (jaccard-distance '(1 2 3 4 5) '(3 4 5 6 7))
 4/7
@@ -964,6 +1009,7 @@ measure of the similarity of two sets.  Sets here are represented as lists, and
 duplicates are ignored.  An optional third argument provides the set-equality
 function (which defaults to +equal?+).
 
+[source,scheme]
 ----
 #|kawa:47|# (sorenson-dice-index '(1 2 3 4 5) '(3 4 5 6 7))
 3/5
@@ -986,6 +1032,7 @@ algorithm is a variant of the Russell Soundex algorithm, designed to work
 better for Slavic and Yiddish names.  The implementation here uses the table
 from http://www.jewishgen.org/InfoFiles/soundex.html[].
 
+[source,scheme]
 ----
 #|kawa:6|# (daitch-mokotoff-soundex "LONDON")
 863600
@@ -997,12 +1044,53 @@ from http://www.jewishgen.org/InfoFiles/soundex.html[].
 
 For some words, multiple codes are possible - pass an optional second argument +'all+ to get a list of codes:
 
+[source,scheme]
 ----
 #|kawa:2|# (daitch-mokotoff-soundex "auerbach")
 097500
 #|kawa:3|# (daitch-mokotoff-soundex "auerbach" 'all)
 (097500 097400)
 ----
+
+=== hamming-distance
+
+The indexterm2:[+hamming-distance+] is the number of mismatched items between two equal-length sequences.
+The +hamming-distance+ function takes two arguments and an optional comparison procedure.  The sequences 
+can be strings, lists, vectors or bytevectors.  The comparison procedure defaults to +char=?+ for strings,
++=+ for bytevectors, and +equal?+ for everything else.
+
+[source,scheme]
+----
+#|kawa:2|# (hamming-distance "This string" "that strong")
+4
+#|kawa:3|# (hamming-distance "This string" "that strong" char-ci=?)
+3
+#|kawa:4|# (hamming-distance #(1 2 3 4) #(0 2 3 5))
+2
+----
+
+=== metaphone
+
+The indexterm:[metaphone] indexterm2:[Metaphone Algorithm] was created as an improvement on Soundex, better 
+taking account of variations in English pronounciation.  The algorithm was created by Lawrence Philips, in 
+"Computer Language" December 1990 issue.  There have been many published variants of Metaphone.  A summary 
+can be found at http://aspell.net/metaphone/[].
+
+The +metaphone+ function simply takes a word to convert into a coded representation of its sound:
+
+[source,scheme]
+----
+#|kawa:2|# (metaphone "smith")
+SM0
+#|kawa:3|# (metaphone "smythe")
+SM0
+#|kawa:4|# (metaphone "lewinsky")
+LWNSK
+#|kawa:5|# (metaphone "levinski")
+LFNSK
+----
+
+Note, the output code is all upper-case letters, with "0" standing in for "TH".
 
 === porter-stem
 
@@ -1011,6 +1099,7 @@ reducing words to a base form.  More details of the algorithm are at https://tar
 
 The function simply takes the word to change, and returns the stemmed form:
 
+[source,scheme]
 ----
 > (porter-stem "running")
 "run"
@@ -1035,6 +1124,7 @@ indexterm2:[+russell-soundex+] is the same as +soundex+ (below)
 indexterm2:[+sorenson-dice-similarity+] returns a measure of how similar two strings are, based 
 on bigrams of characters:
 
+[source,scheme]
 ----
 > (sorenson-dice-similarity "rabbit" "racket")
 1/5
@@ -1050,6 +1140,7 @@ indexterm2:[Russell Soundex] algorithm is basesd on Knuth, Vol. 3 "Sorting and s
 The soundex algorithm returns a code for a word, and equivalent sounding words should return 
 equivalent codes:
 
+[source,scheme]
 ----
 > (soundex "pair")
 "P600"
@@ -1069,6 +1160,7 @@ equivalent codes:
 
 indexterm2:[+string->n-grams+] separates a string into overlapping groups of +n+ letters.
 
+[source,scheme]
 ----
 > (string->n-grams "ABCDE" 1)
 ("A" "B" "C" "D" "E")
@@ -1085,7 +1177,7 @@ indexterm2:[+words->with-commas+] is a function taking a list of strings and
 adding commas in between the items up to the last item, which is preceded 
 by an "and".  For example:
 
-[source,lisp]
+[source,scheme]
 ----
 > (words->with-commas '())
 ""
@@ -1114,12 +1206,14 @@ target width, it is allowed to overlap.
 
 For example, setting:
 
+[source,scheme]
 ----
 (define *text* "Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary. Scheme demonstrates that a very small number of rules for forming expressions, with no restrictions on how they are composed, suffice to form a practical and efficient programming language that is flexible enough to support most of the major programming paradigms in use today.")
 ----
 
 We can wrap to a width of 50 characters using:
 
+[source,scheme]
 ----
 > (word-wrap *text* 50)
 Programming languages should be designed not by
@@ -1136,6 +1230,7 @@ paradigms in use today.
 
 and we can wrap to a width of 60 characters using:
 
+[source,scheme]
 ----
 > (word-wrap *text* 60)
 Programming languages should be designed not by piling
@@ -1226,7 +1321,7 @@ The library allows us to construct and output PDF documents.  The following exam
 displays two repeated blocks of text and a title in a variety of fonts, sizes and 
 positions in the document.
 
-[source,lisp]
+[source,scheme]
 ----
 (define (ex1)
   (pdf:with-document-to-file 
@@ -1328,7 +1423,7 @@ Documentation is available at: https://weinholt.se/industria/manual/[]
 See https://github.com/petercrlane/r7rs-libs[] for information on which libraries are currently available.
 
 [appendix]
-== Information on Required Imports
+== Information on Library Imports
 
 The following tables show, for each library, the non-R7RS imports which it
 requires, and also the libraries that it is imported into - no libraries
@@ -1340,9 +1435,12 @@ e.g. +(robin statistics)+ relies on SRFIs 1, 27, 69 and 95.
 +cond-expand+ statements.  For example +(robin text)+ requires SRFI 13 or
 equivalent functions from other libraries.)
 
+These tables are automatically generated from the individual library source files.
+
 include::alldata.txt[]
 
-
+//////////
 [index]
 == Index
+//////////
 

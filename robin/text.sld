@@ -33,11 +33,13 @@
           words->with-commas
           string->n-grams
           ; metrics and similarity measures
-          sorenson-dice-similarity
           soundex ; straight from (slib soundex)
           daitch-mokotoff-soundex
           russell-soundex
+          metaphone
+          hamming-distance
           ;
+          sorenson-dice-similarity
           porter-stem
           )
   (import (scheme base)
@@ -46,7 +48,7 @@
           (scheme write)
           (rebottled pregexp)
           (only (robin statistics) sorenson-dice-index)
-          (slib soundex)  
+          (slib soundex)                                      (slib format)
           (srfi 1)
           (srfi 69)
           (srfi 95))
@@ -126,8 +128,7 @@
                      (res '() (cons (string-copy str i (+ i n)) res)))
                   ((> (+ i n) len) (reverse res)))))))
 
-    ;; Some metrics for text comparisons
-    ;; -- inspired by https://github.com/threedaymonk/text
+    ;; Phonetic-based metrics
 
     ;; Convert given word into a coded string of length 6
     ;; Table from: http://www.jewishgen.org/InfoFiles/soundex.html
@@ -324,19 +325,226 @@
 
     (define russell-soundex soundex) ; from (slib soundex)
  
-    ; metaphone
-    ; double-metaphone
-    ; levenshtein
+    ; metaphone: there is no consistent description of this algorithm
+    ; these rules are applied from the description at http://aspell.net/metaphone/metaphone-kuhn.txt
+    (define (metaphone word)
+      ; remove duplicate letters in target alphabet (but leave 'c' alone)
+      (define (remove-duplicates-but-c str) 
+        (define target-group '(#\b #\f #\h #\j #\k #\l #\m #\n #\p #\r #\s #\t #\w #\x #\y))
+        (define (update-res i res)
+          (if (and (memv (string-ref str i) target-group)
+                   (< i (- (string-length str) 1))
+                   (char=? (string-ref str i) (string-ref str (+ i 1))))
+            res
+            (cons (string-ref str i) res)))
+        (do ((i 0 (+ i 1))
+             (res '() (update-res i res)))
+          ((= i (string-length str)) (list->string (reverse res)))))
+      ; adapt initial letters:
+      ;   "ae-", "gn", "kn-", "pn-", "wr-" drop first letter
+      ;   "x" -> "s"
+      ;   "wh" -> "w"
+      (define (adapt-initial-letters str)
+        (cond ((member (substring str 0 2) '("ae" "gn" "kn" "pn" "wr") string=?)
+               (string-copy str 1))
+              ((char=? #\x (string-ref str 0))
+               (string-append "s" (string-copy str 1)))
+              ((string=? "wh" (substring str 0 2))
+               (string-append "w" (string-copy str 2)))
+              (else
+                str)))
+      ; remove b in mb$
+      (define (remove-b str)
+        (if (pregexp-match "mb$" str)
+          (pregexp-replace "mb$" str "m")
+          str))
+      ; helper functions
+      (define (vowel? c) (memq c '(#\a #\e #\i #\o #\u)))
+      (define (one-of? grp) (lambda (c) (memq c grp)))
+      (define (peek? rem c)
+        (and (not (null? rem))
+             (not (null? (cdr rem)))
+             (if (char? c) ; if not a char, assume it's a proc
+               (char=? c (cadr rem))
+               (c (cadr rem)))))
+      (define (peek-io/a? rem) ; is top char followed by io or ia
+        (and (peek? rem #\i)
+             (or (peek? (cdr rem) #\o)
+                 (peek? (cdr rem) #\a))))
+      ;
+      (let* ((lword (pregexp-replace* "[^[:alpha:]]" (string-downcase word) ""))
+             (dedupped (remove-duplicates-but-c lword))
+             (initials (adapt-initial-letters dedupped))
+             (no-mb (remove-b initials)))
+        (let loop ((rem (string->list no-mb))
+                   (last-done #f)             ; last actual character processed
+                   (res '()))
+          (if (null? rem)
+            (string-upcase (list->string (reverse res)))
+            (case (car rem)
+              ((#\a #\e #\i #\o #\u) ; keep vowel only at front
+               (if (null? res) 
+                 (loop (cdr rem) (car rem) (cons (car rem) res))
+                 (loop (cdr rem) last-done res)))
+              ((#\b #\f #\j #\l #\m #\n #\r) ; retained
+               (loop (cdr rem) (car rem) (cons (car rem) res)))
+              ((#\c)
+               (cond ((peek? rem #\h)
+                      (loop (cdr rem)
+                            (car rem)
+                            (cons (if (eqv? last-done #\s) #\k #\x)
+                                  res)))
+                     ((and (peek? rem #\i)
+                           (peek? (cdr rem) #\a))
+                      (loop (cdr rem) (car rem) (cons #\x res)))
+                     ((peek? rem (one-of? '(#\e #\i #\y)))
+                      (loop (cdr rem)
+                            (car rem)
+                            (if (eqv? last-done #\s)
+                              res ; silent if -sci- -sce- -scy-
+                              (cons #\s res))))
+                     (else
+                       (loop (cdr rem) (car rem) (cons #\k res)))))
+              ((#\d)
+               (loop (cdr rem)
+                     (car rem)
+                     (cons 
+                       (if (and (peek? rem #\g)
+                                (peek? (cdr rem) (one-of? '(#\e #\i #\y))))
+                         #\j
+                         #\t)
+                       res)))
+              ((#\g)
+               (cond ((peek? rem #\g) ; duplicate g
+                      (loop (cdr rem) (car rem) res))
+                     ((or (and (peek? rem #\h)
+                               (> (length rem) 1) ; not at end
+                               (not (peek? (cdr rem) vowel?))) ; not before a vowel
+                          (peek? rem #\n)
+                          (and (eqv? last-done #\d)
+                               (peek? rem (one-of? '(#\e #\i #\y)))))
+                      (loop (cdr rem) (car rem) res))
+                     ((and (not (eqv? last-done #\g))
+                           (or (peek? rem #\i)
+                               (peek? rem #\e)
+                               (peek? rem #\y)))
+                      (loop (cdr rem) (car rem) (cons #\j res)))
+                     (else
+                       (loop (cdr rem) (car rem) (cons #\k res)))))
+              ((#\h)
+               (if (or (and (vowel? last-done) (not (peek? rem vowel?)))
+                       (memv last-done '(#\c #\s #\p #\t #\g)))
+                 (loop (cdr rem) (car rem) res)
+                 (loop (cdr rem) (car rem) (cons #\h res))))
+              ((#\k)
+               (loop (cdr rem)
+                     (car rem)
+                     (if (eqv? last-done #\c)
+                       res ; silent after c
+                       (cons #\k res))))
+              ((#\p)
+               (loop (cdr rem)
+                     (car rem)
+                     (cons (if (peek? rem #\h) #\f #\p)
+                           res)))
+              ((#\q)
+               (loop (cdr rem) (car rem) (cons #\k res)))
+              ((#\s)
+               (loop (cdr rem)
+                     (car rem)
+                     (cons (if (or (peek? rem #\h)
+                                   (peek-io/a? rem))
+                             #\x
+                             #\s)
+                           res)))
+              ((#\t)
+               (cond ((and (peek? rem #\c)        ; drop t if followed by ch
+                           (peek? (cdr rem) #\h))
+                      (loop (cdr rem) (car rem) res))
+                     ((peek? rem #\h)             ; replace th with 0
+                      (loop (cddr rem)
+                            (car rem)
+                            (cons #\0 res)))
+                     ((peek-io/a? rem)            ; replace with x if followed by io or ia
+                      (loop (cdr rem) (car rem) (cons #\x res)))
+                     (else 
+                       (loop (cdr rem) (car rem) (cons #\t res)))))
+              ((#\v)
+               (loop (cdr rem) (car rem) (cons #\f res)))
+              ((#\w #\y)
+               (loop (cdr rem)
+                     (car rem)
+                     (if (peek? rem vowel?)
+                       (cons (car rem) res)
+                       res)))
+              ((#\x) ; TODO: x at start?
+               (loop (cdr rem) (car rem) (cons #\s (cons #\k res))))
+              ((#\z) 
+               (loop (cdr rem) (car rem) (cons #\s res))))))))
 
+    ; double-metaphone
+
+    ;; Edit distance metrics
+    ; levenshtein         -- insertion/deletion/substitution
+    ; damerau-levenshtein -- insertion/deletion/substitution/transposition
+    ; jaro-distance       -- transposition
+    ; longest-common-subsequence  -- insertion/deletion
+
+    ; hamming-distance    -- substitution
+    ; -- adapted to work on different sequence types
+    (define hamming-distance 
+      (case-lambda
+        ((item-1 item-2)
+         (hamming-distance item-1 item-2 (cond ((string? item-1) char=?)
+                                               ((bytevector? item-1) =)
+                                               (else equal?))))
+        ((item-1 item-2 equal-test?)
+         ;
+         (define (hamming-seq-distance seq-1 seq-2 seq-length seq-for-each)
+           (if (= (seq-length seq-1) (seq-length seq-2))
+             (let ((count 0))
+               (seq-for-each (lambda (c1 c2)
+                                  (unless (equal-test? c1 c2) (set! count (+ 1 count))))
+                                seq-1
+                                seq-2)
+               count)
+             (error "Hamming: Sequences are of different sizes")))
+         (define (hamming-byte-distance vec-1 vec-2)
+           (if (= (bytevector-length vec-1) (bytevector-length vec-2))
+             (let loop ((count 0)
+                        (i (bytevector-length vec-1)))
+               (cond ((zero? i)
+                      count)
+                     ((= (bytevector-u8-ref vec-1 (- i 1))
+                         (bytevector-u8-ref vec-2 (- i 1)))
+                      (loop count
+                            (- i 1)))
+                     (else
+                       (loop (+ 1 count)
+                             (- i 1)))))
+             (error "Hamming: Sequences are of different sizes")))
+         ;
+         (cond ((and (string? item-1) (string? item-2))
+                (hamming-seq-distance item-1 item-2 string-length string-for-each))
+               ((and (list? item-1) (list? item-2))
+                (hamming-seq-distance item-1 item-2 length for-each))
+               ((and (vector? item-1) (vector? item-2))
+                (hamming-seq-distance item-1 item-2 vector-length vector-for-each))
+               ((and (bytevector? item-1) (bytevector? item-2))
+                (hamming-byte-distance item-1 item-2))
+               (else
+                 (error "Hamming: Unknown or mismatched types"))))))
+
+    ;; Character group measure
     (define (sorenson-dice-similarity string-1 string-2)
       (sorenson-dice-index (string->n-grams string-1 2) 
-        (string->n-grams string-2 2) 
-        string-ci=?))
+                           (string->n-grams string-2 2) 
+                           string-ci=?))
 
     ;; Porter stemming algorithm
     ;; https://tartarus.org/martin/PorterStemmer/
     (define (porter-stem initial-word)
-      ; regexps - after Ruby version
+      ; regexps - after Ruby version https://github.com/threedaymonk/text
       (define MGR0 "^([^aeiou][^aeiouy]*)?([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)")
       (define MEQ1 "^([^aeiou][^aeiouy]*)?([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)([aeiouy][aeiou]*)?")
       (define MGR1 "^([^aeiou][^aeiouy]*)?([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)([aeiouy][aeiou]*)([^aeiou][^aeiouy]*)")
@@ -375,25 +583,25 @@
           word))
       ;
       (define (remove-pairs word pairs)
-        (cond ((null? pairs)
-               word)
-              ((pregexp-match (caar pairs) word)
-               (let ((stem (pregexp-replace (caar pairs) word "")))
-                 (if (pregexp-match MGR0 stem)
-                   (string-append stem (cdar pairs))
-                   word)))
-              (else
-                (remove-pairs word (cdr pairs)))))
+        (if (null? pairs)
+          word
+          (let ((posn (pregexp-match-positions (caar pairs) word)))
+            (if posn ; note, all matches will be at the end of the word
+              (let ((stem (string-copy word 0 (caar posn))))
+                (if (pregexp-match MGR0 stem)
+                  (string-append stem (cdar pairs))
+                  word))
+              (remove-pairs word (cdr pairs))))))
       (define (remove-pairs-1 word words)
-        (cond ((null? words)
-               word)
-              ((pregexp-match (car words) word)
-               (let ((stem (pregexp-replace (car words) word "")))
-                 (if (pregexp-match MGR1 stem)
-                   stem
-                   word)))
-              (else
-                (remove-pairs-1 word (cdr words)))))
+        (if (null? words)
+          word
+          (let ((posn (pregexp-match-positions (car words) word)))
+            (if posn ; note, all matches will be at the end of the word
+              (let ((stem (string-copy word 0 (caar posn))))
+                (if (pregexp-match MGR1 stem)
+                  stem
+                  word))
+              (remove-pairs-1 word (cdr words))))))
 
       (define (step-2 word) ; removes double suffices to single ones
         (remove-pairs word '(("ational$" . "ate")
