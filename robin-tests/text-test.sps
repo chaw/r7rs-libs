@@ -154,6 +154,13 @@
 (test-for-error (hamming-distance #(a) #(a a)))
 (test-equal 2 (hamming-distance #u8(1 2 3 4) #u8(0 2 3 5)))
 
+(test-equal 0 (levenshtein-distance "sitting" "sitting"))
+(test-equal 7 (levenshtein-distance "sitting" ""))
+(test-equal 6 (levenshtein-distance "" "kitten"))
+(test-equal 3 (levenshtein-distance "sitting" "kitten"))
+(test-equal 3 (levenshtein-distance "Sunday" "Saturday"))
+(test-equal 4 (levenshtein-distance "Sunday" "saturday"))
+(test-equal 3 (levenshtein-distance "Sunday" "saturday" char-ci=?))
 
 (test-end)
 

@@ -38,6 +38,7 @@
           russell-soundex
           metaphone
           hamming-distance
+          levenshtein-distance
           ;
           sorenson-dice-similarity
           porter-stem
@@ -48,7 +49,8 @@
           (scheme write)
           (rebottled pregexp)
           (only (robin statistics) sorenson-dice-index)
-          (slib soundex)                                      (slib format)
+          (only (slib common) identity)
+          (slib soundex)                                              (slib format)
           (srfi 1)
           (srfi 69)
           (srfi 95))
@@ -485,7 +487,6 @@
     ; double-metaphone
 
     ;; Edit distance metrics
-    ; levenshtein         -- insertion/deletion/substitution
     ; damerau-levenshtein -- insertion/deletion/substitution/transposition
     ; jaro-distance       -- transposition
     ; longest-common-subsequence  -- insertion/deletion
@@ -534,6 +535,52 @@
                 (hamming-byte-distance item-1 item-2))
                (else
                  (error "Hamming: Unknown or mismatched types"))))))
+
+    ; levenshtein         -- insertion/deletion/substitution
+    ;; TODO: Assumes costs are 1 for all but equal substitution
+    (define levenshtein-distance
+      (case-lambda
+        ((item-1 item-2)
+         (levenshtein-distance item-1 item-2 (cond ((string? item-1) char=?)
+                                                   ((bytevector? item-1) =)
+                                                   (else equal?))))
+        ((item-1 item-2 equal-test?)
+         (define (levenshtein-seq-distance seq-1 seq-2 seq-length seq-ref)
+           (cond ((equal? seq-1 seq-2)
+                  0)
+                 ((zero? (seq-length seq-1))
+                  (seq-length seq-2))
+                 ((zero? (seq-length seq-2))
+                  (seq-length seq-1))
+                 (else
+                   (let loop ((prev (list->vector (list-tabulate (+ 1 (seq-length seq-2)) identity)))
+                              (i 0))
+                     (if (= i (seq-length seq-1)) ; finished
+                       (vector-ref prev (- (vector-length prev) 1))
+                       (let ((curr (make-vector (vector-length prev) 0)))
+                         ; compute current row values from the previous row
+                         (vector-set! curr 0 (+ 1 i))
+                         (do ((j 0 (+ 1 j)))
+                           ((= j (seq-length seq-2)) )
+                           (let ((cost (if (equal-test? (seq-ref seq-1 i) (seq-ref seq-2 j)) 0 1))) ; note 0/1 index
+                             (vector-set! curr 
+                                          (+ 1 j) 
+                                          (min (+ 1 (vector-ref curr j))
+                                               (+ 1 (vector-ref prev (+ 1 j)))
+                                               (+ cost (vector-ref prev j))))))
+                         (loop curr (+ 1 i))))))))
+         ;
+         (cond ((and (string? item-1) (string? item-2))
+                (levenshtein-seq-distance item-1 item-2 string-length string-ref))
+               ((and (list? item-1) (list? item-2)) ; treat lists as vectors
+                (levenshtein-seq-distance (list->vector item-1) (list->vector item-2) vector-length vector-ref))
+               ((and (vector? item-1) (vector? item-2))
+                (levenshtein-seq-distance item-1 item-2 vector-length vector-ref))
+               ((and (bytevector? item-1) (bytevector? item-2))
+                (levenshtein-seq-distance item-1 item-2 bytevector-length bytevector-u8-ref))
+               (else
+                 (error "Levenshtein: Unknown or mismatched types"))))))
+
 
     ;; Character group measure
     (define (sorenson-dice-similarity string-1 string-2)

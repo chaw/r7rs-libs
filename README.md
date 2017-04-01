@@ -2,6 +2,8 @@
 
 Some libraries written for, or converted to run in, R7RS Scheme.  
 
+Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http://peterlane.info/r7rs/html/index.html)
+
 ## NLTK
 
 A repackaging of files from the Natural Language ToolKit:
