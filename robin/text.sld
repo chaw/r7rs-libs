@@ -50,7 +50,7 @@
           (rebottled pregexp)
           (only (robin statistics) sorenson-dice-index)
           (only (slib common) identity)
-          (slib soundex)                                              (slib format)
+          (slib soundex)                                              
           (srfi 1)
           (srfi 69)
           (srfi 95))
@@ -132,7 +132,8 @@
 
     ;; Phonetic-based metrics
 
-    ;; Convert given word into a coded string of length 6
+    ;; daitch-mokotoff-soundex
+    ;; Converts given word into a coded string of length 6
     ;; Table from: http://www.jewishgen.org/InfoFiles/soundex.html
     (define daitch-mokotoff-soundex
       (let ((table 
@@ -487,6 +488,7 @@
     ; double-metaphone
 
     ;; Edit distance metrics
+    ; optimal-string-alignment-distance 
     ; damerau-levenshtein -- insertion/deletion/substitution/transposition
     ; jaro-distance       -- transposition
     ; longest-common-subsequence  -- insertion/deletion

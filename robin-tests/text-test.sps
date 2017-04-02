@@ -54,7 +54,7 @@
 
 ;; tests for Porter stemming algorithm: 
 ;; -- using lists from https://tartarus.org/martin/PorterStemmer/
-#;(for-each (lambda (word result)
+(for-each (lambda (word result)
             (test-equal result (porter-stem word)))
           (collect (scan-file "robin-tests/voc.txt"))
           (collect (scan-file "robin-tests/output.txt")))

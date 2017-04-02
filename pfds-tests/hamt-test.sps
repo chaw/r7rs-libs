@@ -1,7 +1,7 @@
 ;; Original Test Suite from https://github.com/ijp/pfds
 ;; converted to use SRFI 64 tests by Peter Lane
 
-(import (scheme base) (scheme write)
+(import (scheme base) 
         (pfds hash-array-mapped-trie)
         (only (srfi 1) fold iota)
         (srfi 64)
@@ -32,7 +32,7 @@
 ;; Referencing non-existent key
 (test-equal #f (hamt-ref (make-string-hamt) "foo" #f))
 ;; Referencing a non-existent key (exception)
-(test-error (hamt-ref (make-string-hamt) "bar"))
+(test-for-error (hamt-ref (make-string-hamt) "bar"))
 ;; Referencing newly-added key
 (test-equal "bar" (hamt-ref (hamt-set (make-string-hamt) "foo" "bar") "foo" #f))
 (test-equal 1 (hamt-size (hamt-set (make-string-hamt) "foo" "bar")))
@@ -59,7 +59,6 @@
               (map (lambda (x) (hamt-ref h x #f)) (list "a" "b" "c"))))
 ;; hamt->alist / distinct keys means left inverse
 (let ((l '(("a" . 1) ("b" . 2) ("c" . 3))))
-  (display (alist->hamt l string-hash string=?)) (newline)
   (hamt->alist (alist->hamt l string-hash string=?))
   (test-compare compare-string-alist l
                 (hamt->alist (alist->hamt l string-hash string=?))))

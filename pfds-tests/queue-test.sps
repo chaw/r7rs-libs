@@ -4,7 +4,8 @@
 (import (scheme base)
         (pfds queue)
         (only (srfi 1) fold)
-        (srfi 64))
+        (srfi 64)
+        (robin srfi64-utils))
 
 (test-begin "pfds-queue")
 
@@ -38,7 +39,7 @@
                (test-equal 'bar second)
                (test-equal 1 (queue-length queue*))
                (test-equal 0 (queue-length queue)))
-  (test-error (dequeue empty)))
+  (test-for-error (dequeue empty)))
 
 ;; queue-ordering
 (let* ((list '(bar quux foo zot baz))

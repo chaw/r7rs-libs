@@ -113,8 +113,8 @@
           (values modes mode-count))))
 
   (define (percentile lst percent)
-    (cond ((or (<= percentile 0)
-               (>= percentile 100))
+    (cond ((or (<= percent 0)
+               (>= percent 100))
            (error "Percentile: percent must be from 1 to 99, inclusive"))
           ((null? lst)
            (error "Percentile: List must not be null"))

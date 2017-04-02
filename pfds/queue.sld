@@ -81,9 +81,9 @@
     ;;; Implementation
 
     (define-record-type <queue>
-                        (%make-queue length l r l^)
+                        (%make-queue len l r l^)
                         queue?
-                        (length queue-length)
+                        (len queue-length)
                         (l queue-l)
                         (r queue-r)
                         (l^ queue-l^))

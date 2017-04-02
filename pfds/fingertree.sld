@@ -169,19 +169,35 @@
     ;;; Node type
 
     (define-record-type <node2> 
-                        (make-node2 measure a b)
+                        (new-node2 measure a b)
                         node2?
                         (measure node2-measure )
                         (a node2-a )
                         (b node2-b ))
 
     (define-record-type <node3>
-                        (make-node3 measure a b c)
+                        (new-node3 measure a b c)
                         node3?
                         (measure node3-measure )
                         (a node3-a )
                         (b node3-b )
                         (c node3-c ))
+
+    (define (make-node2 monoid a b)
+      (define app (mappend monoid))
+      (new-node2 (app (measure-nodetree a monoid)
+                       (measure-nodetree b monoid))
+                  a 
+                  b))
+
+    (define (make-node3 monoid a b c)
+      (define app (mappend monoid))
+      (new-node3 (app (app (measure-nodetree a monoid)
+                           (measure-nodetree b monoid))
+                      (measure-nodetree c monoid))
+                 a
+                 b
+                 c))
 
     (define (node-case node k2 k3)
       (if (node2? node)
@@ -234,12 +250,21 @@
                         (value single-value))
 
     (define-record-type <rib>
-                        (make-rib measure left middle right)
+                        (new-rib measure left middle right)
                         rib?
                         (measure rib-measure )
                         (left rib-left )
                         (middle rib-middle )
                         (right rib-right ))
+
+    (define (make-rib monoid left middle right)
+      (define app (mappend monoid))
+      (new-rib (app (app (measure-digit left monoid)
+                         (measure-ftree middle monoid))
+                    (measure-digit right monoid))
+               left
+               middle
+               right))
 
     (define (ftree-case ftree empty-k single-k rib-k)
       (cond ((empty? ftree) (empty-k))
@@ -459,7 +484,7 @@
     ;; in order to generalize over arbitrary monoids
     ;; call the type iMeasured or something
 
-    (define-record-type <monoid>
+    (define-record-type <monoid*>
                         (make-monoid* empty append convert)
                         monoid?
                         (empty mempty)
@@ -594,8 +619,8 @@
                    (fingertree-monoid fingertree1))))
 
     ;; TODO: fix this
-    (define (list->fingertree l id append convert)
-      (define monoid (make-monoid* id append convert))
+    (define (list->fingertree l id appnd convert)
+      (define monoid (make-monoid* id appnd convert))
       (%make-fingertree (list->tree l monoid) monoid))
 
     (define (fingertree->list t)

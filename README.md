@@ -26,12 +26,12 @@ R6RS Scheme: https://github.com/ijp/pfds
 * bounded-balance-tree 
 * deque
 * difference-list
-* fingertree - check 9 failing tests
-* hash-array-mapped-trie - all tests pass Chibi/Larceny - crashes Kawa
+* fingertree 
+* hash-array-mapped-trie - all tests pass Chibi/Larceny - bad type crashes Kawa
 * heap
 * priority-search-queue
 * queue
-* sequence - check 2 failing tests
+* sequence
 * set
 
 And, to support implementation:

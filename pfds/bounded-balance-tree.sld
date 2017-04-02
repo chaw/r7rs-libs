@@ -522,8 +522,8 @@
     ;;; rank and indexing
 
     (define (rank tree key <)
-      (cond ((empty? tree);; error
-                             (error 'rank "Key is not in the tree" key))
+      (cond ((empty? tree) ;; error
+             (error 'rank "Key is not in the tree" key))
             ((< key (node-key tree))
              (rank (node-left tree) key <))
             ((< (node-key tree) key)
