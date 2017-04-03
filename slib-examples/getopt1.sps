@@ -1,7 +1,7 @@
 
 (import (scheme base)
-        (scheme process-context) (scheme write)
-        (slib format)
+        (scheme process-context) 
+        (scheme write)
         (slib getopt))
 
 (define argv (command-line))
@@ -9,18 +9,22 @@
 
 (define (do-arguments opt)
   (case opt
-    ((#\a) (format #t "option a: ~a~&" (option-arg)))
-    ((#\b) (format #t "option b: ~a~&" (option-arg)))
-    ((#\c) (format #t "option c~&"))
-    ((#\d) (format #t "option d~&"))
-    ((#\?) (format #t "error ~a~&" (option-name)))
-    ((#\:) (format #t "missing arg ~a~&" (option-name)))
+    ((#\a) (display "option a: ") (display (option-arg)) (newline))
+    ((#\b) (display "option b: ") (display (option-arg)) (newline))
+    ((#\c) (display "option c\n"))
+    ((#\d) (display "option d\n"))
+    ((#\?) (display "error ") (display (option-name)) (newline))
+    ((#\:) (display "missing arg ") (display (option-name)) (newline))
     ((#f) (when (< (option-index) (length argv))
-            (format #t "argv[~a]=~a~&" (option-index)
-                   (list-ref argv (option-index))))
+            (display "argv[") (display (option-index))
+            (display "]=") (display (list-ref argv (option-index)))
+            (newline))
           (option-index (+ 1 (option-index)))))
   ;
   (when (< (option-index) (length argv))
     (do-arguments (getopt opts))))
 
 (do-arguments (getopt opts))
+
+
+

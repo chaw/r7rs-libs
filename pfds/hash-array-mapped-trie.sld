@@ -98,7 +98,7 @@
           alist->hamt
           )
   (import (scheme base)
-          (scheme case-lambda) 
+          (scheme case-lambda)     
           (pfds alist)
           (pfds bitwise)
           (only (pfds list-helpers) fold-right)

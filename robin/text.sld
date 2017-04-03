@@ -539,7 +539,6 @@
                  (error "Hamming: Unknown or mismatched types"))))))
 
     ; levenshtein         -- insertion/deletion/substitution
-    ;; TODO: Assumes costs are 1 for all but equal substitution
     (define levenshtein-distance
       (case-lambda
         ((item-1 item-2)

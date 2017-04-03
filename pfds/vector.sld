@@ -55,12 +55,12 @@
                      (vector-ref source (+ source-start i)))))
 
     ;; vector-fold is left to right
-    (define (vector-fold combine initial vector)
-      (define len (vector-length vector))
+    (define (vector-fold combine initial v)
+      (define len (vector-length v))
       (let loop ((index 0) (accum initial))
         (if (>= index len)
           accum
           (loop (+ index 1)
-                (combine (vector-ref vector index) accum)))))
+                (combine (vector-ref v index) accum)))))
     ))
 

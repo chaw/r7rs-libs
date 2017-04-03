@@ -129,7 +129,6 @@ moved, as required, into `(slib common)`.
 * scanf
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
-  * TODO: example fails in Larceny
 * comparse
 * paramlst
 * getparam

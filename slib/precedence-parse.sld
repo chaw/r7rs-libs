@@ -66,7 +66,6 @@
           prec:inmatchfix
           prec:delim
           syn-defs
-          syn-defs-set!
           syn-ignore-whitespace
           prec:define-grammar
           prec:parse
@@ -89,13 +88,7 @@
   (begin
 
     ;@
-    (define *syn-defs* #f)
-
-    (define (syn-defs) 
-      *syn-defs*)
-
-    (define (syn-defs-set! val)
-      (set! *syn-defs* val))
+    (define syn-defs (make-parameter #f))
 
     (define (tok:peek-char dyn) (peek-char (cadr dyn)))
     (define (tok:read-char dyn)
@@ -197,7 +190,7 @@
     ;;;Calls to set up tables.
     ;@
     (define (prec:define-grammar . synlsts)
-      (set! *syn-defs* (append (apply append synlsts) *syn-defs*)))
+      (syn-defs (append (apply append synlsts) (syn-defs))))
     ;@
     (define (prec:make-led toks . args)
       (map (lambda (tok)
@@ -453,7 +446,7 @@
 
     ;;;;The parse tables.
     ;;; Definitions accumulate in top-level variable *SYN-DEFS*.
-    (set! *syn-defs* '())		       ;Make sure *SYN-DEFS* is empty.
+    (syn-defs '())		       ;Make sure *SYN-DEFS* is empty.
 
     ;;; Ignore Whitespace characters.
     (prec:define-grammar (tok:char-group 0 tok:whitespaces #f))
@@ -467,15 +460,7 @@
          )))
 
     ;;;@ Save these convenient definitions.
-    (define *syn-ignore-whitespace* *syn-defs*)
-    (set! *syn-defs* '())
-
-    (define (syn-ignore-whitespace)
-      *syn-ignore-whitespace*)
-
-    ;;(begin (trace-all "prec.scm") (set! *qp-width* 333))
-    ;;(pretty-print (grammar-read-tab (get-grammar 'standard)))
-    ;;(prec:trace)
+    (define syn-ignore-whitespace (make-parameter (syn-defs)))
 
     ))
 

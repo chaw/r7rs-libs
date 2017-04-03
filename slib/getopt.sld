@@ -28,7 +28,7 @@
           option-index
           option-arg
           option-name)
-  (import (scheme base)
+  (import (scheme base) 
           (scheme process-context))
 
   (begin
@@ -43,66 +43,64 @@
 
     ;@
     (define (getopt optstring)
-      (let* ((opts (string->list optstring))
-             (place #f)
-             (arg #f)
-             (argref (lambda () (list-ref args (option-index)))))
-        (when
-          (cond ((and getopt:scan 
+      (define (argref) (list-ref args (option-index)))
+      (if (cond ((and getopt:scan 
                       (not (string=? "" getopt:scan)))
                  #t)
                 ((>= (option-index) (length args)) 
                  #f)
                 (else
-                  (set! arg (argref))
-                  (cond ((or (<= (string-length arg) 1)
-                             (not (char=? (string-ref arg 0) getopt:char)))
-                         #f)
-                        ((and (= (string-length arg) 2)
-                              (char=? (string-ref arg 1) getopt:char))
-                         (option-index (+ (option-index) 1))
-                         #f)
-                        (else
-                          (set! getopt:scan (substring arg 1 (string-length arg)))
-                          #t))))
+                  (let ((arg (argref)))
+                    (cond ((or (<= (string-length arg) 1)
+                               (not (char=? (string-ref arg 0) getopt:char)))
+                           #f)
+                          ((and (= (string-length arg) 2)
+                                (char=? (string-ref arg 1) getopt:char))
+                           (option-index (+ (option-index) 1))
+                           #f)
+                          (else
+                            (set! getopt:scan (string-copy arg 1))
+                            #t)))))
+        (begin
           (option-name (string-ref getopt:scan 0))
-          (set! getopt:scan
-            (substring getopt:scan 1 (string-length getopt:scan)))
+          (set! getopt:scan (string-copy getopt:scan 1))
           (when (string=? "" getopt:scan) 
             (option-index (+ (option-index) 1)))
-          (set! place (member (option-name) opts))
-          (cond ((not place) 
-                 #\?)
-                ((or (null? (cdr place)) 
-                     (not (char=? #\: (cadr place))))
-                 (option-name))
-                ((not (string=? "" getopt:scan))
-                 (option-arg getopt:scan)
-                 (option-index (+ (option-index) 1))
-                 (set! getopt:scan #f)
-                 (option-name))
-                ((< (option-index) (length args))
-                 (option-arg (argref))
-                 (option-index (+ (option-index) 1))
-                 (option-name))
-                ((and (not (null? opts)) 
-                      (char=? #\: (car opts))) 
-                 #\:)
-                (else 
-                  #\?)))))
+          (let* ((opts (string->list optstring))
+                 (place (member (option-name) opts)))
+            (cond ((not place) 
+                   #\?)
+                  ((or (null? (cdr place)) 
+                       (not (char=? #\: (cadr place))))
+                   (option-name))
+                  ((not (string=? "" getopt:scan))
+                   (option-arg getopt:scan)
+                   (option-index (+ (option-index) 1))
+                   (set! getopt:scan #f)
+                   (option-name))
+                  ((< (option-index) (length args))
+                   (option-arg (argref))
+                   (option-index (+ (option-index) 1))
+                   (option-name))
+                  ((and (not (null? opts)) 
+                        (char=? #\: (car opts))) 
+                   #\:)
+                  (else 
+                    #\?))))
+        #f))
 
-    ;@
-    (define (getopt-- optstring)
-      (let* ((opt (getopt (string-append optstring "-:")))
-             (optarg (option-arg)))
-        (cond ((eqv? #\- opt)		;long option
-               (do ((l (string-length (option-arg)))
-                    (i 0 (+ 1 i)))
-                 ((or (>= i l) (char=? #\= (string-ref optarg i)))
-                  (cond ((>= i l) (option-arg #f) optarg)
-                        (else (option-arg (substring optarg (+ 1 i) l))
-                              (substring optarg 0 i))))))
-              (else opt))))
+  ;@
+  (define (getopt-- optstring)
+    (let* ((opt (getopt (string-append optstring "-:")))
+           (optarg (option-arg)))
+      (cond ((eqv? #\- opt)		;long option
+             (do ((l (string-length (option-arg)))
+                  (i 0 (+ 1 i)))
+               ((or (>= i l) (char=? #\= (string-ref optarg i)))
+                (cond ((>= i l) (option-arg #f) optarg)
+                      (else (option-arg (substring optarg (+ 1 i) l))
+                            (substring optarg 0 i))))))
+            (else opt))))
 
-    ))
+  ))
 
