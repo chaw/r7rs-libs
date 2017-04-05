@@ -24,8 +24,7 @@
 
 (define-library
   (slib factor)
-  (export prime:prngs
-          jacobi-symbol
+  (export jacobi-symbol
           prime:trials
           prime?
           primes<
@@ -38,8 +37,6 @@
           (srfi 27))
 
   (begin
-
-    (define prime:prngs default-random-source)
 
     ;;@emph{Note:} The prime test and generation procedures implement (or
     ;;use) the Solovay-Strassen primality test. See
@@ -77,13 +74,13 @@
     ;;@body
     ;;@0 the maxinum number of iterations of Solovay-Strassen that will
     ;;be done to test a number for primality.
-    (define prime:trials 30)
+    (define prime:trials (make-parameter 30))
 
     ;;; checks if n is prime.  Returns #f if not prime. #t if (probably) prime.
     ;;;   probability of a mistake = (expt 2 (- prime:trials))
     ;;;     choosing prime:trials=30 should be enough
     (define (Solovay-Strassen-prime? n)
-      (do ((i prime:trials (- i 1))
+      (do ((i (prime:trials) (- i 1))
            (a (+ 2 (random-integer (- n 2)))
               (+ 2 (random-integer (- n 2)))))
         ((not (and (positive? i)

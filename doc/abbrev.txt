@@ -1,0 +1,56 @@
+== Abbrev: +(import (robin abbrev))+
+
+indexterm:[abbrev]
+Create unique abbreviations for a list of strings.  This library is a port of the equivalent Ruby library.
+
+=== abbrev
+
+Input:
+
+* a list of strings
+* an optional prefix
+
+Output:
+
+* an association list mapping unique abbreviations to its matching string
+
+For example:
+
+[source,lisp]
+----
+#|kawa:9|# (import (robin abbrev))
+#|kawa:10|# (abbrev '("scheme" "scala" "lisp"))
+((lisp . lisp) (lis . lisp) (li . lisp) (l . lisp) 
+ (scala . scala) (scal . scala) (sca . scala) 
+ (scheme . scheme) (schem . scheme) (sche . scheme) (sch . scheme))
+----
+
+The first line shows that any prefix to "lisp" is an acceptable, unique
+abbreviation: because no other word in the list of strings starts with the
+letter "l".  For Scala and Scheme, the unique abbreviations start with three
+letters, as "s" and "sc" are prefixes to both.
+
+The optional prefix will only include words that have that prefix, allowing us to select a subset of the strings to generate abbreviations for.  For example:
+
+[source,lisp]
+----
+#|kawa:11|# (abbrev '("scheme" "scala" "lisp") "s")
+((scala . scala) (scal . scala) (sca . scala) 
+ (scheme . scheme) (schem . scheme) (sche . scheme) (sch . scheme))
+----
+
+With the "s" prefix included, "lisp" is no longer in the output.
+
+As a simple application, the abbreviations can be used as a word or 
+command expander:
+
+[source,lisp]
+----
+#|kawa:2|# (define shortcuts (abbrev '("scheme" "scala" "lisp")))
+#|kawa:3|# (cdr (assoc "l" shortcuts))
+lisp
+#|kawa:4|# (cdr (assoc "sch" shortcuts))
+scheme
+----
+
+

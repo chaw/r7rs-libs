@@ -1,0 +1,32 @@
+== Constants: +(import (robin constants))+
+
+indexterm:[constants]
+This library was born out of frustration in not having PI to hand when needed.  It provides 
+some mathematical or physical constants for use in calculations. (You probably want to use +only+ or 
++prefix+ statements when using this library, as some of the constants are single letters.)
+
+.Currently provided constants
+[width="50%",cols="5,1",frame="all",options="header"]
+|============================================
+|Description                      |Name
+|Newton's constant of gravitation | indexterm2:[G]
+|Speed of light in a vacuum       | indexterm2:[c]
+|PI                               | indexterm2:[PI]
+|e                                | indexterm2:[e]
+|============================================
+
+Use very simply:
+
+[source,lisp]
+----
+#|kawa:1|# (import (robin constants))
+#|kawa:2|# PI
+3.141592653589793
+#|kawa:3|# G
+6.67408E-11
+#|kawa:4|# (define (area r) (* PI r r))
+#|kawa:5|# (area 3)
+28.274333882308138
+----
+
+

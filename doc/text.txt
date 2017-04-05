@@ -1,0 +1,254 @@
+== Text: +(import (robin text))+
+
+indexterm:[text] The text library contains a collection of functions for working with strings or 
+text documents.
+
+=== daitch-mokotoff-soundex
+
+The indexterm:[daitch-mokotoff-soundex] indexterm2:[Daitch-Mokotoff Soundex]
+algorithm is a variant of the Russell Soundex algorithm, designed to work
+better for Slavic and Yiddish names.  The implementation here uses the table
+from http://www.jewishgen.org/InfoFiles/soundex.html[].
+
+[source,lisp]
+----
+#|kawa:6|# (daitch-mokotoff-soundex "LONDON")
+863600
+#|kawa:9|# (daitch-mokotoff-soundex "LEWINSKY")
+876450
+#|kawa:10|# (daitch-mokotoff-soundex "LEVINSKI")
+876450
+----
+
+For some words, multiple codes are possible - pass an optional second argument +'all+ to get a list of codes:
+
+[source,lisp]
+----
+#|kawa:2|# (daitch-mokotoff-soundex "auerbach")
+097500
+#|kawa:3|# (daitch-mokotoff-soundex "auerbach" 'all)
+(097500 097400)
+----
+
+=== hamming-distance
+
+The indexterm2:[+hamming-distance+] is the number of mismatched items between two equal-length sequences.
+The +hamming-distance+ function takes two arguments and an optional comparison procedure.  The sequences 
+can be strings, lists, vectors or bytevectors.  The comparison procedure defaults to +char=?+ for strings,
++=+ for bytevectors, and +equal?+ for everything else.
+
+[source,lisp]
+----
+#|kawa:2|# (hamming-distance "This string" "that strong")
+4
+#|kawa:3|# (hamming-distance "This string" "that strong" char-ci=?)
+3
+#|kawa:4|# (hamming-distance #(1 2 3 4) #(0 2 3 5))
+2
+----
+
+=== levenshtein-distance
+
+The indexterm2:[+levenshtein-distance+] counts the minimum number of
+insertions/deletions/substitutions to convert one sequence into another.  The
++levenshtein-distance+ function takes two arguments and an optional comparison
+procedure.  The sequences can be strings, lists, vectors or bytevectors.  The
+comparison procedure defaults to +char=?+ for strings, +=+ for bytevectors, and
++equal?+ for everything else.
+ 
+[source,lisp]
+----
+#|kawa:2|# (levenshtein-distance "sitting" "kitten")
+3
+#|kawa:3|# (levenshtein-distance "Saturday" "sunday")
+4
+#|kawa:4|# (levenshtein-distance "Saturday" "sunday" char-ci=?)
+3
+----
+
+=== metaphone
+
+The indexterm:[metaphone] indexterm2:[Metaphone Algorithm] was created as an improvement on Soundex, better 
+taking account of variations in English pronounciation.  The algorithm was created by Lawrence Philips, in 
+"Computer Language" December 1990 issue.  There have been many published variants of Metaphone.  A summary 
+can be found at http://aspell.net/metaphone/[].
+
+The +metaphone+ function simply takes a word to convert into a coded representation of its sound:
+
+[source,lisp]
+----
+#|kawa:2|# (metaphone "smith")
+SM0
+#|kawa:3|# (metaphone "smythe")
+SM0
+#|kawa:4|# (metaphone "lewinsky")
+LWNSK
+#|kawa:5|# (metaphone "levinski")
+LFNSK
+----
+
+Note, the output code is all upper-case letters, with "0" standing in for "TH".
+
+=== optimal-string-alignment-distance
+
+indexterm2:[+optimal-string-alignment-distance+] is a modification of the
+Levenshtein distance to include transpositions as well as deletions, insertions
+or substitutions.  A transposition is where two characters have been swapped,
+such as when typing too quiclky.  The +optimal-string-alignment-distance+
+function takes two arguments and an optional comparison procedure.  The
+sequences can be strings, lists, vectors or bytevectors.  The comparison
+procedure defaults to +char=?+ for strings, +=+ for bytevectors, and +equal?+
+for everything else.
+
+[source,lisp]
+----
+> (levenshtein-distance "kitten" "sitting")
+3
+> (optimal-string-alignment-distance "kitten" "sitting")
+3
+> (levenshtein-distance "this string" "that strnig")
+4
+> (optimal-string-alignment-distance "this string" "that strnig")
+3
+----
+
+Notice the difference between the two algorithms in the last case, where "n" and "i" have 
+been transposed.
+
+=== porter-stem
+
+indexterm2:[+porter-stem+] is an implementation of the well-known indexterm2:[Porter Stemming Algorithm], for 
+reducing words to a base form.  More details of the algorithm are at https://tartarus.org/martin/PorterStemmer/[]
+
+The function simply takes the word to change, and returns the stemmed form:
+
+[source,lisp]
+----
+> (porter-stem "running")
+"run"
+> (porter-stem "apples")
+"appl"
+> (porter-stem "apple")
+"appl"
+> (porter-stem "approximation")
+"approxim"
+> (porter-stem "sympathize")
+"sympath"
+> (porter-stem "sympathise") 
+"sympathis"
+----
+
+=== russell-soundex
+
+indexterm2:[+russell-soundex+] is the same as +soundex+, exported from +(slib soundex)+
+
+=== sorenson-dice-similarity
+
+indexterm2:[+sorenson-dice-similarity+] returns a measure of how similar two strings are, based 
+on n-grams of characters.  An optional third argument provides the number 
+of characters in the n-grams, which defaults to 2:
+
+[source,lisp]
+----
+> (sorenson-dice-similarity "rabbit" "racket")
+1/5
+> (sorenson-dice-similarity "sympathize" "sympthise")
+10/17
+> (sorenson-dice-similarity "sympathize" "sympthise" 1)
+8/9
+> (sorenson-dice-similarity "sympathize" "sympthise" 3)
+2/5
+----
+
+=== soundex
+
+indexterm2:[+soundex+] is the same as +soundex+, exported from +(slib soundex)+.  
+
+=== string->n-grams
+
+indexterm2:[+string->n-grams+] separates a string into overlapping groups of +n+ letters.
+
+[source,lisp]
+----
+> (string->n-grams "ABCDE" 1)
+("A" "B" "C" "D" "E")
+> (string->n-grams "ABCDE" 3)
+("ABC" "BCD" "CDE")
+----
+
+For +n+ greater than the length of the string, the string itself is returned.
+If +n+ is less than 1, an error is raised.
+
+=== words->with-commas
+
+indexterm2:[+words->with-commas+] is a function taking a list of strings and 
+adding commas in between the items up to the last item, which is preceded 
+by an "and".  For example:
+
+[source,lisp]
+----
+> (words->with-commas '())
+""
+> (words->with-commas '("apple"))
+"apple"
+> (words->with-commas '("apple" "banana"))
+"apple and banana"
+> (words->with-commas '("apple" "banana" "chikoo"))
+"apple, banana and chikoo"
+> (words->with-commas '("apple" "banana" "chikoo" "damson"))
+"apple, banana, chikoo and damson"
+> (words->with-commas '("apple" "banana" "chikoo" "damson") #t)
+"apple, banana, chikoo, and damson"
+----
+
+An optional second argument controls whether the final "and" should be 
+preceded by a comma.  The default is not to have the comma.
+
+=== word-wrap
+
+indexterm2:[+word-wrap+] takes two arguments, a string and a target width.  It
+returns a list of strings, each item in the list representing a line of text.
+Each line is formatted so words do not go beyond the target width.  The
+algorithm is a simple greedy algorithm.  If a single word is longer than the
+target width, it is allowed to overlap.
+
+For example, setting:
+
+[source,lisp]
+----
+(define *text* "Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary. Scheme demonstrates that a very small number of rules for forming expressions, with no restrictions on how they are composed, suffice to form a practical and efficient programming language that is flexible enough to support most of the major programming paradigms in use today.")
+----
+
+We can wrap to a width of 50 characters using:
+
+[source,lisp]
+----
+> (word-wrap *text* 50)
+Programming languages should be designed not by
+piling feature on top of feature, but by removing
+the weaknesses and restrictions that make
+additional features appear necessary. Scheme
+demonstrates that a very small number of rules for
+forming expressions, with no restrictions on how
+they are composed, suffice to form a practical and
+efficient programming language that is flexible
+enough to support most of the major programming
+paradigms in use today.
+----
+
+and we can wrap to a width of 60 characters using:
+
+[source,lisp]
+----
+> (word-wrap *text* 60)
+Programming languages should be designed not by piling
+feature on top of feature, but by removing the weaknesses
+and restrictions that make additional features appear
+necessary. Scheme demonstrates that a very small number of
+rules for forming expressions, with no restrictions on how
+they are composed, suffice to form a practical and efficient
+programming language that is flexible enough to support most
+of the major programming paradigms in use today.
+----
+
+

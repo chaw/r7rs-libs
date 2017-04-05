@@ -1,0 +1,149 @@
+== Repackaged or Ported Libraries
+
+Most of the libraries available in this collection have been repackaged or
+ported from earlier versions of Scheme, or Lisp, to work under R7RS Scheme
+implementations.  Modifications have been kept to a minimum to make the code
+work.  Test scripts and examples are available for some parts of these
+libraries and may be examined for ideas on how each library works. 
+
+This chapter provides an overview of these repackaged collections or references
+to existing detailed documentation.  Some of the individual libraries from
+these collections are described in the following chapters.
+
+=== Natural Language Tool Kit: +(import (nltk NNNN))+
+
+indexterm:[nltk]
+A repackaging of libraries from the Natural Language ToolKit: https://sourceforge.net/projects/snltk/[]
+
+*    dfsa
+*    lang-en
+*    lang-hr
+*    n-grams
+*    sequence
+*    vectorspace
+
+(Not the +cgi+ package, as the necessary support libraries are not present.)
+
+These libraries support natural-language processing tasks, such as dividing text into n-grams, analysing or 
+displaying the n-grams, and working with a deterministic finite-state automaton.
+
+Some tests and examples are provided, but otherwise this collection needs documenting.
+
+=== Purely Functional Data Structures: +(import (pfds NNNN))+
+
+indexterm:[pfds]
+A repackaging of _Purely Functional Data Structures_, originally written for R6RS Scheme: https://github.com/ijp/pfds[]
+
+These data structures implement algorithms from a variety of sources (see the README at above link).
+
+*    bounded-balance-tree
+*    deque
+*    difference-list
+*    fingertree
+*    hash-array-mapped-trie
+*    heap
+*    priority-search-queue
+*    queue
+*    sequence
+*    set
+
+And, to support implementation:
+
+*    alist
+*    bitwise
+*    lazy-list
+*    list-helpers
+*    vector
+
+Some tests and examples are provided, but otherwise this collection needs documenting.
+
+=== R6RS: +(import (r6rs NNNN))+
+
+indexterm:[r6rs]
+As many of the libraries have been ported from R6RS implementations, they depend on some 
+R6RS functionalities - particularly fixnum arithmetic and bytevectors.  Some of these 
+have been taken from http://snow-fort.org[] in support of the repackaging (particularly for Weinholt).
+
+=== Rebottled
+
+indexterm:[rebottled]
+Some libraries ported from older Scheme versions or Common Lisp: these libraries are individual 
+or very few files.
+
+==== CL-PDF: +(import (rebottled cl-pdf))+
+
+indexterm:[cl-pdf]
+Originally written for Common Lisp by Marc Battyani, this library was then ported to Scheme 
+by Bruce Butterfield.
+
+The library allows us to construct and output PDF documents.  The following example 
+displays two repeated blocks of text and a title in a variety of fonts, sizes and 
+positions in the document.
+
+[source,lisp]
+----
+(define (ex1)
+  (pdf:with-document-to-file 
+    "ex1.pdf"
+    (let ((helvetica (pdf:build-font "Helvetica"))
+          (courier (pdf:build-font "Courier")))
+      (pdf:with-page
+        (pdf:in-text-mode
+          (pdf:set-font (pdf:font-name helvetica) 36)
+          (pdf:move-text 100 750)
+          (pdf:draw-text "scm-pdf: Example 1"))
+        (pdf:in-text-mode
+          (dotimes (i 25)
+            (pdf:set-font (pdf:font-name helvetica) (* i 1.5))
+            (pdf:move-text (+ i 5) (+ i 10))
+            (pdf:draw-text "Helvetica")))
+        (pdf:in-text-mode
+          (dotimes (i 25)
+            (pdf:set-font (pdf:font-name courier) (* i 1.5))
+            (pdf:move-text (+ i 5) (- 50 (+ i 10)))
+            (pdf:draw-text "Courier")))))))
+----            
+
+This library needs documentation, and some helper functions to layout larger blocks of text.
+
+==== Portable Regular Expressions: +(import (rebottled pregexp))+
+
+indexterm:[pregexp]
+Written by Dorai Sitaram, this library is documented at:
+http://ds26gte.github.io/pregexp/index.html[]
+
+==== Quaternions: +(import (rebottled quaternions))+
+
+indexterm:[quaternions]
+Written by Dorai Sitaram, this library is documented at:
+http://www.ccs.neu.edu/home/dorai/squat/squat.html[]
+
+The quaternions library extends the Scheme numeric tower.  
+
+==== Schelog: +(import (rebottled schelog))+
+
+indexterm:[schelog]
+Written by Dorai Sitaram, this library is documented at:
+https://ds26gte.github.io/schelog/index.html[]
+
+=== SRFI: +(import (srfi NN))+
+
+indexterm:[srfi] The +r7rs-libs+ include some SRFIs for Chibi and Kawa.  These
+are provided solely to provide support for the above libraries.  Although
+mostly complete in themselves, SRFI-64, for example, only provides those
+functions needed in the test suites to support Chibi, wrapping 
+equivalent +(chibi test)+ functions.
+
+For documentation on the SRFIs, see http://srfi.schemers.org/final-srfis.html[]
+
+=== Weinholt Industria: +(import (weinholt NNNN))+
+
+indexterm:[weinholt]
+This collection is still in process of being repackaged.  It contains a collection of algorithms for 
+working with compression algorithms, performing cryptography, and interacting with networks.  
+
+Documentation is available at: https://weinholt.se/industria/manual/[]
+
+See https://github.com/petercrlane/r7rs-libs[] for information on which libraries are currently available.
+
+

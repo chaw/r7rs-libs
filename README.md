@@ -95,6 +95,7 @@ Main changes are:
 * (slib common) created to hold generally used definitions
 * code uses SRFIs where possible
 * defmacro not included
+* parameters wrap exported variables
 
 The following list of packages reflects the contents page of the slib
 documentation, and gives some notes on any changes or choices made:
@@ -135,7 +136,7 @@ moved, as required, into `(slib common)`.
 * html-form
 * db->html
 * http
-  * http:byline is a parameter object
+  * http:byline exported as a parameter object
 * html-for-each
 * uri
 * xml-parse
@@ -158,6 +159,7 @@ moved, as required, into `(slib common)`.
 * math-integer
 * math-real
 * factor
+  * prime:trials exported as a parameter
 * random: use (srfi 27)
 * random-inexact
 * dft

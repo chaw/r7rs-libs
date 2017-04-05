@@ -1,0 +1,338 @@
+== SLIB
+
+indexterm:[slib]
+SLIB is a collection of packages of Scheme code, mostly written by Aubrey
+Jaffer, but some collected from other sources.  Looking through the files, some
+of the original dates go back to 1991, and the precedence parser into 1989.  A
+number of ideas now found in Scheme and captured in the SRFIs can be traced
+back to SLIB.  The repackaged files in +r7rs-libs+ have been adapted to work
+with R7RS Scheme implementations: using R7RS functionality, the library system,
+and operations now found in SRFIs.  
+
+SLIB's official documentation is available at http://people.csail.mit.edu/jaffer/slib[]
+
+There are 91 libraries within the R7RS SLIB collection.  These fall within four main 
+groups of functionality:
+
+. Textual Conversion Packages, including a parser, I/O routines, html and xml processing, 
+  pretty-printing of Scheme objects, and procedures to handle times and dates.
+. Mathematical Libraries, including prime numbers, some random number distributions, plotting 
+  functions (to text and eps), root/limit finding libraries and a 3D modelling suite.
+. Database Packages, which implement a relational database system, and a library for weighted
+  trees.
+. Other Packages
+.. Data Structures: for enhancing arrays, working with pnm files, an object system and queues.
+.. Sorting and Searching: trees, chapter-order, topological sort, along with some space filling 
+   curves and sequence comparisons.
+.. Other Procedures: a library of metric units for computing conversions.
+
+The github page for +r7rs-libs+ and the wiki, https://github.com/petercrlane/r7rs-libs/wiki[],
+provide additional information about SLIB and its conversion for use as R7RS libraries.  
+
+The "examples" and "tests" directories provide (some) examples of using SLIB.  Some limited 
+documentation for some of the libraries follows in the next sections.
+
+=== Charplot: +(import (slib charplot))+
+
+This library provides a way to quickly visualise some data in graphical or histogram 
+form from the REPL or command-line interface.  There are two basic functions: +histograph+ 
+and +plot+, the latter drawing graphs of data or functions.
+
+==== charplot:dimensions
+
+This parameter allows you to change the size of display.  The dimensions are a two-valued 
+list: the height and width in characters.  Example below.
+
+==== histograph
+
+indexterm2:[+histograph+] is used to plot histograms of numeric data.  Given a list or vector 
+of numbers, it will arrange them into a suitable set of bins and display:
+
+----
+> (histograph '(1 1 2 3 5 5 5 7 8 9) "sample")
+           ________________________________________________________________   
+          |                                                                |  
+          |                                                                |  
+         3|-                       I                                       |  
+          |                        I                                       |  
+          |                        I                                       |  
+       2.5|-                       I                                       |  
+          |                        I                                       |  
+          |                        I                                       |  
+         2|-I                      I                                       |  
+          | I                      I                                       |  
+          | I                      I                                       |  
+       1.5|-I                      I                                       |  
+          | I                      I                                       |  
+          | I                      I                                       |  
+         1|-I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+       0.5|-I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+         0|-IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII---------------|  
+          |._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+  sample         2           4           6           8           10           
+
+> (charplot:dimensions '(10 50))
+> (histograph '(1 1 2 3 5 5 5 7 8 9) "sample")
+           ___________________________________   
+         3|-               I                  |  
+          |                I                  |  
+         2|-I              I                  |  
+          | I              I                  |  
+         1|-I   I   I      I       I   I   I  |  
+          | I   I   I      I       I   I   I  |  
+         0|-IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII--|  
+          |_.____:____.____:____.____:____.___|  
+  sample        2.5        5        7.5          
+> 
+----
+
+==== plot
+
+indexterm2:[+plot+] can be used in two ways: to display a function, or to display some data.
+
+.Plotting a function
+
++plot+ will plot the values of a single argument function (taking and returning a number).
+The function should be given as the first argument.  The second and third arguments specify the 
+range of x values over which to plot the graph - be careful of infinite values from your 
+function, which will crash +plot+.  An optional fourth argument specifies how many points 
+to plot along the range of x values.
+
+----
+> (plot (lambda (x) (* x x x)) -5 5)
+           _________________________________________________________________   
+       140|-                              :                                 |  
+          |                               :                                 |  
+       120|-                              :                             *   |  
+          |                               :                            *    |  
+       100|-                              :                           *     |  
+          |                               :                          *      |  
+        80|-                              :                         *       |  
+          |                               :                       **        |  
+        60|-                              :                      *          |  
+          |                               :                    **           |  
+        40|-                              :                   *             |  
+          |                               :                 ***             |  
+        20|-                              :               **                |  
+          |                  ***          :          *****                  |  
+         0|---------------------*********************-----------------------|  
+          |                **             :                                 |  
+       -20|-             **               :                                 |  
+          |           ***                 :                                 |  
+       -40|-          *                   :                                 |  
+          |         **                    :                                 |  
+       -60|-       *                      :                                 |  
+          |      **                       :                                 |  
+       -80|-    *                         :                                 |  
+          |    *                          :                                 |  
+      -100|-  *                           :                                 |  
+          |  *                            :                                 |  
+      -120|-*                             :                                 |  
+          |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+                  -4          -2          0           2           4           
+
+> (plot (lambda (x) (* x x x)) -5 5 30)
+           _________________________________________________________________   
+       140|-                              :                                 |  
+          |                               :                                 |  
+       120|-                              :                             *   |  
+          |                               :                                 |  
+       100|-                              :                           *     |  
+          |                               :                                 |  
+        80|-                              :                         *       |  
+          |                               :                                 |  
+        60|-                              :                       *         |  
+          |                               :                     *           |  
+        40|-                              :                   *             |  
+          |                               :                 *               |  
+        20|-                              :               *                 |  
+          |                    *          :          * *                    |  
+         0|----------------------*-*-*-*-*:*-*-*-*-*------------------------|  
+          |                  *            :                                 |  
+       -20|-              *               :                                 |  
+          |             *                 :                                 |  
+       -40|-          *                   :                                 |  
+          |         *                     :                                 |  
+       -60|-      *                       :                                 |  
+          |                               :                                 |  
+       -80|-    *                         :                                 |  
+          |                               :                                 |  
+      -100|-  *                           :                                 |  
+          |                               :                                 |  
+      -120|-*                             :                                 |  
+          |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+                  -4          -2          0           2           4          
+----
+
+.Plotting some data
+
+This second form of +plot+ directly plots a list or vector of pairs of (x, y)
+coordinates. Second and third arguments give labels to the two axes.
+
+----
+> (define data (map (lambda (x) (list x (* x x x))) (iota 11 -5)))
+> data
+((-5 -125) (-4 -64) (-3 -27) (-2 -8) (-1 -1) (0 0) (1 1) (2 8) (3 27) (4 64) (5 125))
+> (plot data "x-values" "y-values")
+ y-values  _________________________________________________________________   
+       140|-                              :                                 |  
+          |                               :                                 |  
+       120|-                              :                             *   |  
+          |                               :                                 |  
+       100|-                              :                                 |  
+          |                               :                                 |  
+        80|-                              :                                 |  
+          |                               :                                 |  
+        60|-                              :                       *         |  
+          |                               :                                 |  
+        40|-                              :                                 |  
+          |                               :                 *               |  
+        20|-                              :                                 |  
+          |                   *           :           *                     |  
+         0|-------------------------*-----*-----*---------------------------|  
+          |                               :                                 |  
+       -20|-                              :                                 |  
+          |             *                 :                                 |  
+       -40|-                              :                                 |  
+          |                               :                                 |  
+       -60|-      *                       :                                 |  
+          |                               :                                 |  
+       -80|-                              :                                 |  
+          |                               :                                 |  
+      -100|-                              :                                 |  
+          |                               :                                 |  
+      -120|-*                             :                                 |  
+          |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+ x-values         -4          -2          0           2           4            
+
+----
+
+=== Factor: +(import (slib factor))+
+
+Functions for testing if numbers are primes, generating prime numbers, and to factor numbers.
+
+These functions use the Solovay-Strassen primality test:
+
+* Robert Solovay and Volker Strassen, A Fast Monte-Carlo Test for Primality,
+  _SIAM Journal on Computing_, 1977, pp 84-85. 
+
+==== factor
+
+indexterm2:[+factor+] takes one argument and returns a list of the prime factors of that 
+number: the numbers are in no guaranteed order.
+
+[source,lisp]
+----
+> (factor 5)
+(5)
+> (factor 100)
+(5 5 2 2)
+----
+
+==== jacobi-symbol
+
+The indexterm2:[+jacobi-symbol+] is used in modular arithmetic with one application, as here, 
+being tests for primality.  The function returns 0, -1 or 1 given two integers.
+
+[source,lisp]
+----
+> (jacobi-symbol 15 7)
+1
+> (jacobi-symbol 63 7)
+0
+> (jacobi-symbol 7 15)
+-1
+----
+
+==== prime:trials
+
+indexterm2:[+prime:trials+] controls the likelihood that +prime?+ will accept a composite 
+number as a prime.  The probability is 2^(- +prime:trials+) 
+
++prime:trials+ is a parameter object, so you can change it to a higher value, if required:
+
+[source,lisp]
+----
+> (prime:trials)
+30
+> (prime:trials 100)
+> (prime:trials)
+100
+----
+
+==== prime?
+
+indexterm2:[+prime?+] returns true or false depending on if the given number passes the 
+Solovay-Strassen primality test.
+
+[source,lisp]
+----
+> (prime? 17)
+#t
+> (prime? 1)
+#f
+----
+
+==== primes<
+
+indexterm2:[+primes<+] accepts two arguments: a start value and a count.  It returns a list 
+of +count+ prime numbers less than the start value.
+
+[source,lisp]
+----
+> (primes< 18 2)
+(13 17)
+----
+
+==== primes>
+
+indexterm2:[+primes>+] accepts two arguments: a start value and a count.  It returns a list 
+of +count+ prime numbers greater than the start value.
+
+[source,lisp]
+----
+> (primes> 18 2)
+(19 23)
+----
+
+=== Format: +(import (slib format))+
+
+This library provides an almost complete implementation of Common Lisp's
+indexterm2:[+format+] function.
+
+The format string syntax is complex.  Good descriptions are:
+
+* SLIB's documentation: http://people.csail.mit.edu/jaffer/slib/Format.html[]
+* in Peter Seibel's _Practical Common Lisp_: http://www.gigamonkeys.com/book/a-few-format-recipes.html[]
+* in Guy Steele's _Common Lisp: The Language_, 2nd edition: https://www.cs.cmu.edu/Groups/AI/util/html/cltl/clm/node200.html[]
+
+=== Soundex: +(import (slib soundex))+
+
+This implementation of the indexterm2:[Russell Soundex] algorithm is based on
+Knuth, Vol. 3 "Sorting and searching", pp.391-2: note, reexported by +(robin text)+
+
+The soundex algorithm returns a code for a word, and equivalent sounding words
+should return equivalent codes:
+
+[source,lisp]
+----
+> (soundex "pair")
+"P600"
+> (soundex "pare")
+"P600"
+> (soundex "rabbit")
+"R130"
+> (soundex "racket")
+"R230"
+> (soundex "smith")
+"S530"
+> (soundex "smythe")
+"S530"
+----
+
+
+

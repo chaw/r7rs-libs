@@ -1,0 +1,195 @@
+== Series: +(import (robin series))+
+
+indexterm:[series]
+An implementation of Richard Waters' Lisp Series package.  The original package is documented at:
+
+. Optimization of Series Expressions: Part I:User's Manual for the Series Macro Package, by Richard C. Waters, A.I. Memo No. 1082, MIT, 1989. ftp://publications.ai.mit.edu/ai-publications/pdf/AIM-1082.pdf[pdf]
+. Optimization of Series Expressions: Part II:Overview of the Theory and Implementation, by Richard C. Waters, A.I. Memo No. 1083, MIT, 1989. ftp://publications.ai.mit.edu/ai-publications/pdf/AIM-1083.pdf[pdf]
+
+.Note
+****
+This package is still experimental.  In particular, it is not optimised.
+****
+
+=== Scanners
+
+Scanners create series.
+
+==== series
+
+indexterm2:[series]
+
+==== series?
+
+indexterm2:[series?]
+
+==== make-series
+
+indexterm2:[make-series]
+
+==== scan
+
+indexterm2:[scan]
+
+==== scan-list
+
+indexterm2:[scan-list]
+
+==== scan-vector
+
+indexterm2:[scan-vector]
+
+==== scan-string
+
+indexterm2:[scan-string]
+
+==== scan-range
+
+indexterm2:[scan-range]
+
+==== scan-sublists
+
+indexterm2:[scan-sublists]
+
+==== scan-alist
+
+indexterm2:[scan-alist]
+
+==== scan-file
+
+indexterm2:[scan-file]
+
+==== scan-fn
+
+indexterm2:[scan-fn]
+
+==== scan-fn-inclusive
+
+indexterm2:[scan-fn-inclusive]
+
+=== Mapping
+
+==== map-fn
+
+indexterm2:[map-fn]
+
+=== Truncation
+
+==== until
+
+indexterm2:[until]
+
+==== until-if
+
+indexterm2:[until-if]
+
+=== Other On-Line Transducers
+
+==== previous
+
+indexterm2:[previous]
+
+=== Choosing and Expanding
+
+==== choose
+
+indexterm2:[choose]
+
+==== choose-if
+
+indexterm2:[choose-if]
+
+==== spread
+
+indexterm2:[spread]
+
+==== expand
+
+indexterm2:[expand]
+
+=== Other Off-Line Transducers
+
+==== catenate
+
+indexterm2:[catenate]
+
+==== subseries
+
+indexterm2:[subseries]
+
+==== positions
+
+indexterm2:[positions]
+
+==== mask
+
+indexterm2:[mask]
+
+==== mingle
+
+indexterm2:[mingle]
+
+=== Collectors
+
+==== collect-last
+
+indexterm2:[collect-last]
+
+==== collect-first
+
+indexterm2:[collect-first]
+
+==== collect-nth
+
+indexterm2:[collect-nth]
+
+==== collect
+
+indexterm2:[collect]
+
+==== collect-string
+
+indexterm2:[collect-string]
+
+==== collect-append
+
+indexterm2:[collect-append]
+
+==== collect-alist
+
+indexterm2:[collect-alist]
+
+==== collect-file
+
+indexterm2:[collect-file]
+
+==== collect-length
+
+indexterm2:[collect-length]
+
+==== collect-sum
+
+indexterm2:[collect-sum]
+
+==== collect-max
+
+indexterm2:[collect-max]
+
+==== collect-min
+
+indexterm2:[collect-min]
+
+==== collect-and
+
+indexterm2:[collect-and]
+
+==== collect-or
+
+indexterm2:[collect-or]
+
+==== collect-fn
+
+indexterm2:[collect-fn]
+
+
+

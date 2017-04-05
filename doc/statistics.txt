@@ -1,0 +1,328 @@
+== Statistics: +(import (robin statistics))+
+
+indexterm:[statistics]  A library of functions to compute statistical or 
+other information about sets of data.
+
+=== mean
+
+Computes the arithmetic indexterm2:[+mean+] of a list of numbers.  
+This is the familiar "add up all the numbers, divide by the total" average.
+
+[source,lisp]
+----
+#|kawa:2|# (mean '(1 2 3 4 5))
+3
+----
+
+=== arithmetic-mean
+
+indexterm:[arithmetic-mean] Same as +mean+.
+
+=== geometric-mean
+
+indexterm:[+geometric-mean+]  The geometric mean takes the nth root of the 
+product of the numbers, where +n+ is the size of the data.  This yields the 
+central number within a geometric progression.
+
+[source,lisp]
+----
+#|kawa:3|# (geometric-mean '(1 2 3 4 5))
+2.605171084697352
+#|kawa:4|# (geometric-mean '(1 3 9 27 81))
+9.000000000000002
+#|kawa:5|# (geometric-mean '(1 3 9 27))
+5.196152422706632
+----
+
+=== harmonic-mean
+
+indexterm:[+harmonic-mean+]  The harmonic mean is the reciprocal of the arithmetic 
+mean of the reciprocals.
+
+[source,lisp]
+----
+#|kawa:6|# (harmonic-mean '(1 2 3 4 5))
+300/137
+#|kawa:7|# (inexact (harmonic-mean '(1 2 3 4 5)))
+2.18978102189781
+----
+
+=== median
+
+The indexterm2:[+median+] is the central number, when all the numbers are put in order 
+(or, when there are an even number of numbers, the average of the two middle numbers).
+
+[source,lisp]
+----
+#|kawa:8|# (median '(5 3 1 2 4))
+3
+----
+
+=== mode
+
+The indexterm2:[+mode+] is the number appearing most often.  The +mode+ function returns 
+two values: a list of the most frequent number or numbers, and their number of occurrences.
+
+[source,lisp]
+----
+#|kawa:9|# (mode '(5 3 1 2 4))
+(1 2 3 4 5) 1
+#|kawa:11|# (let-values (((items count) (mode '(5 3 5 1 2 4))))
+#|.....12|# (display items) (newline) (display count) (newline))
+(5)
+2
+----
+
+=== percentile
+
+indexterm2:[+percentile+] takes two arguments, a list of data and a +percent+
+value, and returns the item in the list at that percentile position along the
+list, or an average of the nearest two values.  +percent+ values must be in the
+range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
++median+.
+
+[source,lisp]
+----
+#|kawa:13|# (percentile '(1 2 3 4 5) 50)
+3
+#|kawa:14|# (percentile '(1 2 3 4 5) 75)
+4
+#|kawa:16|# (percentile '(1 2 3 4 5) 99)
+5
+#|kawa:19|# (percentile '(1 2 3 4 5) 85)
+5
+#|kawa:20|# (percentile '(1 2 3 4 5) 80)
+9/2
+----
+
+=== population-standard-deviation
+
+indexterm2:[+population-standard-deviation+] of a list of data:
+
+[source,lisp]
+----
+#|kawa:28|# (population-standard-deviation '(1 2 3 4 5))
+1.4142135623730951
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it:
+
+[source,lisp]
+----
+#|kawa:39|# (population-standard-deviation '(1 2 3 4 5) 3)
+1.4142135623730951
+----
+
+=== population-variance
+
+indexterm2:[+population-variance+] of a list of data:
+
+[source,lisp]
+----
+#|kawa:29|# (population-variance '(1 2 3 4 5))
+2
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
+
+=== standard-deviation
+
+indexterm2:[+standard-deviation+] of a list of data:
+
+[source,lisp]
+----
+#|kawa:30|# (standard-deviation '(1 2 3 4 5))
+1.5811388300841898
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
+
+=== variance
+
+indexterm2:[+variance+] of a list of data:
+
+[source,lisp]
+----
+#|kawa:31|# (variance '(1 2 3 4 5))
+5/2
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
+
+=== coefficient-of-variation
+
+indexterm2:[+coefficient-of-variation+] describes the amount of spread in a dataset relative to its mean.
+In the following example, both lists have the same mean (3), but the spread is greater in the second.
+
+[source,lisp]
+----
+#|kawa:32|# (coefficient-of-variation '(1 2 3 4 5))
+52.70462766947299
+#|kawa:33|# (coefficient-of-variation '(-2 2 3 4 8))
+120.18504251546631
+----
+
+=== standard-error-of-the-mean
+
+indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling distribution.
+
+[source,lisp]
+----
+#|kawa:35|# (standard-error-of-the-mean '(1 2 3 4 5))
+0.7071067811865476
+----
+
+=== sign
+
+indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers
+
+[source,lisp]
+----
+#|kawa:36|# (sign 10)
+1
+#|kawa:37|# (sign 0)
+0
+#|kawa:38|# (sign -0.7)
+-1
+----
+
+=== random-normal
+
+indexterm2:[+random-normal+] is used to return a random number normally distributed with 
+a given mean and standard deviation.
+
+[source,lisp]
+----
+#|kawa:2|# (random-normal 0 10)
+3017/1250
+#|kawa:3|# (inexact (random-normal 0 10))
+0.05948
+#|kawa:4|# (inexact (random-normal 0 10))
+0.48029
+#|kawa:5|# (inexact (random-normal 0 10))
+-3.83553
+#|kawa:7|# (inexact (random-normal 20 10))
+21.81053
+#|kawa:8|# (inexact (random-normal 20 10))
+15.54491
+----
+
+=== random-pick
+
+indexterm2:[+random-pick+] returns a random selection from a given list
+
+[source,lisp]
+----
+#|kawa:20|# (random-pick '(1 2 3 4 5 6))
+6
+#|kawa:21|# (random-pick '(1 2 3 4 5 6))
+3
+#|kawa:22|# (random-pick '(1 2 3 4 5 6))
+2
+----
+
+=== random-sample
+
+indexterm2:[+random-sample+] returns a random sample of +n+ chosen from a list of items, 
+without replacement
+
+[source,lisp]
+----
+#|kawa:25|# (random-sample 3 '(1 2 3 4 5 6))
+(1 4 5)
+#|kawa:26|# (random-sample 3 '(1 2 3 4 5 6))
+(6 5 1)
+#|kawa:27|# (random-sample 3 '(1 2 3 4 5 6))
+(2 3 6)
+----
+
+=== random-weighted-sample
+
+indexterm2:[+random-weighted-sample+] returns a random sample of +n+ chosen from a list of items, 
+without replacement, but with the items weighted by the given list of weights.
+
+The following gives a heavy bias to choosing 1 and 6:
+
+[source,lisp]
+----
+#|kawa:28|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
+(6 1 5)
+#|kawa:29|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
+(1 6 4)
+#|kawa:30|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
+(1 6 5)
+----
+
+The following is a lighter bias to choosing 1 and 4:
+
+[source,lisp]
+----
+#|kawa:34|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
+(4 6 2)
+#|kawa:35|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
+(5 4 3)
+#|kawa:36|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
+(1 3 2)
+----
+
+=== jaccard-index
+
+indexterm:[jaccard-index]
+The indexterm2:[Jaccard Index] returns a number from 0 to 1 indicating how _similar_
+two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
+third argument provides the set-equality function (which defaults to +equal?+).
+
+[source,lisp]
+----
+#|kawa:40|# (jaccard-index '(1 2 3 4 5) '(3 4 5 6 7))
+3/7
+#|kawa:42|# (jaccard-index '(1 2 3 4 5) '(3 4 5 1 2 2 1 1))
+1
+#|kawa:43|# (jaccard-index '("a" "b" "c") '("A" "B" "F"))
+0
+#|kawa:45|# (jaccard-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
+1/2
+----
+
+.Note
+****
+Interestingly, the Jaccard Index is a distance _metric_ satisfying, in particular, the triangle 
+inequality.
+****
+
+=== jaccard-distance
+
+indexterm:[jaccard-distance]
+The indexterm2:[Jaccard Distance] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
+the two sets are.
+
+[source,lisp]
+----
+#|kawa:46|# (jaccard-distance '(1 2 3 4 5) '(3 4 5 6 7))
+4/7
+----
+
+=== sorenson-dice-index
+
+indexterm:[sorenson-dice-index] 
+The indexterm2:[Sorenson Dice Index] is a
+measure of the similarity of two sets.  Sets here are represented as lists, and
+duplicates are ignored.  An optional third argument provides the set-equality
+function (which defaults to +equal?+).
+
+[source,lisp]
+----
+#|kawa:47|# (sorenson-dice-index '(1 2 3 4 5) '(3 4 5 6 7))
+3/5
+#|kawa:48|# (sorenson-dice-index '("a" "b" "c") '("A" "B" "D"))
+0
+#|kawa:49|# (sorenson-dice-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
+2/3
+----
+
+
+

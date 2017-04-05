@@ -1,0 +1,100 @@
+== Logger: +(import (robin logger))+
+
+indexterm:[logger]  The Logger library is used to output messages to an output
+port.  Each message is given a level, and only messages above a certain set
+level will be output to the port.  This allows the developer to control the
+level of detail output by the program.  This logger library uses the same
+levels as Ruby's Logger class: 
+
+. unknown: An unknown message that should always be logged.
+. fatal: An unhandleable error that results in a program crash.
+. error: A handleable error condition.
+. warn: A warning.
+. info: Generic (useful) information about system operation.
+. debug: Low-level information for developers.
+
+=== new-logger
+
+indexterm2:[+new-logger+] creates a new logger object.  It accepts one argument: if the argument 
+is a port, the logged output will be directed at that port; if the argument is a string, then the 
+string will be treated as a filename, and the logger will open the file and send output to it.
+
+Use +(current-input-port)+ to set the logger to output to the terminal. 
+
+=== logger?
+
+indexterm2:[+logger?+] checks if the given object is a logger object or not.
+
+=== log-close
+
+indexterm2:[+log-close+] used to close up the logger.  This only has an effect if the logger was 
+created with a string, and has opened its own output file: the file port created by the logger is 
+then closed.  
+
+=== log-add
+
+indexterm2:[+log-add+] is used to output a message.  It accepts three arguments:
+
+* +logger+ is the log object to use for the output
+* +msg+ is the message to output, and must be a string
+* +level+ is the log level to use for the output
+
+Usually you will use one of the functions described in the next subsection, but sometimes it is useful for 
+the program to decide which log level to output a message at.
+
+=== log-unknown log-fatal log-error log-warn log-info log-debug
+
+indexterm2:[+log-unknown+] 
+indexterm2:[+log-fatal+] 
+indexterm2:[+log-error+] 
+indexterm2:[+log-warn+] 
+indexterm2:[+log-info+] 
+indexterm2:[+log-debug+] all accept two arguments, the log object and a message to output.  The message is 
+output if the log level mentioned in the function name is a valid one given the log object's current log level.
+
+=== log-level
+
+indexterm2:[+log-level+] accepts two arguments, a log object and a log level, and sets the logger's level. 
+
+=== log-unknown? log-fatal? log-error? log-warn? log-info? log-debug?
+
+indexterm2:[+log-unknown?+]
+indexterm2:[+log-fatal?+] 
+indexterm2:[+log-error?+] 
+indexterm2:[+log-warn?+] 
+indexterm2:[+log-info?+] 
+indexterm2:[+log-debug?+] all accept one argument, the log object, and return true if a log message at the given 
+level would be output by the log object.
+
+=== Example
+
+The following example illustrates how these functions may be used:
+
+[source,lisp]
+----
+(define log (new-logger "log1.txt"))      ; <1>
+(log-level log 'info)                     ; <2>
+(log-info log "some information logged")  ; <3>
+(log-debug log "this will be ignored")    ; <4>
+(log-level log 'debug)                    ; <5>
+(log-debug log "but this included")       ; <6>
+(log-close log)                           ; <7>
+----
+<1> Create a new logger, output to the given file
+<2> Sets the log level to "info"
+<3> Outputs a line at "info" level, which will be output
+<4> Tries to output a line at "debug" level, but this will be ignored as it is lower than the set level
+<5> Sets the log level to "debug"
+<6> And now the log message at "debug" level will be output
+<7> Finally, close the logger, which closes the file port it opened
+
+The output from the above example is sent to the file "log1.txt", which contains two lines.  Notice the log level 
+precedes each message.
+
+----
+$ more log1.txt 
+info: some information logged
+debug: but this included
+----
+
+

@@ -1,0 +1,64 @@
+== Directory: +(import (robin directory))+
+
+indexterm:[directory]
+This library is implementation specific, providing a common interface for working with directories.
+Some of the details of the output will vary depending on implementation (e.g. whether directories 
+are included when listing files).
+
+The library only supports Chibi, Kawa and Larceny at present.
+
+=== current-directory
+
+indexterm2:[+current-directory+] returns the current working directory (as a string):
+
+[source,lisp]
+----
+#|kawa:1|# (import (robin directory))
+#|kawa:2|# (current-directory)
+/home/peter/Software/r7rs-libs/robin
+----
+
+=== list-directory-files
+
+indexterm2:[+list-directory-files+] returns a list of the _filenames_ in the given directory:
+
+[source,lisp]
+----
+#|kawa:4|# (list-directory-files (current-directory))
+(srfi64-utils.sld logger.sld series.sld abbrev.sld
+ disjoint-set.sld text.sld directory.sld statistics.sld
+ constants.sld)
+#|kawa:5|# (list-directory-files "../robin-tests")
+(statistics-test.sps text-test.sps logger-test.sps voc.txt series-test.sps
+ abbrev-test.sps output.txt)
+----
+
+=== list-directory-paths
+
+indexterm2:[+list-directory-paths+] returns a list of the _pathnames_ of files in the given directory:
+
+[source,lisp]
+----
+#|kawa:15|# (list-directory-paths (current-directory))
+(/home/peter/Software/r7rs-libs/robin/srfi64-utils.sld
+ /home/peter/Software/r7rs-libs/robin/logger.sld
+ /home/peter/Software/r7rs-libs/robin/series.sld
+ /home/peter/Software/r7rs-libs/robin/abbrev.sld
+ /home/peter/Software/r7rs-libs/robin/disjoint-set.sld
+ /home/peter/Software/r7rs-libs/robin/text.sld
+ /home/peter/Software/r7rs-libs/robin/directory.sld
+ /home/peter/Software/r7rs-libs/robin/statistics.sld
+ /home/peter/Software/r7rs-libs/robin/constants.sld)
+----
+
+=== make-directory
+
+indexterm2:[+make-directory+] creates a directory with the given name:
+
+[source,lisp]
+----
+#|kawa:16|# (make-directory "test-directory")
+----
+
+
+

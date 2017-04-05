@@ -39,6 +39,7 @@
           metaphone
           hamming-distance
           levenshtein-distance
+          optimal-string-alignment-distance
           ;
           sorenson-dice-similarity
           porter-stem
@@ -488,7 +489,6 @@
     ; double-metaphone
 
     ;; Edit distance metrics
-    ; optimal-string-alignment-distance 
     ; damerau-levenshtein -- insertion/deletion/substitution/transposition
     ; jaro-distance       -- transposition
     ; longest-common-subsequence  -- insertion/deletion
@@ -538,15 +538,16 @@
                (else
                  (error "Hamming: Unknown or mismatched types"))))))
 
-    ; levenshtein         -- insertion/deletion/substitution
-    (define levenshtein-distance
+    ;; internal function
+    ;; depending on osa? flag, computes either levenshtein-distance or optimal-string-alignment-distance
+    (define compute-seq-distance
       (case-lambda
-        ((item-1 item-2)
-         (levenshtein-distance item-1 item-2 (cond ((string? item-1) char=?)
-                                                   ((bytevector? item-1) =)
-                                                   (else equal?))))
-        ((item-1 item-2 equal-test?)
-         (define (levenshtein-seq-distance seq-1 seq-2 seq-length seq-ref)
+        ((osa? item-1 item-2)
+         (compute-seq-distance osa? item-1 item-2 (cond ((string? item-1) char=?)
+                                                        ((bytevector? item-1) =)
+                                                        (else equal?))))
+        ((osa? item-1 item-2 equal-test?)
+         (define (seq-distance seq-1 seq-2 seq-length seq-ref)
            (cond ((equal? seq-1 seq-2)
                   0)
                  ((zero? (seq-length seq-1))
@@ -554,11 +555,12 @@
                  ((zero? (seq-length seq-2))
                   (seq-length seq-1))
                  (else
-                   (let loop ((prev (list->vector (list-tabulate (+ 1 (seq-length seq-2)) identity)))
+                   (let loop ((curr-2 (make-vector (+ 1 (seq-length seq-2)) 0))
+                              (curr-1 (list->vector (list-tabulate (+ 1 (seq-length seq-2)) identity)))
                               (i 0))
                      (if (= i (seq-length seq-1)) ; finished
-                       (vector-ref prev (- (vector-length prev) 1))
-                       (let ((curr (make-vector (vector-length prev) 0)))
+                       (vector-ref curr-1 (- (vector-length curr-1) 1))
+                       (let ((curr (make-vector (vector-length curr-1) 0)))
                          ; compute current row values from the previous row
                          (vector-set! curr 0 (+ 1 i))
                          (do ((j 0 (+ 1 j)))
@@ -567,27 +569,48 @@
                              (vector-set! curr 
                                           (+ 1 j) 
                                           (min (+ 1 (vector-ref curr j))
-                                               (+ 1 (vector-ref prev (+ 1 j)))
-                                               (+ cost (vector-ref prev j))))))
-                         (loop curr (+ 1 i))))))))
+                                               (+ 1 (vector-ref curr-1 (+ 1 j)))
+                                               (+ cost (vector-ref curr-1 j))))
+                             (when (and osa? ; extension for transpositions for optimal-string alignment 
+                                        (> i 1)
+                                        (> j 1)
+                                        (equal-test? (seq-ref seq-1 i) (seq-ref seq-2 (- j 1)))
+                                        (equal-test? (seq-ref seq-1 (- i 1)) (seq-ref seq-2 j)))
+                               (vector-set! curr
+                                            (+ 1 j)
+                                            (min (vector-ref curr (+ 1 j))
+                                                 (+ cost (vector-ref curr-2 (- j 1))))))))
+                         (loop curr-1 curr (+ 1 i))))))))
          ;
          (cond ((and (string? item-1) (string? item-2))
-                (levenshtein-seq-distance item-1 item-2 string-length string-ref))
+                (seq-distance item-1 item-2 string-length string-ref))
                ((and (list? item-1) (list? item-2)) ; treat lists as vectors
-                (levenshtein-seq-distance (list->vector item-1) (list->vector item-2) vector-length vector-ref))
+                (seq-distance (list->vector item-1) (list->vector item-2) vector-length vector-ref))
                ((and (vector? item-1) (vector? item-2))
-                (levenshtein-seq-distance item-1 item-2 vector-length vector-ref))
+                (seq-distance item-1 item-2 vector-length vector-ref))
                ((and (bytevector? item-1) (bytevector? item-2))
-                (levenshtein-seq-distance item-1 item-2 bytevector-length bytevector-u8-ref))
+                (seq-distance item-1 item-2 bytevector-length bytevector-u8-ref))
                (else
-                 (error "Levenshtein: Unknown or mismatched types"))))))
+                 (error (if osa? 'optimal-string-alignment-distance 'levenshtein-distance) "Unknown or mismatched types"))))))
 
 
-    ;; Character group measure
-    (define (sorenson-dice-similarity string-1 string-2)
-      (sorenson-dice-index (string->n-grams string-1 2) 
-                           (string->n-grams string-2 2) 
-                           string-ci=?))
+    ; levenshtein         -- insertion/deletion/substitution
+    (define (levenshtein-distance . args)
+      (apply compute-seq-distance (cons #f args)))
+
+    ; optimal-string-alignment-distance -- insertion/deletion/substitution/transposition
+    (define (optimal-string-alignment-distance . args)
+      (apply compute-seq-distance (cons #t args)))
+
+    ;; Character group measure: optional parameter for size of n-gram
+    (define sorenson-dice-similarity 
+      (case-lambda 
+        ((string-1 string-2)
+         (sorenson-dice-similarity string-1 string-2 2))
+        ((string-1 string-2 n)
+         (sorenson-dice-index (string->n-grams string-1 n) 
+                              (string->n-grams string-2 n) 
+                              string-ci=?))))
 
     ;; Porter stemming algorithm
     ;; https://tartarus.org/martin/PorterStemmer/

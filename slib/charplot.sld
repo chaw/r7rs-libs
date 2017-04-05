@@ -36,10 +36,7 @@
   (begin
 
     ;;;@ These determine final graph size.
-    (define charplot:dimensions-value #f)
-
-    ;; wrap as a parameter for export
-    (define charplot:dimensions (make-parameter charplot:dimensions-value))
+    (define charplot:dimensions (make-parameter #f))
 
     ;;; The left margin and legends
     (define charplot:left-margin 12)
@@ -97,10 +94,12 @@
                   d))))))
 
     (define (charplot:make-array)
-      (let ((height (or (and charplot:dimensions-value (car charplot:dimensions-value))
-                        (output-port-height (current-output-port))))
-            (width (or  (and charplot:dimensions-value (cadr charplot:dimensions-value))
-                        (output-port-width (current-output-port)))))
+      (let ((height (if (charplot:dimensions) 
+                      (car (charplot:dimensions))
+                      (output-port-height (current-output-port))))
+            (width (if (charplot:dimensions) 
+                     (cadr (charplot:dimensions))
+                     (output-port-width (current-output-port)))))
         (define pra (make-array " "  height width))
         ;;Put newlines on right edge
         (do ((idx (+ -1 height) (+ -1 idx)))
@@ -256,9 +255,9 @@
     (define (histograph data label)
       (if (vector? data) (set! data (vector->list data)))
       (charplot:plot (histobins data
-                                (- (or (and charplot:dimensions-value
-                                            (cadr charplot:dimensions-value))
-                                       (output-port-width (current-output-port)))
+                                (- (if (charplot:dimensions)
+                                     (cadr (charplot:dimensions))
+                                     (output-port-width (current-output-port)))
                                    charplot:left-margin 3))
                      label "" #t))
 

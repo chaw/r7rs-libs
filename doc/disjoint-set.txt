@@ -1,0 +1,92 @@
+== Disjoint Set: +(import (robin disjoint-set))+
+
+indexterm:[disjoint set]
+A disjoint-set data structure holds items in distinct sets (or groups).  Efficient procedures are 
+provided for finding a representative of the set any item is contained in, and also for 
+joining two sets together.
+
+=== make-disjoint-set
+          
+indexterm2:[+make-disjoint-set+] takes two parameters: the equality function to use on 
+terms, and a hash function (e.g. SRFI 69's +hash+, +string-hash+ or +hash-by-identity+).
+The return value is a disjoint set.
+
+=== disjoint-set?
+
+indexterm2:[+disjoint-set?+] 
+checks if its argument is a disjoint-set instance or not, returning a boolean value.
+
+=== disjoint-set:make 
+
+indexterm2:[+disjoint-set:make+] places an item into the disjoint-set as its own group.
+Takes two arguments: the disjoint set and the item.  Return value is undefined.
+
+=== disjoint-set:find 
+
+indexterm2:[+disjoint-set:find+] takes two arguments, the disjoint set and an item.  The 
+function returns the representative item for the group that the given item is in.
+
+=== disjoint-set:union
+
+indexterm2:[+disjoint-set:union+] takes three arguments, the disjoint set and two items.  The 
+disjoint set is modified to combine the groups that the two items are in.
+
+=== disjoint-set:size
+
+indexterm2:[+disjoint-set:size+] takes a disjoint set and returns the number of
+distinct groups it contains.
+
+=== Example: Kruskal's Algorithm
+
+indexterm:[Kruskal's Algorithm]
+This example illustrates how disjoint sets can be used in Kruskal's algorithm to find a 
+minimal spanning set.  (The complete code is in "robin-examples/kruskal.sps")
+
+[source,lisp]
+----
+(define (kruskal graph)
+  (let ((result '())
+        (nodes (delete-duplicates (append (map car graph) (map cadr graph)) eq?)))
+    ; 1. make a disjoint set, with each node an item
+    (let ((ds (make-disjoint-set eq? hash-by-identity)))        ; <1>
+      (for-each (lambda (node) (disjoint-set:make ds node))     ; <2>
+                nodes)
+      ; 2. set 'links' holds all the links in graph, sorted with the shortest first
+      (let loop ((links (sort graph (lambda (a b) (< (caddr a) (caddr b))))))
+        ; 3. if links non-empty and size > 1
+        (when (and (not (null? links))
+                   (> (disjoint-set:size ds) 1))                ; <3>
+          (let ((link (car links)))
+            (unless (eq? (disjoint-set:find ds (car link))      ; <4>
+                         (disjoint-set:find ds (cadr link)))
+              (set! result (cons link result))
+              (disjoint-set:union ds (car link) (cadr link))))  ; <5>
+          (loop (cdr links)))))
+    (reverse result)))
+
+;; using it
+(let* ((graph '((a b 3) (a e 1) (b c 5) (b e 4) (c d 2) (c e 6) (d e 7)))
+       (res (kruskal graph)))
+  (format #t "MST has ~a links~&" (length res))
+  (format #t "~{   : ~a~&~}" res)                               ; <6>         
+  (format #t "Total length: ~a~&" (fold + 0 (map caddr res))))
+----
+<1> Creates a disjoint set using +eq?+ for equality and +hash-by-identity+ for the hash function, 
+    because individual items are symbols.
+<2> Each node is added to the disjoint set, initially in its own group.
+<3> The number of groups in the disjoint set tells us how many links remain to be added.
+<4> Look for a link where its end points are in different groups: tested by finding the representative 
+    item of each end point's group in the disjoint set.
+<5> When we add a link, connect the groups in the disjoint set.
+<6> Note use of +format+ to print a list of items
+
+Output:
+----
+MST has 4 links
+   : (a e 1)
+   : (c d 2)
+   : (a b 3)
+   : (b c 5)
+Total length: 11
+----
+

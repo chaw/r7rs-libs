@@ -51,6 +51,8 @@
 (test-approx-same 0.25 (sorenson-dice-similarity "Healed" "Help") 0.01)
 (test-approx-same 0.0 (sorenson-dice-similarity "Healed" "Sold") 0.01)
 (test-approx-same 1.0 (sorenson-dice-similarity "abcde fghi" "abcde fghi") 0.01)
+(test-approx-same 10/17 (sorenson-dice-similarity "sympathize" "sympthise"))
+(test-approx-same 8/9 (sorenson-dice-similarity "sympathize" "sympthise" 1))
 
 ;; tests for Porter stemming algorithm: 
 ;; -- using lists from https://tartarus.org/martin/PorterStemmer/
@@ -161,6 +163,9 @@
 (test-equal 3 (levenshtein-distance "Sunday" "Saturday"))
 (test-equal 4 (levenshtein-distance "Sunday" "saturday"))
 (test-equal 3 (levenshtein-distance "Sunday" "saturday" char-ci=?))
+
+(test-equal 3 (optimal-string-alignment-distance "kitten" "sitting"))
+(test-equal 3 (optimal-string-alignment-distance "this string" "that strnig"))
 
 (test-end)
 
