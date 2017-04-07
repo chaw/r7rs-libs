@@ -1,7 +1,7 @@
 # ensure highlighter is using Scheme for html output
 
 for i in *.txt; do
-    sed -i 's/[source,lisp]/[source,scheme]/g' $i
+    sed -i 's/\[source,lisp\]/\[source,scheme\]/g' $i
 done
 
 asciidoc --theme=volnitsky -a numbered -a toc r7rs.txt

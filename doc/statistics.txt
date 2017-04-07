@@ -176,6 +176,31 @@ indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling dis
 0.7071067811865476
 ----
 
+=== combinations
+
+indexterm2:[+combinations+] returns the number of ways to take k things from n without replacement, 
+when the order does not matter.
+
+[source,lisp]
+----
+#|kawa:2|# (combinations 5 2)
+10
+#|kawa:3|# (combinations 1000 500)
+270288240945436569515614693625975275496152008446548287007392875106625428705522193898612483924502370165362606085021546104802209750050679917549894219699518475423665484263751733356162464079737887344364574161119497604571044985756287880514600994219426752366915856603136862602484428109296905863799821216320
+----
+
+=== permutations
+
+indexterm2:[+permutations+] returns the number of ways to take k things from n without replacement, when the order matters.
+
+[source,lisp]
+----
+#|kawa:4|# (permutations 5 2)
+20
+#|kawa:5|# (permutations 100 20)
+1303995018204712451095685346159820800000
+----
+
 === sign
 
 indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers

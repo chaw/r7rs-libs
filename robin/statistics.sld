@@ -44,6 +44,8 @@
           coefficient-of-variation
           standard-error-of-the-mean
           ;
+          combinations
+          permutations
           sign
           ;
           random-normal
@@ -173,6 +175,19 @@
     (/ (standard-deviation lst)
        (sqrt (length lst))))
 
+  ;; Number of ways to take k things from n without replacement, when order does not matter
+  (define (combinations n k)
+    (do ((i 0 (+ 1 i))
+         (res 1 (/ (* res (- n i))
+                   (- k i))))
+      ((= i k) res)))
+
+  ;; Number of ways to take k things from n without replacement, when order matters
+  (define (permutations n k)
+    (do ((i 0 (+ 1 i))
+         (res 1 (* res (- n i))))
+      ((= i k) res)))
+
   (define (sign x)
     (cond ((negative? x) -1)
           ((positive? x) 1)
@@ -219,9 +234,9 @@
       (cond ((<= m 0) '())
             ((>= m n) items)
             (else
-             (let* ((keys (map (lambda (w) (expt (random-real) (/ 1 w))) weights))
-                    (sorted-items (sort (zip keys items) (lambda (x y) (> (car x) (car y))))))
-               (map cadr (take sorted-items m)))))))
+              (let* ((keys (map (lambda (w) (expt (random-real) (/ 1 w))) weights))
+                     (sorted-items (sort (zip keys items) (lambda (x y) (> (car x) (car y))))))
+                (map cadr (take sorted-items m)))))))
 
   ;; jaccard-index:
   (define jaccard-index

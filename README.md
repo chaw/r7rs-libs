@@ -57,6 +57,10 @@ sources:
 
 * cl-pdf - Port of a Common Lisp library for writing PDF files
 * cl-pdf-utils
+* json-parser - Takashi Kato's libraries for working with JSON
+* json-select
+* json-tools
+* packrat - Tony Garnock-Jones' Packrat Parser Library
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme
 * quaternion - Dorai Sitaram's quaternion numbers
 * schelog - Dorai Sitaram's logic-style programming in Scheme

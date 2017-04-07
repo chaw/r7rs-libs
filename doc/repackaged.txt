@@ -6,9 +6,8 @@ implementations.  Modifications have been kept to a minimum to make the code
 work.  Test scripts and examples are available for some parts of these
 libraries and may be examined for ideas on how each library works. 
 
-This chapter provides an overview of these repackaged collections or references
-to existing detailed documentation.  Some of the individual libraries from
-these collections are described in the following chapters.
+This chapter provides an overview of these repackaged collections: some of 
+these have links to their own detailed documentation.  
 
 === Natural Language Tool Kit: +(import (nltk NNNN))+
 
@@ -105,6 +104,25 @@ positions in the document.
 ----            
 
 This library needs documentation, and some helper functions to layout larger blocks of text.
+
+==== JSON
+
+indexterm:[json]  A collection of JSON utilities provided by Takashi Kato for R6RS.  
+See https://github.com/ktakashi/json-tools[] for more details and documentation.
+
+Three packages:
+
+* +(import (rebottled json-parser))+
+* +(import (rebottled json-select))+
+* +(import (rebottled json-tools))+
+
+==== Packrat: +(import (rebottled packrat))+
+
+indexterm:[packrat]
+Packrat parser library by Tony Garnock-Jones. 
+
+* Documentation: http://tech.labs.oliverwyman.com/downloads/dev.lshift.net/tonyg/packrat.pdf[]
+* General Information: http://bford.info/packrat/[]
 
 ==== Portable Regular Expressions: +(import (rebottled pregexp))+
 

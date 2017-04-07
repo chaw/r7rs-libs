@@ -1,7 +1,7 @@
 # ensure using [source,lisp], as a2x's highlighter does not know Scheme
 
 for i in *.txt; do
-    sed -i 's/[source,scheme]/[source,lisp]/g' $i
+    sed -i 's/\[source,scheme\]/\[source,lisp\]/g' $i
 done
 
 # Build pdf
