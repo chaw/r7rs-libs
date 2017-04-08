@@ -4,6 +4,12 @@ Some libraries written for, or converted to run in, R7RS Scheme.
 
 Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http://peterlane.info/r7rs/html/index.html)
 
+## AUTODIFF
+
+A repackaging of an R6RS implementation by Jeffrey Mark Siskind for automatic differentiation: https://github.com/qobi/R6RS-AD
+
+* Does not work with Kawa, due to an implementation restriction: continuations can only be used once
+
 ## NLTK
 
 A repackaging of files from the Natural Language ToolKit:
@@ -20,12 +26,13 @@ https://sourceforge.net/projects/snltk/
 
 ## PFDS
 
-A repackaging of the Purely Functional Data Structures, originally written for
+A repackaging of Purely Functional Data Structures, originally written for
 R6RS Scheme: https://github.com/ijp/pfds
 
 * bounded-balance-tree 
 * deque
 * difference-list
+* fector - from https://github.com/ijp/fectors
 * fingertree 
 * hash-array-mapped-trie - all tests pass Chibi/Larceny - bad type crashes Kawa
 * heap
@@ -272,7 +279,7 @@ some implementations and support the above libraries.  Provided SRFIs:
 
 The SRFIs are organised in the 'srfis' folder, by implementation.
 
-## Weinholt (in progress)
+## Weinholt (partial)
 
 Repackaging of R6RS compression/cryptography libraries from https://github.com/weinholt/industria
 
@@ -283,7 +290,11 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
   * Tests pass with Chibi and Larceny, not Kawa
 * bytevector
 * (des - tests fail in Kawa / overflow Larceny)
+* dh
+* elliptic-curve
+* entropy
 * hmac
+* lzma
 * maths
 * md5
 * sha-1
@@ -291,6 +302,10 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * sliding-buffer
 * strings
 
-Following contain syntax-case and need extra work to convert: aes.sls, crc.sls, huffman.sls, pack.sls
+The net packages are not converted, due to lack of portable libraries.
+
+The following packages contain syntax-case and need extra work to convert: aes.sls, crc.sls, huffman.sls, pack.sls
 
 which also affects: otr.sls; gzip.sls, inflate.sls, xz.sls, zip.sls; lzma2.sls, zlib.sls, openpgp.sls, ssh-public-key.sls, uuid.sls, x509.sls, buffer.sls, dns.sls, otr.sls, ssh.sls, tls.sls, internet.sls
+
+

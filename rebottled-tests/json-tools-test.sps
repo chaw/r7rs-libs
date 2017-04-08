@@ -3,7 +3,7 @@
         (rebottled json-tools)
 	(srfi 64))
 
-(test-begin "JSON Tools")
+(test-begin "JSON-Tools")
 
 (define json1 '#(("name" . #(("first" . "Lloyd") ("last" . "Hilaiel")))
 		 ("favoriteColor" . "yellow")

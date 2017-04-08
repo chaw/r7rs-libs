@@ -109,7 +109,12 @@
    ((library (scheme inexact))
     (import (scheme inexact)))
    (else
-    (begin (define (acos z) (unimplemented 'acos))
+    (begin 
+
+     (define (unimplemented name)
+       (error name "R6RS procedure is not implemented"))
+      
+      (define (acos z) (unimplemented 'acos))
            (define (asin z) (unimplemented 'asin))
            (define (atan z . rest) (unimplemented 'atan))
            (define (cos z) (unimplemented 'cos))
@@ -128,7 +133,12 @@
    ((library (scheme complex))
     (import (scheme complex)))
    (else
-    (begin (define (angle z) (unimplemented 'angle))
+    (begin 
+
+     (define (unimplemented name)
+       (error name "R6RS procedure is not implemented"))
+      
+      (define (angle z) (unimplemented 'angle))
            (define (imag-part z) 0)
            (define (magnitude z) (abs z))
            (define (make-polar x y) (unimplemented 'make-polar))
@@ -143,9 +153,6 @@
          (not (library (r6rs no-rnrs)))))
    (else
     (begin
-
-     (define (unimplemented name)
-       (error name "R6RS procedure is not implemented"))
 
      ;; If its arguments are not acceptable to the R6RS error procedure,
      ;; then this version of error just calls the R7RS procedure.

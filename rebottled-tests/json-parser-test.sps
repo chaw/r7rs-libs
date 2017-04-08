@@ -2,7 +2,7 @@
         (rebottled json-parser)
         (srfi 64))
 
-(test-begin "JSONSelect parser")
+(test-begin "JSON-parser")
 ;; simple expressions from http://jsonselect.org/#tryit
 (define-syntax test-parser
   (syntax-rules ()

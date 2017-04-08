@@ -9,6 +9,18 @@ libraries and may be examined for ideas on how each library works.
 This chapter provides an overview of these repackaged collections: some of 
 these have links to their own detailed documentation.  
 
+=== Automatic Differentiation: +(import (autodiff NNNN))+
+
+indexterm:[autodiff]
+A repackaging of code written by Jeffrey Mark Siskind for R6RS: https://github.com/qobi/R6RS-AD[]
+
+Some examples are provided, but otherwise this collection needs documenting.
+
+.NOTE
+****
+autodiff does not work with Kawa
+****
+
 === Natural Language Tool Kit: +(import (nltk NNNN))+
 
 indexterm:[nltk]
@@ -38,6 +50,7 @@ These data structures implement algorithms from a variety of sources (see the RE
 *    bounded-balance-tree
 *    deque
 *    difference-list
+*    fector: Functional Vectors, from https://github.com/ijp/fectors[]
 *    fingertree
 *    hash-array-mapped-trie
 *    heap
@@ -136,7 +149,7 @@ indexterm:[quaternions]
 Written by Dorai Sitaram, this library is documented at:
 http://www.ccs.neu.edu/home/dorai/squat/squat.html[]
 
-The quaternions library extends the Scheme numeric tower.  
+The quaternions library extends the Scheme numeric tower. 
 
 ==== Schelog: +(import (rebottled schelog))+
 
@@ -157,8 +170,10 @@ For documentation on the SRFIs, see http://srfi.schemers.org/final-srfis.html[]
 === Weinholt Industria: +(import (weinholt NNNN))+
 
 indexterm:[weinholt]
-This collection is still in process of being repackaged.  It contains a collection of algorithms for 
-working with compression algorithms, performing cryptography, and interacting with networks.  
+This collection is only partially repackaged for R7RS Scheme, as some of the code requires 
+support from the implementation (such as for the networking) or use of syntax case.  
+The implemented portion contains a collection of algorithms for working with (some) compression 
+algorithms and performing cryptography.  
 
 Documentation is available at: https://weinholt.se/industria/manual/[]
 

@@ -3,6 +3,10 @@
 The different collections, and even libraries within each collection, have
 different licenses.
 
+## AUTODIFF
+
+Released under the GNU GPL Version 2.0.
+
 ## NLTK
 
 Released under the GNU GPL Version 3.0.
