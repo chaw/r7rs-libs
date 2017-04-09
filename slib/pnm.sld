@@ -127,7 +127,7 @@
                         (else #f))))
                (and (char-whitespace? (read-char port)) ret)))
             (else #f)))
-        (call-with-open-ports (open-input-file port) pnm:type-dimensions)))
+        (call-with-open-ports (open-file port 'rb) pnm:type-dimensions)))
 
     (define (pnm:write-bits array port)
       (define dims (array-dimensions array))
@@ -195,7 +195,7 @@
     (define (pnm:image-file->array path . array-in)
       (let ((array (and (not (null? array-in)) (car array-in))))
         (call-with-open-ports
-          (open-input-file path)
+          (open-file path 'rb)
           (lambda (port)
             (apply (lambda (type width height max-pixel)
                      (define (read-binary)
@@ -347,7 +347,7 @@
              (write-pixels type array maxval))
             (else (slib:error 'pnm:array-write type 'unrecognized 'type))))
         (call-with-open-ports
-          (open-output-file port)
+          (open-file port 'wb)
           (lambda (port)
             (apply pnm:array-write type array maxval port comments)))))
 

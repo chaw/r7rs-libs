@@ -250,7 +250,7 @@
           (define row-ref (lambda (row pos) (list-ref row (+ -2 pos))))
           (define row-eval (lambda (row pos)
                              (let ((ans (list-ref row (+ -2 pos))))
-                               (and ans (eval ans)))))  ;; TODO eval vs slib:eval ??
+                               (and ans (eval ans (environment '(scheme base)))))))
 
           (define (open-table table-name writable)
             (define cat:row (cat:get-row base:catalog table-name))

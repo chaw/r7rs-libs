@@ -47,7 +47,7 @@
     ;@
     (define (tzfile:read path)
       (call-with-open-ports
-        (open-input-file path)
+        (open-file path 'rb)
         (lambda (port)
           (do ((idx 0 (+ 1 idx)))		;reserved.
             ((>= idx 20))

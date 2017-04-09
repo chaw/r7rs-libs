@@ -626,7 +626,7 @@
 
     ;;@args func x1 x2 npts
     ;;@args func x1 x2
-    ;;Creates and displays using @code{(system "gv tmp.eps")} an
+    ;;Creates an
     ;;encapsulated PostScript graph of the function of one argument @1
     ;;over the range @2 to @3.  If the optional integer argument @4 is
     ;;supplied, it specifies the number of points to evaluate @1 at.
@@ -651,7 +651,6 @@
                  (apply graph:plot (cons tmp args)))
                 (else (let ((dats (apply functions->array args)))
                         (graph:plot tmp dats "" "")))))
-;          (system (string-append "gv '" tmp "'"))) ; gv not universally available
         ".eps"))
 
     ;; Writes the graph library:

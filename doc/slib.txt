@@ -334,5 +334,33 @@ should return equivalent codes:
 "S530"
 ----
 
+=== SSAX XML Parser: +(import (slib xml-parse))+
 
+indexterm:[xml-parse]
+This SLIB library exposes various levels of the XML parsing process.  
+
+For more details, see http://people.csail.mit.edu/jaffer/slib/Parsing-XML.html#Parsing-XML[]
+
+More information on indexterm2:[SSAX] parsing is available at
+http://ssax.sourceforge.net/[]
+
+The main top-level function is indexterm2:[+ssax:xml->sxml+].  This takes two
+arguments: an input port, and an (optionally empty) association list of
+namespace prefixes to URIs.  The function returns an s-expression containing
+the contents of the XML document read from the input port.  
+
+[source,lisp]
+----
+#|kawa:2|# (|ssax:xml->sxml| (open-input-string "<tag>content</tag>") '())
+(*TOP* (tag content))
+#|kawa:3|# (define *str* "<person gender=\"male\"><name>Peter</name><number>1234</number></person>")
+#|kawa:4|# (|ssax:xml->sxml| (open-input-string *str*) '())
+(*TOP* (person (@ (gender male)) (name Peter) (number 1234)))
+----
+
+(The vertical bars around the function call are only required in Kawa, to prevent confusion with 
+calls to Java methods.)
+
+Notice the XML strings are converted to s-expressions.  Attributes are marked
+"@".  All values are strings.
 

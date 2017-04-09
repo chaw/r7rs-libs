@@ -8,6 +8,7 @@
           identity
           make-exchanger
           most-positive-fixnum
+          open-file
           output-port-height
           output-port-width
           provided?
@@ -21,7 +22,30 @@
           add-base-table-implementation
           slib:version)
   (import (scheme base)
+          (scheme file)
           (scheme write))
+  
+    ;; Use underlying 'system' implementation, if it exists
+    (cond-expand
+;      (kawa ; TODO including this fails to compile as package does not implement Externalizable
+;        (import (only (kawa base) as invoke invoke-static))
+;        (begin
+;          (define (system str)
+;            (let ((runtime (invoke-static java.lang.Runtime 'getRuntime))
+;                  (process (invoke runtime 'exec (as String str))))
+;              (invoke p 'waitFor)))))
+      (larceny
+        (import (primitives system)))
+      ((library (chibi process))  ; Chibi relies on execvp, which calls commands directly without redirection
+       ;; hence chibi cannot use 'system' for redirecting to files
+       (import (prefix (chibi process) chibi:))
+       (begin
+         (define (system cmd)
+           (let-values (((e s) (chibi:system cmd)))
+                       s))))
+      (else ; else, set system to return an 'unsupported' error
+        (begin
+          (define (system . args) (error "Implementation does not support 'system' calls")))))
 
   (begin
 
@@ -38,7 +62,8 @@
              'windows)
             ((memv 'posix (features))
              'posix)
-            ((memv 'unix (features))
+            ((or (memv 'unix (features))
+                 (memv 'linux (features)))
              'unix)
             (else
               'unknown)))
@@ -50,11 +75,22 @@
 
     (define (identity x) x)
 
-    (define (make-exchanger obj)
-      (lambda (rep) (let ((old obj)) (set! obj rep) old)))
+    (define (make-exchanger obj-in)
+      (let ((obj obj-in))
+        (lambda (rep) (let ((old obj)) (set! obj rep) old))))
 
-    ;; TODO: use cond-expand to make this implementation specific?
     (define most-positive-fixnum #xFFFFFFFF)
+
+    ;; This replicates SCM's 'open-file' command which returns #f on failure
+    ;; -- R7RS throws an exception
+    (define (open-file filename modes)
+      (guard (exc (else #f)) ; return #f on failure
+             (case modes
+               ((r) (open-input-file filename))
+               ((rb) (open-binary-input-file filename))
+               ((w) (open-output-file filename))
+               ((wb) (open-binary-output-file filename))
+               (else (slib:error 'open-file "invalid mode" modes)))))
 
     (define (output-port-height . arg) 24) ; value used in all the .init files
     (define (output-port-width . arg) 79) ; value used in all the .init files
@@ -80,18 +116,6 @@
         ((real) #t)  ;; ?? same as inexact?
         (else
           (error "unknown feature " feature))))
-
-    ;; Use underlying 'system' implementation, if it exists
-    (cond-expand
-;      (kawa ; TODO including this fails to compile as package does not implement Externalizable
-;        (import (only (kawa base) as invoke invoke-static))
-;        (begin
-;          (define (system str)
-;            (invoke (invoke-static java.lang.Runtime 'getRuntime) 'exec (as String str)))))
-      (larceny
-        (import (primitives system)))
-      (else ; raise error, if not
-        (define (system str) (error "system calls not supported on this implementation"))))
 
     ;@
     (define slib:warn
@@ -127,11 +151,9 @@
               (lambda () (exchange old)))))))
 
     ;; support for database tables
-    (define *base-table-implementations* '())
-    (define (base-table-implementations)
-      *base-table-implementations*)
+    (define base-table-implementations (make-parameter '()))
     (define (add-base-table-implementation impl)
-      (set! *base-table-implementations* (cons impl *base-table-implementations*)))
+      (base-table-implementations (cons impl (base-table-implementations))))
 
     ))
 

@@ -29,6 +29,7 @@
           transact-file-replacement
           user-email-address)
   (import (scheme base)
+          (scheme case-lambda)
           (scheme file)
           (scheme process-context)
           (scheme time)
@@ -40,7 +41,7 @@
           (slib line-io)
           (slib printf)
           (slib scanf)
-          (only (srfi 13) string-contains string-index-right)
+          (slib string-search)
           (only (srfi 59) pathname->vicinity))
 
   (begin
@@ -93,6 +94,7 @@
     ;;Returns a string naming the path of the emacs-style file-lock symbolic
     ;;link associated with @1.
     (define (emacs-lock:path path)
+      (display "Path: ") (display path) (newline)
       (let* ((dir (pathname->vicinity path))
              (file (substring path (string-length dir) (string-length path))))
         (string-append dir (string-append ".#" file))))
@@ -108,7 +110,7 @@
                 "~$" (substring file (min 2 (max 0 (- filen 10))) filen)))))
 
     (define (word-lock:certificate lockpath)
-      (define iport (open-input-file lockpath))
+      (define iport (open-file lockpath 'r))
       (and
         iport
         (call-with-open-ports
@@ -158,8 +160,9 @@
 
     (define (emacs-lock:certificate lockpath)
       (define conflict
-        (system->line (sprintf #f "ls -ld %#a 2>/dev/null" lockpath)))
-      (cond ((and conflict (string-contains "-> " conflict))
+        ; (system->line (sprintf #f "ls -ld %#a 2>/dev/null" lockpath)))
+        (system->line (sprintf #f "ls -ld %#a" lockpath)))
+       (cond ((and conflict (substring? "-> " conflict))
              => (lambda (idx)
                   (substring conflict (+ 3 idx) (string-length conflict))))
             ((and conflict (not (equal? conflict ""))) (slib:error 'bad 'emacs 'lock lockpath conflict))
@@ -168,9 +171,15 @@
     (define (file-lock:certificate path)
       (or (case (software-type)
             ((unix coherent plan9 posix)
-             (emacs-lock:certificate (emacs-lock:path path)))
+             (let ((res 
+                 (emacs-lock:certificate (emacs-lock:path path)))
+               )
+           res))
             (else #f))
-          (word-lock:certificate (word-lock:path path))))
+          (let ((p (word-lock:path path)))
+            (let ((c (word-lock:certificate p)))
+              c))))
+;          (word-lock:certificate (word-lock:path path))))
 
     ;;@body
     ;;Returns the string @samp{@var{user}@@@var{hostname}} associated with
@@ -181,13 +190,13 @@
 
     (define (word:lock! path email)
       (define lockpath (word-lock:path path))
-      (define at (string-contains "@" email))
+      (define at (substring? "@" email))
       (define (trim str len) (substring str 0 (min len (string-length str))))
       (let ((user
               (trim (substring email 0 at) 15))
             (hostname
               (trim (substring email (+ 1 at) (string-length email)) 14))
-            (oport (open-output-file lockpath)))
+            (oport (open-file lockpath 'w)))
         (define userlen (string-length user))
         (and oport
              (call-with-open-ports
@@ -229,7 +238,7 @@
                                    email
                                    (or (system->line "echo $PPID") "")
                                    (current-second)))
-      (and (eqv? 0 (system (sprintf #f "ln -s %#a %#a" certificate lockpath)))
+      (and (zero? (system (sprintf #f "ln -s %#a %#a" certificate lockpath)))
            (let ((e-cert (emacs-lock:certificate lockpath)))
              (and (equal? certificate e-cert)
                   certificate))))
@@ -244,17 +253,20 @@
     ;;If @1 is already locked, then @0 returns @samp{#f}.  If @1 is
     ;;unlocked, then @0 returns the certificate string associated with the
     ;;new lock for file @1.
-    (define (file-lock! path . email)
-      (set! email (if (null? email) (user-email-address) (car email)))
-      (and (string? email)
-           (not (file-lock:certificate path))
-           (let ((wl (word:lock! path email)))
-             (case (software-type)
-               ((unix coherent plan9 posix)
-                ;; file-system may not support symbolic links.
-                (or (and (provided? 'current-second) (emacs:lock! path email))
-                    wl))
-               (else wl)))))
+    (define file-lock!
+      (case-lambda 
+        ((path)
+         (file-lock! path (user-email-address)))
+        ((path email)
+         (and (string? email)
+              (not (file-lock:certificate path))
+              (let ((wl (word:lock! path email)))
+                (case (software-type)
+                  ((unix coherent plan9 posix)
+                   ;; file-system may not support symbolic links.
+                   (or (emacs:lock! path email)
+                       wl))
+                  (else wl)))))))
 
     ;;@body
     ;;@1 must be a string naming the file to be unlocked.  @2 must be the
@@ -271,7 +283,7 @@
               ((equal? w-cert certificate)	; word certificate only
                ; (emacs certificate is longer)
                (delete-file w-path))
-              ((not (eqv? 0 (string-contains w-cert certificate)))
+              ((not (eqv? 0 (substring? w-cert certificate)))
                ;; word certificate doesn't match emacs certificate
                (slib:warn 'file-unlock! w-path 'mismatch certificate) #f)
               (else
@@ -333,12 +345,12 @@
         (if (equal? "" dir) (set! dir "./"))
         (directory-for-each
           (lambda (str)
-            (define left.~ (string-contains ".~" str))
+            (define left.~ (substring? ".~" str))
             (cond ((not left.~))
                   ((not (equal? file (substring str 0 left.~))))
                   ((string->number (substring str
                                               (+ 2 left.~)
-                                              (string-index-right str #\~)))
+                                              (string-reverse-index str #\~)))
                    => (lambda (number)
                         (set! largest (max number (or largest number)))))))
           dir (string-append file "*~*[0-9]~"))
@@ -493,12 +505,10 @@
                     ;;((nosve)				)
                     ;;((vms)				)
                     ((unix coherent plan9 posix)
-                     (call-with-tmpnam
-                       (lambda (tmp)
-                         (if (not user) (set! user (system->line "whoami" tmp)))
-                         (if (not hostname) (set! hostname (system->line "hostname" tmp)))
-                         (if (not user) (set! user "John_Doe"))
-                         (if (not hostname) (set! hostname "localhost"))))
+                     (if (not user) (set! user (system->line "whoami")))
+                     (if (not hostname) (set! hostname (system->line "hostname")))
+                     (if (not user) (set! user "John_Doe"))
+                     (if (not hostname) (set! hostname "localhost"))
                      (string-append user "@" hostname))))))
 
     ))

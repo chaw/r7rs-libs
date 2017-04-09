@@ -3,7 +3,7 @@
 The different collections, and even libraries within each collection, have
 different licenses.
 
-## AUTODIFF
+## AutoDiff
 
 Released under the GNU GPL Version 2.0.
 

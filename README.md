@@ -4,7 +4,7 @@ Some libraries written for, or converted to run in, R7RS Scheme.
 
 Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http://peterlane.info/r7rs/html/index.html)
 
-## AUTODIFF
+## AutoDiff
 
 A repackaging of an R6RS implementation by Jeffrey Mark Siskind for automatic differentiation: https://github.com/qobi/R6RS-AD
 
@@ -190,6 +190,8 @@ moved, as required, into `(slib common)`.
 * determinant
 
 6: Database Packages
+
+(Databases need testing: currently only small examples work on Larceny)
 
 * relational-database
 * database
