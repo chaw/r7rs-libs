@@ -160,8 +160,8 @@
 
     (define (emacs-lock:certificate lockpath)
       (define conflict
-        ; (system->line (sprintf #f "ls -ld %#a 2>/dev/null" lockpath)))
-        (system->line (sprintf #f "ls -ld %#a" lockpath)))
+        (system->line (sprintf #f "ls -ld %#a 2>/dev/null" lockpath)))
+        ; (system->line (sprintf #f "ls -ld %#a" lockpath)))
        (cond ((and conflict (substring? "-> " conflict))
              => (lambda (idx)
                   (substring conflict (+ 3 idx) (string-length conflict))))

@@ -591,13 +591,13 @@
           (define create-table
             (and
               mutable
-              (lambda (table-name . desc)
+              (lambda (table-name . desc-in)
                 (or rdms:catalog
                     (set! rdms:catalog (open-table rdms:catalog-name #t)))
                 (cond
                   ((table-exists? table-name)
                    (slib:error "table already exists:" table-name) #f)
-                  ((null? desc)
+                  ((null? desc-in)
                    (let ((colt-id
                            (base:make-table lldb 1 (itypes columns:init-cols))))
                      ((rdms:catalog 'row:insert)
@@ -609,8 +609,8 @@
                             #f
                             #f)))
                    (open-table table-name #t))
-                  ((null? (cdr desc))
-                   (set! desc (car desc))
+                  ((null? (cdr desc-in))
+                   (let ((desc (car desc-in)))
                    (let ((colt-id ((rdms:catalog 'get 'bastab-id) desc)))
                      (cond
                        (colt-id
@@ -641,9 +641,9 @@
                                           (base:make-table lldb prilimit types) #f #f))
                                    (open-table table-name #t)))))
                        (else
-                         (slib:error "table descriptor not found for:" desc) #f))))
+                         (slib:error "table descriptor not found for:" desc) #f)))))
                   (else (slib:error 'create-table "too many args:"
-                                    (cons table-name desc))
+                                    (cons table-name desc-in))
                         #f)))))
 
           (define (table-exists? table-name)

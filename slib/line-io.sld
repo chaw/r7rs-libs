@@ -33,44 +33,6 @@
           (slib common)
           (slib filename))
 
-   ;;@args command tmp
-    ;;@args command
-    ;;@1 must be a string.  The string @2, if supplied, is a path to use as
-    ;;a temporary file.  @0 calls @code{system} with @1 as argument,
-    ;;redirecting stdout to file @2.  @0 returns a string containing the
-    ;;first line of output from @2.
-    ;;
-    ;;@0 is intended to be a portable method for getting one-line results
-    ;;from programs like @code{pwd}, @code{whoami}, @code{hostname},
-    ;;@code{which}, @code{identify}, and @code{cksum}.  Its behavior when
-    ;;called with programs which generate lots of output is unspecified.
-    (cond-expand
-      ((library (chibi process)) ; running on chibi
-       (import (prefix (chibi process) chibi:)
-               (only (chibi string) string-split))
-       (begin 
-         (define (system->line cmd)
-           (let ((res (chibi:process->output+error+status cmd)))
-             (if (string? (car res))
-               (if (= 0 (string-length (car res)))
-                 ""
-                 (car (string-split (car res) #\newline)))
-               #f)))))
-
-      (else ; define system->line in traditional fashion, using call to system
-        (begin
-          (define system->line 
-            (case-lambda 
-              ((command)
-               (call-with-tmpnam (lambda (tmp) (system->line command tmp))))
-              ((command tmp)
-               (guard (err (else #f))
-                      (system (string-append command " > " tmp)))
-               (if (file-exists? tmp) ; assume getting 'tmp' means success
-                 (let ((line (call-with-input-file tmp read-line)))
-                   (if (eof-object? line) "" line))
-                 #f)))))))
-
   (begin
 
     ;;@args string
@@ -106,6 +68,28 @@
       (apply display (cons str port))
       (apply newline port))
 
- 
+    ;;@args command tmp
+    ;;@args command
+    ;;@1 must be a string.  The string @2, if supplied, is a path to use as
+    ;;a temporary file.  @0 calls @code{system} with @1 as argument,
+    ;;redirecting stdout to file @2.  @0 returns a string containing the
+    ;;first line of output from @2.
+    ;;
+    ;;@0 is intended to be a portable method for getting one-line results
+    ;;from programs like @code{pwd}, @code{whoami}, @code{hostname},
+    ;;@code{which}, @code{identify}, and @code{cksum}.  Its behavior when
+    ;;called with programs which generate lots of output is unspecified.
+    (define system->line 
+      (case-lambda 
+        ((command)
+         (call-with-tmpnam (lambda (tmp) (system->line command tmp))))
+        ((command tmp)
+         (guard (err (else #f))
+                (system (string-append command " > " tmp)))
+         (if (file-exists? tmp) ; assume getting 'tmp' means success
+           (let ((line (call-with-input-file tmp read-line)))
+             (if (eof-object? line) "" line))
+           #f))))
+
     ))
 

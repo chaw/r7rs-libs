@@ -42,7 +42,7 @@
           rem
           mod
           ln
-          abs
+          (rename real-abs abs)
           real-abs
           make-rectangular
           make-polar)
@@ -75,7 +75,6 @@
     ;@
     (define ln (and (provided? 'real) log))
     (define real-abs  (must-be-real 'abs abs))
-    (define abs real-abs)
     (define real-sin  (must-be-real 'real-sin (and (provided? 'real) sin)))
     (define real-cos  (must-be-real 'real-cos (and (provided? 'real) cos)))
     (define real-tan  (must-be-real 'real-tan (and (provided? 'real) tan)))

@@ -191,8 +191,6 @@ moved, as required, into `(slib common)`.
 
 6: Database Packages
 
-(Databases need testing: currently only small examples work on Larceny)
-
 * relational-database
 * database
 * database-interpolate

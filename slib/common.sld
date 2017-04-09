@@ -27,22 +27,20 @@
   
     ;; Use underlying 'system' implementation, if it exists
     (cond-expand
-;      (kawa ; TODO including this fails to compile as package does not implement Externalizable
-;        (import (only (kawa base) as invoke invoke-static))
-;        (begin
-;          (define (system str)
-;            (let ((runtime (invoke-static java.lang.Runtime 'getRuntime))
-;                  (process (invoke runtime 'exec (as String str))))
-;              (invoke p 'waitFor)))))
+      (kawa 
+        (import (kawa lib system)))
       (larceny
         (import (primitives system)))
-      ((library (chibi process))  ; Chibi relies on execvp, which calls commands directly without redirection
-       ;; hence chibi cannot use 'system' for redirecting to files
+      ((library (chibi process))  
+       ;; chibi cannot use 'system' directly for redirecting to files (execvp)
+       ;; hence calls out to bash
+       ;; TODO: Clearly this is Linux specific
        (import (prefix (chibi process) chibi:))
        (begin
          (define (system cmd)
-           (let-values (((e s) (chibi:system cmd)))
-                       s))))
+           (guard (exc (else 1))
+                  (let-values (((e s) (chibi:system "/bin/bash" "-c" cmd)))
+                              s)))))
       (else ; else, set system to return an 'unsupported' error
         (begin
           (define (system . args) (error "Implementation does not support 'system' calls")))))
