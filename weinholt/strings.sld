@@ -24,8 +24,17 @@
   (weinholt strings)
   (export string-split)
   (import (scheme base)
-          (scheme case-lambda)
-          (only (srfi 13) string-index))
+          (scheme case-lambda))
+
+  (cond-expand
+    ((library (srfi 13))
+     (import (only (srfi 13) string-index)))
+    (else
+      (begin ; provide own definition (modified from slib string-search) for Chibi etc
+        (define (string-index str chr start end)
+          (do ((pos start (+ 1 pos)))
+            ((or (>= pos end) (char=? chr (string-ref str pos)))
+             (and (< pos end) pos)))))))
 
   (begin
 

@@ -70,9 +70,13 @@
 
         (define (write-base lldb outfile)
           ((lambda (fun)
-             (cond ((output-port? outfile) (fun outfile))
-                   ((string? outfile) (call-with-output-file outfile fun))
-                   (else #f)))
+             (cond ((output-port? outfile) 
+                    (fun outfile))
+                   ((string? outfile) 
+                    (when (file-exists? outfile) (delete-file outfile))
+                    (call-with-output-file outfile fun))
+                   (else 
+                     #f)))
            (lambda (port)
              (display (string-append
                         ";;; \"" outfile "\" SLIB " (slib:version)

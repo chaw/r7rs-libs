@@ -44,6 +44,14 @@
           (slib string-search)
           (only (srfi 59) pathname->vicinity))
 
+  (cond-expand
+    ((library (srfi 13))
+     (import (only (srfi 13) string-prefix?)))
+    ((library (chibi string))
+     (import (only (chibi string) string-prefix?)))
+    (else
+      (error "Implementation does not support string-prefix?")))
+
   (begin
 
     ;;
@@ -94,16 +102,21 @@
     ;;Returns a string naming the path of the emacs-style file-lock symbolic
     ;;link associated with @1.
     (define (emacs-lock:path path)
-      (display "Path: ") (display path) (newline)
+      (unless (string? path) (error "emacs-lock:path argument not a string"))
       (let* ((dir (pathname->vicinity path))
-             (file (substring path (string-length dir) (string-length path))))
+             (file (if (string-prefix? dir path)
+                     (substring path (string-length dir) (string-length path))
+                     path)))
         (string-append dir (string-append ".#" file))))
 
     ;;Returns a string naming the path of the ms-word style lock file
     ;;associated with @1.
     (define (word-lock:path path)
+      (unless (string? path) (error "word-lock:path argument not a string"))
       (let* ((dir (pathname->vicinity path))
-             (file (substring path (string-length dir) (string-length path)))
+             (file (if (string-prefix? dir path)
+                     (substring path (string-length dir) (string-length path))
+                     path))
              (filen (string-length file)))
         (string-append
           dir (string-append
@@ -161,7 +174,6 @@
     (define (emacs-lock:certificate lockpath)
       (define conflict
         (system->line (sprintf #f "ls -ld %#a 2>/dev/null" lockpath)))
-        ; (system->line (sprintf #f "ls -ld %#a" lockpath)))
        (cond ((and conflict (substring? "-> " conflict))
              => (lambda (idx)
                   (substring conflict (+ 3 idx) (string-length conflict))))
@@ -169,17 +181,12 @@
             (else #f)))
 
     (define (file-lock:certificate path)
+      (unless (string? path) (error "file-lock:certificate argument not a string"))
       (or (case (software-type)
             ((unix coherent plan9 posix)
-             (let ((res 
-                 (emacs-lock:certificate (emacs-lock:path path)))
-               )
-           res))
+             (emacs-lock:certificate (emacs-lock:path path)))
             (else #f))
-          (let ((p (word-lock:path path)))
-            (let ((c (word-lock:certificate p)))
-              c))))
-;          (word-lock:certificate (word-lock:path path))))
+          (word-lock:certificate (word-lock:path path))))
 
     ;;@body
     ;;Returns the string @samp{@var{user}@@@var{hostname}} associated with
@@ -258,6 +265,7 @@
         ((path)
          (file-lock! path (user-email-address)))
         ((path email)
+         (unless (string? path) (error "file-lock! argument not a string"))
          (and (string? email)
               (not (file-lock:certificate path))
               (let ((wl (word:lock! path email)))
@@ -340,7 +348,9 @@
 
     (define (emacs:backup-number path)
       (let* ((dir (pathname->vicinity path))
-             (file (substring path (string-length dir) (string-length path)))
+             (file (if (string-prefix? dir path)
+                     (substring path (string-length dir) (string-length path))
+                     path))
              (largest #f))
         (if (equal? "" dir) (set! dir "./"))
         (directory-for-each
@@ -435,7 +445,9 @@
       (define (move? tmpfn path)
         (eqv? 0 (system (sprintf #f "%s %#a %#a" move tmpfn path))))
       (let* ((dir (pathname->vicinity path))
-             (file (substring path (string-length dir) (string-length path)))
+             (file (if (string-prefix? dir path)
+                     (substring path (string-length dir) (string-length path))
+                     path))
              (tmpfn (string-append dir (string-append "#" file "#"))))
         (cond ((not (file-exists? path)) (slib:warn 'file path 'missing) #f)
               (else

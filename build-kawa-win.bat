@@ -7,6 +7,9 @@ kawa --r7rs -d ../../bin -C srfi/59.sld
 kawa --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 
+# only one file from autodiff 
+kawa $OPTS -C autodiff/AD.sld
+
 for %%d in (nltk pfds r6rs rebottled robin slib weinholt) do (
   for %%f in (%%d/*.sld) do (
     echo %%d/%%f

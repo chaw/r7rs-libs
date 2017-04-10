@@ -29,8 +29,8 @@ groups of functionality:
 The github page for +r7rs-libs+ and the wiki, https://github.com/petercrlane/r7rs-libs/wiki[],
 provide additional information about SLIB and its conversion for use as R7RS libraries.  
 
-The "examples" and "tests" directories provide (some) examples of using SLIB.  Some limited 
-documentation for some of the libraries follows in the next sections.
+The "examples" and "tests" directories provide (some) examples of using SLIB.  Limited 
+documentation for some of the libraries follows.
 
 === Charplot: +(import (slib charplot))+
 
@@ -209,6 +209,164 @@ coordinates. Second and third arguments give labels to the two axes.
           |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
  x-values         -4          -2          0           2           4            
 
+----
+
+=== Database
+
+indexterm:[database] indexterm:[relational database]
+SLIB includes a relational database system, written entirely in Scheme.  This is a complex 
+and inter-related set of libraries.  The following example (from "slib-examples/db-1.sps") 
+provides an introduction to creating, opening and using a simple database.  
+
+.Note
+****
+The database system stores information in files.  It also sets up locks on those 
+files to prevent multiple users trying to change the same data.  The code has been 
+tested under Linux, but requires further tests and possible modification on other 
+operating systems.
+
+If your application fails with any errors, it is possible the lock files will remain 
+and must be deleted before you can access the database again: the lock files start 
+".$" and ".#", and are thus hidden on Linux and similar systems.
+****
+
+More information on SLIB's database system is available at: http://people.csail.mit.edu/jaffer/slib/Using-Databases.html[].
+After understanding the example below, work through section 6.1.2 on Table Operations.  
+
+==== Creating a database
+
+A database can be created using one or more "backends".  Currently, only an association list 
+backend is supported, as provided by +(slib alist-table)+.  A database is created to a given filename:
+
+[source,lisp]
+----
+(import (scheme base)
+        (slib databases)
+        (slib alist-table))
+
+(define db (create-database "mydb" 'alist-table))
+----
+
+The above code imports the necessary libraries, and creates a database in the file "mydb" using 
+an association-list backend.  A reference to this database is stored in +db+.
+
+Next, the database can be opened:
+
+[source,lisp]
+----
+(define rdb (open-database! db))
+----
+
+As we will see below, a database can be opened using either the database reference from the +create-database+ 
+command, or from the filename.  So +(open-database! "mydb")+ works just as well.
+
+Databases can be opened in _mutable_ or _immutable_ modes: opened to be changed, or just for reading.  
+The exclamation mark ! indicates that the database is mutable.  
+
+Data in a database is stored within _tables_.  Before we can use our new database, we need to create 
+at least one table.  A table is defined from three elements:
+
+. its _name_
+. its _primary key field(s)_
+. its _other fields_
+
+In our example, we make an example with name "testit", a single primary key "id", and two fields "first" and "second".
+Each field is defined with an associated type (allowed types are described in the
+http://people.csail.mit.edu/jaffer/slib/Catalog-Representation.html#Catalog-Representation[online] documentation).  
+In this case, our "id" field will be a number, and the two other fields strings.
+
+The basic definition is: 
+
+----
+(testit                                  ; the table name
+  ((id number))                          ; list of primary key field (name type) pairs
+  ((first string) (second string)))      ; list of other field (name type) pairs
+----
+
+When defining a table, we can also provide a list of data to add.  The data are simply given in rows, with values for all fields:
+
+----
+((1 "Peter" "Lane")   ; row 1: (id first second)
+ (2 "Joe" "Smith"))   ; row 2: (id first second)
+----
+
+Putting the definitions together, the following line of code creates the +testit+ table, and adds some initial data:
+
+[source,lisp]
+----
+(define-tables rdb '(testit ((id number)) ((first string) (second string))
+                            ((1 "Peter" "Lane")
+                             (2 "Joe" "Smith"))))
+----
+
+Finally, don't forget to close the database, which ensures everything is saved on disk:
+
+[source,lisp]
+----
+(close-database rdb)
+----
+
+You can examine the file "mydb" to read the definition and data.
+
+==== Working with a database
+
+Databases should only need constructing once.  Afterwards, you will open and work with the 
+existing file.  To open an existing database, you need to know its filename:
+
+[source,lisp]
+----
+(define mydb (open-database! "mydb"))   ; open a mutable database
+----
+
+To access information in a table, you need to extract the table of interest:
+
+[source,lisp]
+----
+(define table (open-table! mydb 'testit))
+----
+
+If you were to examine +table+, you would find it is a _procedure_.  The table 
+procedure takes an operation definition as its argument, and returns a new procedure 
+to perform that operation on some data.
+
+For example, if we wish to retrieve a row of data.  The operation definition is +'row:retrieve+.
+The returned procedure then takes the primary key(s) to locate in the database:
+
+[source,lisp]
+----
+((table 'row:retrieve) 1)   ; returns the row with id 1: (1 "Peter" "Lane")
+----
+
+Try displaying all rows (note, the third case will return +#f+):
+
+[source,lisp]
+----
+(display "Retrieving 1: ") (display ((table 'row:retrieve) 1)) (newline)
+(display "Retrieving 2: ") (display ((table 'row:retrieve) 2)) (newline)
+(display "Retrieving 3: ") (display ((table 'row:retrieve) 3)) (newline)
+----
+
+A new row can be inserted in a similar way:
+
+[source,lisp]
+----
+((table 'row:insert) '(3 "Jane" "Wheeler"))
+----
+
+Further row operations exist to update and delete.
+
+Operations are also available to work on multiple rows.  A useful case is +for-each-row+:
+
+[source,lisp]
+----
+((table 'for-each-row) (lambda (row) (display "Row: ") (display row) (newline)))
+----
+
+Finally, don't forget to close the database, which ensures everything is saved on disk:
+
+[source,lisp]
+----
+(close-database mydb)
 ----
 
 === Factor: +(import (slib factor))+

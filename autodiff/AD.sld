@@ -37,6 +37,7 @@
 	 (rename d- -)
 	 (rename d* *)
 	 (rename d/ /)
+         (rename dsquare square)
 	 (rename dsqrt sqrt)
 	 (rename dexp exp)
 	 (rename dlog log)
@@ -239,6 +240,8 @@
                 (lambda (x1 x2) (d- (d/ x1 (d* x2 x2))))))
 
    (define dsqrt (lift-real->real sqrt (lambda (x) (d/ (d* 2 (dsqrt x))))))
+
+   (define dsquare (lift-real->real square (lambda (x) (* 2 x))))
 
    (define dexp (lift-real->real exp (lambda (x) (dexp x))))
 

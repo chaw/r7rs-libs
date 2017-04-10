@@ -33,8 +33,7 @@
         (import (primitives system)))
       ((library (chibi process))  
        ;; chibi cannot use 'system' directly for redirecting to files (execvp)
-       ;; hence calls out to bash
-       ;; TODO: Clearly this is Linux specific
+       ;; hence calls out to bash  TODO: Clearly this is Linux specific
        (import (prefix (chibi process) chibi:))
        (begin
          (define (system cmd)
@@ -81,14 +80,18 @@
 
     ;; This replicates SCM's 'open-file' command which returns #f on failure
     ;; -- R7RS throws an exception
+    ;; -- rewrote modes so b means binary file, as in C
     (define (open-file filename modes)
-      (guard (exc (else #f)) ; return #f on failure
-             (case modes
-               ((r) (open-input-file filename))
-               ((rb) (open-binary-input-file filename))
-               ((w) (open-output-file filename))
-               ((wb) (open-binary-output-file filename))
-               (else (slib:error 'open-file "invalid mode" modes)))))
+      (case modes
+        ((r) (if (file-exists? filename)
+               (open-input-file filename)
+               #f))
+        ((rb) (if (file-exists? filename)
+                (open-binary-input-file filename)
+                #f))
+        ((w) (open-output-file filename))
+        ((wb) (open-binary-output-file filename))
+        (else (slib:error 'open-file "invalid mode" modes))))
 
     (define (output-port-height . arg) 24) ; value used in all the .init files
     (define (output-port-width . arg) 79) ; value used in all the .init files

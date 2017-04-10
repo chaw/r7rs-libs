@@ -67,6 +67,7 @@
                          (memv 'windows (features)))
                      '(#\\ #\/))
                     ((or (memv 'unix (features))
+                         (memv 'linux (features))
                          (memv 'posix (features)))
                      '(#\/))
                     (else 

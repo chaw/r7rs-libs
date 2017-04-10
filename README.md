@@ -8,7 +8,11 @@ Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http
 
 A repackaging of an R6RS implementation by Jeffrey Mark Siskind for automatic differentiation: https://github.com/qobi/R6RS-AD
 
-* Does not work with Kawa, due to an implementation restriction: continuations can only be used once
+* AD is the automatic-differentiation package itself
+
+* The remaining libraries do not work with Kawa:
+  * due to an implementation restriction: continuations can only be used once
+  * compiled 'reduced-gradient' fails
 
 ## NLTK
 

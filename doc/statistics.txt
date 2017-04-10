@@ -179,7 +179,7 @@ indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling dis
 === combinations
 
 indexterm2:[+combinations+] returns the number of ways to take k things from n without replacement, 
-when the order does not matter.
+when the order does not matter.  The form is +(combinations n k)+
 
 [source,lisp]
 ----
@@ -192,6 +192,7 @@ when the order does not matter.
 === permutations
 
 indexterm2:[+permutations+] returns the number of ways to take k things from n without replacement, when the order matters.
+The form is +(permutations n k)+
 
 [source,lisp]
 ----

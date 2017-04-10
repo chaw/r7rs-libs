@@ -132,6 +132,8 @@
         (cond ((procedure? rdb) (list rdb 1 (caar bti) certificate))
               ((null? (cdr bti)) #f)
               (else (loop (cdr bti)))))
+      ;
+      (unless (string? filename) (error "mdbm:try-opens argument not a string"))
       (cond ((and (not (and mutable? (not certificate)))
                   (loop (base-table-implementations))))
             ((and (not (memq 'alist-table (base-table-implementations)))
@@ -169,6 +171,7 @@
     ;;(define my-rdb (create-database "my.db" 'alist-table))
     ;;@end example
     (define (create-database filename type)
+      (unless (string? filename) (error "create-database argument not a string"))
       (let ((dbs #f)
             (certificate (and filename (file-lock! filename))))
         (and
@@ -315,8 +318,9 @@
     ;;@1 will only be closed when the count of @code{open-database} - @0
     ;;calls for @1 (and its filename) is 0.  @0 returns #t if successful;
     ;;and #f otherwise.
-    (define (close-database rdb)
-      (let ((dbs #f))
+    (define (close-database rdb-in)
+      (let ((dbs #f)
+            (rdb rdb-in))
         (dynamic-wind
           (lambda () (set! dbs (mdbm:*databases* #f)))
           (lambda ()

@@ -10,6 +10,9 @@ kawa --r7rs -d ../../bin -C srfi/59.sld
 kawa --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 
+# only one file from autodiff 
+kawa $OPTS -C autodiff/AD.sld
+
 # work through each directory in turn
 for dir in nltk pfds r6rs rebottled robin slib weinholt; do
   for file in $dir/*.sld

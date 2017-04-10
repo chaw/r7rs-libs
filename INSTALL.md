@@ -31,10 +31,11 @@ Alternatively, for making the libraries permanently available, place the .jar fi
 kawa/lib directory, and add the .jar file to the list in KAWA_EXTRA_PATH in the relevant 
 kawa/bin script.
 
-### Note: method names with colons
+### Note: names with colons
 
-Kawa uses the colon in symbol names specially to refer to Java method calls.
-When you want to mix Java calls with libraries containing names with colons,
-you should rename on import or use the | ... | vertical bar syntax when
-referring to the library names.
+Kawa uses the colon to access properties of a value, such as fields or methods, 
+as explained in   https://www.gnu.org/software/kawa/Colon-notation.html
+This sometimes causes problems if mixing Java calls with libraries containing 
+names with colons: one solution is to rename on import, or use the 
+| ... | vertical bar syntax when referring to the library names.
 
