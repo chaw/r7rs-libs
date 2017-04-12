@@ -102,15 +102,16 @@
     (define (output-port-height . arg) 24) ; value used in all the .init files
     (define (output-port-width . arg) 79) ; value used in all the .init files
 
-    (define (call-with-open-ports . ports)
-      (define proc (car ports))
-      (cond ((procedure? proc) (set! ports (cdr ports)))
-            (else (set! ports (reverse ports))
-                  (set! proc (car ports))
-                  (set! ports (reverse (cdr ports)))))
-      (let ((ans (apply proc ports)))
-        (for-each close-port ports)
-        ans))
+    (define (call-with-open-ports . ports-in)
+      (let ((proc (car ports-in))
+            (ports ports-in))
+        (cond ((procedure? proc) (set! ports (cdr ports)))
+              (else (set! ports (reverse ports))
+                    (set! proc (car ports))
+                    (set! ports (reverse (cdr ports)))))
+        (let ((ans (apply proc ports)))
+          (for-each close-port ports)
+          ans)))
 
     ;; TODO: These features must be varied based on implementation - use cond-expand
     (define (provided? feature)

@@ -21,6 +21,7 @@
 ;;
 ;; Changes from original:
 ;; 1. Replaced use of slib's random with srfi 27
+;; 2. Replaced (slib byte) with bytevector
 
 (define-library
   (slib factor)
@@ -31,7 +32,6 @@
           primes>
           factor)
   (import (scheme base)
-          (slib byte)
           (slib common)
           (slib modular)
           (srfi 27))
@@ -96,7 +96,7 @@
              (or (null? lst) (and (= 1 (gcd n (car lst))) (mapf (cdr lst)))))))
     (define prime:prime-sqr 121)
     (define prime:products '(105))
-    (define prime:sieve (bytes 0 0 1 1 0 1 0 1 0 0 0))
+    (define prime:sieve #u8(0 0 1 1 0 1 0 1 0 0 0))
     (letrec ((lp (lambda (comp comps primes nexp)
                    (cond ((< comp (quotient most-positive-fixnum nexp))
                           (let ((ncomp (* nexp comp)))
@@ -105,9 +105,9 @@
                                 (next-prime nexp (cons ncomp comps)))))
                          ((< (quotient comp nexp) (* nexp nexp))
                           (set! prime:prime-sqr (* nexp nexp))
-                          (set! prime:sieve (make-bytes nexp 0))
+                          (set! prime:sieve (make-bytevector nexp 0))
                           (for-each (lambda (prime)
-                                      (byte-set! prime:sieve prime 1))
+                                      (bytevector-u8-set! prime:sieve prime 1))
                                     primes)
                           (set! prime:products (reverse (cons comp comps))))
                          (else
@@ -122,7 +122,7 @@
 
     (define (prime:prime? n-in)
       (let ((n (abs n-in)))
-        (cond ((< n (bytes-length prime:sieve)) (positive? (byte-ref prime:sieve n)))
+        (cond ((< n (bytevector-length prime:sieve)) (positive? (bytevector-u8-ref prime:sieve n)))
               ((even? n) #f)
               ((primes-gcd? n prime:products) #f)
               ((< n prime:prime-sqr) #t)

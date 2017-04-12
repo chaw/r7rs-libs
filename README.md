@@ -1,13 +1,15 @@
 # Scheme Libraries
 
-Some libraries written for, or converted to run in, R7RS Scheme.  Tested against:
+Some libraries written for, or converted to run in, R7RS Scheme.  
+
+Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http://peterlane.info/r7rs/html/index.html)
+
+Tested against:
 
 * Chibi: https://github.com/ashinn/chibi-scheme/
 * Kawa: https://www.gnu.org/software/kawa/
 * Larceny: http://www.larcenists.org/
 * Sagittarius: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
-
-Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http://peterlane.info/r7rs/html/index.html)
 
 ## AutoDiff
 
@@ -220,6 +222,7 @@ moved, as required, into `(slib common)`.
 * alist
 * byte
 * byte-number
+  * extreme values fail, particularly on Chibi and Larceny
 * pnm
 * collect
 * dynamic

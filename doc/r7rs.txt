@@ -27,19 +27,19 @@ include::subdata.txt[]
 The collection can be obtained by downloading or cloning from the github link
 above.  The directories are named according to each group of libraries.  Those
 directories ending "-examples" or "-tests" are not needed if you are only
-interested in using the libraries.
+interested in using the libraries (but are a good source of examples to learn from).
 
 In most cases, installation is straightforward:
 
 Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
-button on the github repository: call the directory containing the files +SCHEME_LIBS+
+button on the github repository: name the directory containing the files +SCHEME_LIBS+
 
 Call your implementation with SCHEME_LIBS in its library path.  e.g.
 
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
-    > sagittarius -I SCHEME_LIBS -I SCHEME_LIBS/srfis/sagittarius program.sps
+    > sagittarius -r7 -L SCHEME_LIBS -L SCHEME_LIBS/srfis/sagittarius program.sps
 ----
 
 Note that Larceny has all required SRFIs to support the complete collection.

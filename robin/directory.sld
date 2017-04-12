@@ -2,10 +2,12 @@
 
 (define-library
   (robin directory)
-  (export current-directory
-          make-directory
+  (export change-directory 
+          current-directory
           list-directory-files
-          list-directory-paths)
+          list-directory-paths
+          make-directory
+          )
   (import (scheme base))
 
   ;; functions must be defined in platform specific ways
@@ -13,6 +15,7 @@
     ((library (chibi filesystem))
      (import (chibi filesystem))
      (begin
+       ; change-directory exported
        ; current-directory exported
        (define make-directory create-directory*)
        (define list-directory-files directory-files)))
@@ -22,6 +25,7 @@
               (only (kawa base) as invoke)
               (only (srfi 59) pathname->vicinity))
       (begin
+        (define (change-directory str) (system (string-append "cd " str)))
         (define (current-directory) (as String current-path))
         (define make-directory create-directory)
         (define (list-directory-files dir)
@@ -32,6 +36,7 @@
     (larceny
       (import (primitives current-directory list-directory system))
       (begin 
+        (define (change-directory str) (system (string-append "cd " str)))
         ; current-directory exported
         (define (make-directory str) (system (string-append "mkdir " str)))
         (define list-directory-files list-directory)))
@@ -39,6 +44,7 @@
       (import (sagittarius)
               (only (srfi 1) filter))
       (begin
+        (define (change-directory str) (current-directory str))
         ; current-directory exported
         (define (make-directory str) (create-directory str))
         (define (list-directory-files dir)
