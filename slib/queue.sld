@@ -47,7 +47,7 @@
     ;;@body
     ;;Returns @code{#t} if the queue @var{q} is empty.
     (define (queue-empty? q)
-      (null? (queue-front q)))
+      (null? (queue-first q)))
 
     ;;@body
     ;;Adds @var{datum} to the front of queue @var{q}.
@@ -63,10 +63,9 @@
     ;;Adds @var{datum} to the rear of queue @var{q}.
     (define (enqueue! q datum)
       (let ((new-pair (cons datum '())))
-        (cond ((null? (queue-first q))
-               (queue-first-set! q new-pair))
-              (else
-                (set-cdr! (queue-last q) new-pair)))
+        (if (null? (queue-first q))
+          (queue-first-set! q new-pair)
+          (set-cdr! (queue-last q) new-pair))
         (queue-last-set! q new-pair))
       q)
 
@@ -78,12 +77,12 @@
     (define (dequeue! q)
       (let ((first-pair (queue-first q)))
         (if (null? first-pair)
-          (slib:error "queue is empty" q))
-        (let ((first-cdr (cdr first-pair)))
-          (queue-first-set! q first-cdr)
-          (if (null? first-cdr)
-            (queue-last-set! q '()))
-          (car first-pair))))
+          (slib:error "queue is empty" q)
+          (let ((first-cdr (cdr first-pair)))
+            (queue-first-set! q first-cdr)
+            (when (null? first-cdr)
+              (queue-last-set! q '()))
+            (car first-pair)))))
     (define queue-pop! dequeue!)
 
     ;;@ All of the following functions raise an error if the queue @var{q}
@@ -102,16 +101,16 @@
     (define (queue-front q)
       (let ((first-pair (queue-first q)))
         (if (null? first-pair)
-          (slib:error "queue is empty" q))
-        (car first-pair)))
+          (slib:error "queue is empty" q)
+          (car first-pair))))
 
     ;;@body
     ;;Returns the datum at the rear of the queue @var{q}.
     (define (queue-rear q)
       (let ((last-pair (queue-last q)))
         (if (null? last-pair)
-          (slib:error "queue is empty" q))
-        (car last-pair)))
+          (slib:error "queue is empty" q)
+          (car last-pair))))
 
     ))
 
