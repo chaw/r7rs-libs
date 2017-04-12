@@ -40,7 +40,8 @@
 (test-begin "nltk-sequence")
 
 ;; test1: returns vector of token permutations from list of strings
-(test-equal #(#("John" "loves" "Mary" "not") #("John" "loves" "not" "Mary")
+;; -- test allows different orders of the permutations
+(let ((expected '(#("John" "loves" "Mary" "not") #("John" "loves" "not" "Mary")
               #("John" "Mary" "loves" "not") #("John" "Mary" "not" "loves")
               #("John" "not" "Mary" "loves") #("John" "not" "loves" "Mary")
               #("loves" "John" "Mary" "not") #("loves" "John" "not" "Mary")
@@ -51,19 +52,26 @@
               #("Mary" "not" "John" "loves") #("Mary" "not" "loves" "John")
               #("not" "Mary" "loves" "John") #("not" "Mary" "John" "loves")
               #("not" "loves" "Mary" "John") #("not" "loves" "John" "Mary")
-              #("not" "John" "loves" "Mary") #("not" "John" "Mary" "loves"))
-            (sequence->permutations-vector '("John" "loves" "Mary" "not")))
+              #("not" "John" "loves" "Mary") #("not" "John" "Mary" "loves")))
+      (actual (vector->list (sequence->permutations-vector '("John" "loves" "Mary" "not")))))
+  (test-assert (= (length expected) (length actual)))
+  (for-each (lambda (act) (test-assert (member act expected equal?)))
+            actual))
 
 ;; test1: returns vector of token permutations from vector of symbols
-(test-equal #(#(John loves Mary not) #(John loves not Mary) #(John Mary loves not)
+;; -- test allows different orders of the permutations
+(let ((expected '(#(John loves Mary not) #(John loves not Mary) #(John Mary loves not)
               #(John Mary not loves) #(John not Mary loves) #(John not loves Mary)
               #(loves John Mary not) #(loves John not Mary) #(loves Mary John not)
               #(loves Mary not John) #(loves not Mary John) #(loves not John Mary)
               #(Mary loves John not) #(Mary loves not John) #(Mary John loves not)
               #(Mary John not loves) #(Mary not John loves) #(Mary not loves John)
               #(not Mary loves John) #(not Mary John loves) #(not loves Mary John)
-              #(not loves John Mary) #(not John loves Mary) #(not John Mary loves))
-            (sequence->permutations-vector (vector 'John 'loves 'Mary 'not)))
+              #(not loves John Mary) #(not John loves Mary) #(not John Mary loves)))
+      (actual (vector->list (sequence->permutations-vector (vector 'John 'loves 'Mary 'not)))))
+  (test-assert (= (length expected) (length actual)))
+  (for-each (lambda (act) (test-assert (member act expected equal?)))
+            actual))
 
 ;; test1: returns vector of character permutations from string
 (test-equal

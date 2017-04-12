@@ -59,6 +59,14 @@
         ; current-directory exported
         (define (make-directory str) (system (string-append "mkdir " str)))
         (define list-directory-files list-directory)))
+    (sagittarius
+      (import (sagittarius)
+              (only (srfi 1) filter))
+      (begin
+        ; current-directory exported
+        (define (make-directory str) (create-directory str))
+        (define (list-directory-files dir)
+          (filter file-regular? (read-directory dir)))))
     (else
       (error "(slib directory) not supported for current R7RS Scheme implementation")))
 

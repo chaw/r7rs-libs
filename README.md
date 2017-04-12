@@ -1,6 +1,11 @@
 # Scheme Libraries
 
-Some libraries written for, or converted to run in, R7RS Scheme.  
+Some libraries written for, or converted to run in, R7RS Scheme.  Tested against:
+
+* Chibi: https://github.com/ashinn/chibi-scheme/
+* Kawa: https://www.gnu.org/software/kawa/
+* Larceny: http://www.larcenists.org/
+* Sagittarius: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
 Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http://peterlane.info/r7rs/html/index.html)
 
@@ -276,10 +281,11 @@ some implementations and support the above libraries.  Provided SRFIs:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
 * srfi 42  simply the reference implementation (not needed)
-* srfi 59  for Chibi and Kawa
+* srfi 59  for Chibi, Kawa, Sagittarius
 * srfi 60  for Chibi
 * srfi 63  SLIB's array.scm implemented as a srfi library
 * srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for running tests with Chibi
+* srfi 95  for Sagittarius: a partial wrapper around (srfi 132)
 
 The SRFIs are organised in the 'srfis' folder, by implementation.
 
@@ -293,7 +299,7 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * blowfish
   * Tests pass with Chibi and Larceny, not Kawa
 * bytevector
-* (des - tests fail in Kawa / overflow Larceny)
+* (des - tests fail in Kawa / overflow Larceny / fail Sagittarius)
 * dh
 * elliptic-curve
 * entropy
@@ -302,7 +308,7 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * maths
 * md5
 * sha-1
-* sha-2
+* sha-2 (1 failure on Kawa / tests fail to run in Sagittarius)
 * sliding-buffer
 * strings
 

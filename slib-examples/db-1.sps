@@ -16,9 +16,6 @@
 
 ;; ensure it is not already there
 (when (file-exists? *filename*) (delete-file *filename*))
-;; nor the lock files, in case of errors
-(when (file-exists? (string-append "\.#" *filename*)) (delete-file (string-append "\.#" *filename*)))
-(when (file-exists? (string-append "~\$" *filename*)) (delete-file (string-append "~\$" *filename*)))
 
 ;; create database only needs to run once
 (define db (create-database *filename* 'alist-table))

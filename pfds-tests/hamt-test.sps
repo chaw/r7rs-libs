@@ -8,7 +8,7 @@
         (robin srfi64-utils)
         (only (srfi 69) string-hash)
         (srfi 95))
-
+ 
 (define (make-string-hamt)
   (make-hamt string-hash string=?))
 

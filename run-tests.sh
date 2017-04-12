@@ -6,9 +6,12 @@ else if [ "$1" = "larceny" ]; then
   PROG="larceny -r7rs -program "
 else if [ "$1" = "chibi" ]; then
   PROG="chibi-scheme -I srfis/chibi/ "
+else if [ "$1" = "sagittarius" ]; then
+  PROG="sagittarius -r7 -L . -L srfis/sagittarius "
 else
   echo "Unknown implementation"
   exit
+fi
 fi
 fi
 fi

@@ -8,8 +8,8 @@ The R7RS Libraries referred to here are a collection of libraries written for
 or, mostly, repackaged for R7RS Scheme.  The library implementations 
 are available from https://github.com/petercrlane/r7rs-libs[].
 
-The collection has been tested on Chibi, Kawa and Larceny implementations.  Any
-incompatibilities or test failures are noted on the github page.  In most
+The collection has been tested on Chibi, Kawa, Larceny and Sagittarius implementations.  
+Any incompatibilities or test failures are noted on the github page.  In most
 cases, the collection will work on other R7RS implementations.  However, there
 are some dependencies.  For example, +(slib directory)+ requires some
 interaction with the operating system, which is platform specific.  Most of the
@@ -39,11 +39,12 @@ Call your implementation with SCHEME_LIBS in its library path.  e.g.
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
+    > sagittarius -I SCHEME_LIBS -I SCHEME_LIBS/srfis/sagittarius program.sps
 ----
 
 Note that Larceny has all required SRFIs to support the complete collection.
-For Chibi, you also need to reference the Chibi specific SRFIs, in the
-directory srfis/chibi.
+For Chibi and Sagittarius, you also need to reference the implementation specific SRFIs, 
+in the directory srfis/IMPLEMENTATION.
 
 .Kawa
 

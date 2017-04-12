@@ -34,12 +34,11 @@
         (srfi 64)
         (srfi 95))
 
-(define (sort1 lst)
-  (sort lst <))
-
 ;;
 ;; Utilities for wt-tree
 ;;
+
+(define (sort1 lst) (sort lst <))
 
 (define (random-alist n)
   (zip (random-list n)))

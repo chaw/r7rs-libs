@@ -40,6 +40,12 @@
            (guard (exc (else 1))
                   (let-values (((e s) (chibi:system "/bin/bash" "-c" cmd)))
                               s)))))
+      ((library (sagittarius process))
+       ;; to avoid execvp errors, Sagittarius also calls out to bash  TODO: Clearly this is Linux specific
+       (import (sagittarius process))
+       (begin
+         (define (system cmd)
+           (run "/bin/bash" "-c" cmd))))
       (else ; else, set system to return an 'unsupported' error
         (begin
           (define (system . args) (error "Implementation does not support 'system' calls")))))
