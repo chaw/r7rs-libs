@@ -38,7 +38,7 @@ R6RS Scheme: https://github.com/ijp/pfds
 * difference-list
 * fector - from https://github.com/ijp/fectors
 * fingertree 
-* hash-array-mapped-trie - all tests pass Chibi/Larceny - bad type crashes Kawa
+* hash-array-mapped-trie
 * heap
 * priority-search-queue
 * queue

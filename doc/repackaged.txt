@@ -14,6 +14,11 @@ these have links to their own detailed documentation.
 indexterm:[autodiff]
 A repackaging of code written by Jeffrey Mark Siskind for R6RS: https://github.com/qobi/R6RS-AD[]
 
+The first library, +AD+ supports automatic differentiation itself.  The
+remaining libraries are, according to JMS, "experimental packages to support
+nondeterministic and stochastic programming, including constraint satisfaction
+problems".
+
 Some examples are provided, but otherwise this collection needs documenting.
 
 ==== AD: +(import (autodiff AD))+
@@ -28,7 +33,7 @@ is not to include those operators from +(scheme base)+!
 For the first example, consider the function +(* x x)+.  It's derivative is +2x+.  To get a function 
 to compute the derivative at a given point, we apply the indexterm2:[+derivative-F+] function to it (for forward-mode).
 
-[scheme,lisp]
+[source,lisp]
 ----
 (import (except (scheme base) + - * / expt square = < > <= >= zero? positive? negative? real?)
         (scheme write)
@@ -48,7 +53,7 @@ The output is:
 
 Some further examples:
 
-[scheme,lisp]
+[source,lisp]
 ----
 (define (g x) (/ (* (+ x 1) (- x 2))
                  (+ x 3)))

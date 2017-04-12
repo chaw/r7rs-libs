@@ -1,7 +1,7 @@
 ;; Simple tests of AD for automatic differentiation
 ;; Examples from https://www.sintef.no/globalassets/project/evitameeting/2010/ad2010.pdf
 
-(import (except (scheme base) + - * / expt = < > <= >= zero? positive? negative? real?)
+(import (except (scheme base) + - * / expt square = < > <= >= zero? positive? negative? real?)
         (autodiff AD)
         (srfi 64)
         (robin srfi64-utils))

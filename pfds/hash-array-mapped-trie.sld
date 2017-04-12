@@ -97,7 +97,7 @@
           hamt->alist
           alist->hamt
           )
-  (import (scheme base)
+  (import (scheme base) 
           (scheme case-lambda)     
           (pfds alist)
           (pfds bitwise)
@@ -325,30 +325,30 @@
                     (and val (dispatch val)))
                   vector))
 
+    (define (fold/handle-subtrie trie accum vector)
+      (vector-fold fold/dispatch accum (subtrie-vector vector)))
+
+    (define (fold/handle-leaf leaf accum combine vector)
+      (combine (leaf-key leaf) (leaf-value leaf) accum))
+
+    (define (fold/handle-collision collision accum combine vector)
+      (fold-right (lambda (pair acc)
+                    (combine (car pair) (cdr pair) acc))
+                  accum
+                  (collision-alist collision)))
+
+    (define (fold/dispatch val accum combine vector)
+      (cond ((leaf? val)
+             (fold/handle-leaf val accum combine vector))
+            ((collision? val)
+             (fold/handle-collision val accum combine vector))
+            (else
+              (fold/handle-subtrie val accum vector))))
+
     (define (fold combine initial vector)
-      (define (handle-subtrie trie accum)
-        (vector-fold dispatch accum (subtrie-vector vector)))
-
-      (define (handle-leaf leaf accum)
-        (combine (leaf-key leaf) (leaf-value leaf) accum))
-
-      (define (handle-collision collision accum)
-        (fold-right (lambda (pair acc)
-                      (combine (car pair) (cdr pair) acc))
-                    accum
-                    (collision-alist collision)))
-
-      (define (dispatch val accum)
-        (cond ((leaf? val)
-               (handle-leaf val accum))
-              ((collision? val)
-               (handle-collision val accum))
-              (else
-                (handle-subtrie val accum))))
-
       (vector-fold (lambda (val accum)
                      ;; top level can have false values
-                     (if (not val) accum (dispatch val accum)))
+                     (if (not val) accum (fold/dispatch val accum combine vector)))
                    initial
                    vector))
 

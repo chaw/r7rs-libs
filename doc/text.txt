@@ -162,7 +162,7 @@ of characters in the n-grams, which defaults to 2:
 
 === soundex
 
-indexterm2:[+soundex+] is the same as +soundex+, exported from +(slib soundex)+.  
+indexterm2:[+soundex+] is exported from +(slib soundex)+.  
 
 === string->n-grams
 
