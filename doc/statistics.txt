@@ -3,20 +3,35 @@
 indexterm:[statistics]  A library of functions to compute statistical or 
 other information about sets of data.
 
-=== mean
-
-Computes the arithmetic indexterm2:[+mean+] of a list of numbers.  
-This is the familiar "add up all the numbers, divide by the total" average.
-
-[source,lisp]
-----
-#|kawa:2|# (mean '(1 2 3 4 5))
-3
-----
-
 === arithmetic-mean
 
 indexterm:[arithmetic-mean] Same as +mean+.
+
+=== coefficient-of-variation
+
+indexterm2:[+coefficient-of-variation+] describes the amount of spread in a dataset relative to its mean.
+In the following example, both lists have the same mean (3), but the spread is greater in the second.
+
+[source,lisp]
+----
+#|kawa:32|# (coefficient-of-variation '(1 2 3 4 5))
+52.70462766947299
+#|kawa:33|# (coefficient-of-variation '(-2 2 3 4 8))
+120.18504251546631
+----
+
+=== combinations
+
+indexterm2:[+combinations+] returns the number of ways to take k things from n without replacement, 
+when the order does not matter.  The form is +(combinations n k)+
+
+[source,lisp]
+----
+#|kawa:2|# (combinations 5 2)
+10
+#|kawa:3|# (combinations 1000 500)
+270288240945436569515614693625975275496152008446548287007392875106625428705522193898612483924502370165362606085021546104802209750050679917549894219699518475423665484263751733356162464079737887344364574161119497604571044985756287880514600994219426752366915856603136862602484428109296905863799821216320
+----
 
 === geometric-mean
 
@@ -45,6 +60,54 @@ mean of the reciprocals.
 300/137
 #|kawa:7|# (inexact (harmonic-mean '(1 2 3 4 5)))
 2.18978102189781
+----
+
+=== jaccard-distance
+
+indexterm:[jaccard-distance]
+The indexterm2:[Jaccard Distance] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
+the two sets are.
+
+[source,lisp]
+----
+#|kawa:46|# (jaccard-distance '(1 2 3 4 5) '(3 4 5 6 7))
+4/7
+----
+
+=== jaccard-index
+
+indexterm:[jaccard-index]
+The indexterm2:[Jaccard Index] returns a number from 0 to 1 indicating how _similar_
+two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
+third argument provides the set-equality function (which defaults to +equal?+).
+
+[source,lisp]
+----
+#|kawa:40|# (jaccard-index '(1 2 3 4 5) '(3 4 5 6 7))
+3/7
+#|kawa:42|# (jaccard-index '(1 2 3 4 5) '(3 4 5 1 2 2 1 1))
+1
+#|kawa:43|# (jaccard-index '("a" "b" "c") '("A" "B" "F"))
+0
+#|kawa:45|# (jaccard-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
+1/2
+----
+
+.Note
+****
+Interestingly, the Jaccard Index is a distance _metric_ satisfying, in particular, the triangle 
+inequality.
+****
+
+=== mean
+
+Computes the arithmetic indexterm2:[+mean+] of a list of numbers.  
+This is the familiar "add up all the numbers, divide by the total" average.
+
+[source,lisp]
+----
+#|kawa:2|# (mean '(1 2 3 4 5))
+3
 ----
 
 === median
@@ -95,6 +158,19 @@ range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 9/2
 ----
 
+=== permutations
+
+indexterm2:[+permutations+] returns the number of ways to take k things from n without replacement, when the order matters.
+The form is +(permutations n k)+
+
+[source,lisp]
+----
+#|kawa:4|# (permutations 5 2)
+20
+#|kawa:5|# (permutations 100 20)
+1303995018204712451095685346159820800000
+----
+
 === population-standard-deviation
 
 indexterm2:[+population-standard-deviation+] of a list of data:
@@ -126,95 +202,6 @@ indexterm2:[+population-variance+] of a list of data:
 
 Optionally, if you know the mean of your data, pass that as a second argument so the 
 function does not have to recompute it.
-
-=== standard-deviation
-
-indexterm2:[+standard-deviation+] of a list of data:
-
-[source,lisp]
-----
-#|kawa:30|# (standard-deviation '(1 2 3 4 5))
-1.5811388300841898
-----
-
-Optionally, if you know the mean of your data, pass that as a second argument so the 
-function does not have to recompute it.
-
-=== variance
-
-indexterm2:[+variance+] of a list of data:
-
-[source,lisp]
-----
-#|kawa:31|# (variance '(1 2 3 4 5))
-5/2
-----
-
-Optionally, if you know the mean of your data, pass that as a second argument so the 
-function does not have to recompute it.
-
-=== coefficient-of-variation
-
-indexterm2:[+coefficient-of-variation+] describes the amount of spread in a dataset relative to its mean.
-In the following example, both lists have the same mean (3), but the spread is greater in the second.
-
-[source,lisp]
-----
-#|kawa:32|# (coefficient-of-variation '(1 2 3 4 5))
-52.70462766947299
-#|kawa:33|# (coefficient-of-variation '(-2 2 3 4 8))
-120.18504251546631
-----
-
-=== standard-error-of-the-mean
-
-indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling distribution.
-
-[source,lisp]
-----
-#|kawa:35|# (standard-error-of-the-mean '(1 2 3 4 5))
-0.7071067811865476
-----
-
-=== combinations
-
-indexterm2:[+combinations+] returns the number of ways to take k things from n without replacement, 
-when the order does not matter.  The form is +(combinations n k)+
-
-[source,lisp]
-----
-#|kawa:2|# (combinations 5 2)
-10
-#|kawa:3|# (combinations 1000 500)
-270288240945436569515614693625975275496152008446548287007392875106625428705522193898612483924502370165362606085021546104802209750050679917549894219699518475423665484263751733356162464079737887344364574161119497604571044985756287880514600994219426752366915856603136862602484428109296905863799821216320
-----
-
-=== permutations
-
-indexterm2:[+permutations+] returns the number of ways to take k things from n without replacement, when the order matters.
-The form is +(permutations n k)+
-
-[source,lisp]
-----
-#|kawa:4|# (permutations 5 2)
-20
-#|kawa:5|# (permutations 100 20)
-1303995018204712451095685346159820800000
-----
-
-=== sign
-
-indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers
-
-[source,lisp]
-----
-#|kawa:36|# (sign 10)
-1
-#|kawa:37|# (sign 0)
-0
-#|kawa:38|# (sign -0.7)
--1
-----
 
 === random-normal
 
@@ -295,41 +282,18 @@ The following is a lighter bias to choosing 1 and 4:
 (1 3 2)
 ----
 
-=== jaccard-index
+=== sign
 
-indexterm:[jaccard-index]
-The indexterm2:[Jaccard Index] returns a number from 0 to 1 indicating how _similar_
-two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
-third argument provides the set-equality function (which defaults to +equal?+).
+indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers
 
 [source,lisp]
 ----
-#|kawa:40|# (jaccard-index '(1 2 3 4 5) '(3 4 5 6 7))
-3/7
-#|kawa:42|# (jaccard-index '(1 2 3 4 5) '(3 4 5 1 2 2 1 1))
+#|kawa:36|# (sign 10)
 1
-#|kawa:43|# (jaccard-index '("a" "b" "c") '("A" "B" "F"))
+#|kawa:37|# (sign 0)
 0
-#|kawa:45|# (jaccard-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
-1/2
-----
-
-.Note
-****
-Interestingly, the Jaccard Index is a distance _metric_ satisfying, in particular, the triangle 
-inequality.
-****
-
-=== jaccard-distance
-
-indexterm:[jaccard-distance]
-The indexterm2:[Jaccard Distance] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
-the two sets are.
-
-[source,lisp]
-----
-#|kawa:46|# (jaccard-distance '(1 2 3 4 5) '(3 4 5 6 7))
-4/7
+#|kawa:38|# (sign -0.7)
+-1
 ----
 
 === sorenson-dice-index
@@ -349,6 +313,42 @@ function (which defaults to +equal?+).
 #|kawa:49|# (sorenson-dice-index '("a" "b" "c") '("A" "B" "D") string-ci=?)
 2/3
 ----
+
+=== standard-deviation
+
+indexterm2:[+standard-deviation+] of a list of data:
+
+[source,lisp]
+----
+#|kawa:30|# (standard-deviation '(1 2 3 4 5))
+1.5811388300841898
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
+
+=== standard-error-of-the-mean
+
+indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling distribution.
+
+[source,lisp]
+----
+#|kawa:35|# (standard-error-of-the-mean '(1 2 3 4 5))
+0.7071067811865476
+----
+
+=== variance
+
+indexterm2:[+variance+] of a list of data:
+
+[source,lisp]
+----
+#|kawa:31|# (variance '(1 2 3 4 5))
+5/2
+----
+
+Optionally, if you know the mean of your data, pass that as a second argument so the 
+function does not have to recompute it.
 
 
 

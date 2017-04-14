@@ -516,8 +516,7 @@ the contents of the XML document read from the input port.
 (*TOP* (person (@ (gender male)) (name Peter) (number 1234)))
 ----
 
-(The vertical bars around the function call are only required in Kawa, to prevent confusion with 
-calls to Java methods.)
+(The vertical bars around the function calls are sometimes required in Kawa.)
 
 Notice the XML strings are converted to s-expressions.  Attributes are marked
 "@".  All values are strings.

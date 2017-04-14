@@ -6,10 +6,10 @@ Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http
 
 Tested against:
 
-* Chibi: https://github.com/ashinn/chibi-scheme/
-* Kawa: https://www.gnu.org/software/kawa/
-* Larceny: http://www.larcenists.org/
-* Sagittarius: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
+* Chibi 0.7.3: https://github.com/ashinn/chibi-scheme/
+* Kawa 2.3: https://www.gnu.org/software/kawa/
+* Larceny 0.99: http://www.larcenists.org/
+* Sagittarius 0.8.2: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
 ## AutoDiff
 

@@ -69,6 +69,7 @@
     ; -- choosing and expanding
     choose
     choose-if
+    choose-if-not
     spread
     expand
     ; -- other off-line transducers
@@ -444,6 +445,9 @@
                              (if has-item?
                                item)
                              (error "no next item in series")))))))))
+
+    (define (choose-if-not proc series)
+      (choose-if (lambda (obj) (not (proc obj))) series))
 
     ;; Output elements of series spread out by default value in positions of 'gaps' 
     (define spread

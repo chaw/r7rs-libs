@@ -57,7 +57,10 @@
       (map-fn process-file
               (choose-if library-path?
                          (scan ; scan over list of directory paths
-                           (apply append (map list-directory-paths *search-paths*))))))
+                           (apply append 
+                                  (map (lambda (path) 
+                                         (list-directory-files path #t))
+                                       *search-paths*))))))
     library<?))
 
 ;; return list of libraries which this assn imports

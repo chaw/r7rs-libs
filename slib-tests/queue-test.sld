@@ -45,6 +45,9 @@
 (test-equal '(4 2 8) (dequeue-all! q))
 
 (test-assert (queue-empty? q))
+(test-for-error (dequeue! q))
+(test-for-error (queue-front q))
+(test-for-error (queue-rear q))
 
 (test-end)
 

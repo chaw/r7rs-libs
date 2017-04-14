@@ -8,13 +8,14 @@ The R7RS Libraries referred to here are a collection of libraries written for
 or, mostly, repackaged for R7RS Scheme.  The library implementations 
 are available from https://github.com/petercrlane/r7rs-libs[].
 
-The collection has been tested on Chibi, Kawa, Larceny and Sagittarius implementations.  
-Any incompatibilities or test failures are noted on the github page.  In most
-cases, the collection will work on other R7RS implementations.  However, there
-are some dependencies.  For example, +(slib directory)+ requires some
-interaction with the operating system, which is platform specific.  Most of the
-individual libraries rely on one or more SRFIs.  Those SRFIs not currently included with
-Chibi or Kawa are included in the collection, as are some R6RS libraries.
+The collection has been tested on Chibi, Kawa, Larceny and Sagittarius
+implementations.  Any incompatibilities or test failures are noted on the
+github page.  In most cases, the collection will work on other R7RS
+implementations.  However, there are some dependencies.  For example, +(slib
+directory)+ requires some interaction with the operating system, which is
+platform specific.  Most of the individual libraries rely on one or more SRFIs.
+Those SRFIs not currently included with the tested implementations are
+included, as are some R6RS libraries.
 
 See https://github.com/petercrlane/r7rs-libs/blob/master/LICENSE.md[] for license information.
 
@@ -32,9 +33,8 @@ interested in using the libraries (but are a good source of examples to learn fr
 In most cases, installation is straightforward:
 
 Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
-button on the github repository: name the directory containing the files +SCHEME_LIBS+
-
-Call your implementation with SCHEME_LIBS in its library path.  e.g.
+button on the github repository.  If the directory containing the files is SCHEME_LIBS,
+you must call your implementation with SCHEME_LIBS in its library path.  e.g.
 
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
@@ -43,8 +43,8 @@ Call your implementation with SCHEME_LIBS in its library path.  e.g.
 ----
 
 Note that Larceny has all required SRFIs to support the complete collection.
-For Chibi and Sagittarius, you also need to reference the implementation specific SRFIs, 
-in the directory srfis/IMPLEMENTATION.
+For Chibi and Sagittarius, you also need to reference the implementation-specific SRFIs, 
+in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
 
 .Kawa
 

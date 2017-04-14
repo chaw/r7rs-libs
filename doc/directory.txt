@@ -2,10 +2,10 @@
 
 indexterm:[directory]
 This library is implementation specific, providing a common interface for working with directories.
-Some of the details of the output will vary depending on implementation (e.g. whether directories 
-are included when listing files).
 
-The library only supports Chibi, Kawa and Larceny at present.
+=== change-directory
+
+indexterm2:[+change-directory+] changes the current working directory to the given directory.
 
 === current-directory
 
@@ -18,37 +18,82 @@ indexterm2:[+current-directory+] returns the current working directory (as a str
 /home/peter/Software/r7rs-libs/robin
 ----
 
+=== delete-directory
+
+indexterm2:[+delete-directory+] deletes the given directory.
+
+=== list-directory
+
+indexterm2:[+list-directory+] returns a list of all files and directories in the given directory:
+
+[source,lisp]
+----
+#|kawa:3|# (list-directory ".")
+(pfds announce.txt robin-examples pfds-tests weinholt robin r7rs-libs.jar r6rs
+ pfds-examples build-kawa.sh autodiff-examples nltk-tests rebottled INSTALL.md
+ slib run-tests.sh nltk-examples weinholt-tests slib-examples srfis .gitignore
+ LICENSE.md .git rebottled-tests jacal robin-tests build-kawa-win.bat bin
+ rebottled-examples nltk doc autodiff slib-tests README.md jacal.sh jacal-tests
+ autodiff-tests)
+----
+
 === list-directory-files
 
 indexterm2:[+list-directory-files+] returns a list of the _filenames_ in the given directory:
 
 [source,lisp]
 ----
-#|kawa:4|# (list-directory-files (current-directory))
-(srfi64-utils.sld logger.sld series.sld abbrev.sld
- disjoint-set.sld text.sld directory.sld statistics.sld
- constants.sld)
-#|kawa:5|# (list-directory-files "../robin-tests")
-(statistics-test.sps text-test.sps logger-test.sps voc.txt series-test.sps
- abbrev-test.sps output.txt)
+#|kawa:3|# (list-directory-files ".")
+(announce.txt r7rs-libs.jar build-kawa.sh INSTALL.md run-tests.sh .gitignore
+ LICENSE.md build-kawa-win.bat README.md jacal.sh)
 ----
 
-=== list-directory-paths
-
-indexterm2:[+list-directory-paths+] returns a list of the _pathnames_ of files in the given directory:
+Giving #t as the optional second argument returns a list of the _pathnames_ of files in the given directory:
 
 [source,lisp]
 ----
-#|kawa:15|# (list-directory-paths (current-directory))
-(/home/peter/Software/r7rs-libs/robin/srfi64-utils.sld
- /home/peter/Software/r7rs-libs/robin/logger.sld
- /home/peter/Software/r7rs-libs/robin/series.sld
- /home/peter/Software/r7rs-libs/robin/abbrev.sld
- /home/peter/Software/r7rs-libs/robin/disjoint-set.sld
- /home/peter/Software/r7rs-libs/robin/text.sld
- /home/peter/Software/r7rs-libs/robin/directory.sld
- /home/peter/Software/r7rs-libs/robin/statistics.sld
- /home/peter/Software/r7rs-libs/robin/constants.sld)
+#|kawa:4|# (list-directory-files "." #t)
+(/home/peter/Software/r7rs-libs/announce.txt
+ /home/peter/Software/r7rs-libs/r7rs-libs.jar
+ /home/peter/Software/r7rs-libs/build-kawa.sh
+ /home/peter/Software/r7rs-libs/INSTALL.md
+ /home/peter/Software/r7rs-libs/run-tests.sh
+ /home/peter/Software/r7rs-libs/.gitignore
+ /home/peter/Software/r7rs-libs/LICENSE.md
+ /home/peter/Software/r7rs-libs/build-kawa-win.bat
+ /home/peter/Software/r7rs-libs/README.md
+ /home/peter/Software/r7rs-libs/jacal.sh)
+----
+
+=== list-glob
+
+indexterm2:[+list-glob+] returns all files matching the given glob.  A indexterm2:[glob] is
+matched using slib's
+http://people.csail.mit.edu/jaffer/slib/Filenames.html#Filenames[+filename:match??+].
+
+[source,lisp]
+----
+#|kawa:5|# (list-glob "**/*.txt")
+(/home/peter/Software/r7rs-libs/doc/logger.txt
+ /home/peter/Software/r7rs-libs/doc/statistics.txt
+ /home/peter/Software/r7rs-libs/doc/slib.txt
+ /home/peter/Software/r7rs-libs/doc/r7rs.txt
+ /home/peter/Software/r7rs-libs/doc/summary.txt
+ /home/peter/Software/r7rs-libs/doc/series.txt
+ /home/peter/Software/r7rs-libs/doc/srfi64-utils.txt
+ /home/peter/Software/r7rs-libs/doc/repackaged.txt
+ /home/peter/Software/r7rs-libs/doc/disjoint-set.txt
+ /home/peter/Software/r7rs-libs/doc/constants.txt
+ /home/peter/Software/r7rs-libs/doc/abbrev.txt
+ /home/peter/Software/r7rs-libs/doc/directory.txt
+ /home/peter/Software/r7rs-libs/doc/subdata.txt
+ /home/peter/Software/r7rs-libs/doc/text.txt
+ /home/peter/Software/r7rs-libs/doc/alldata.txt
+ /home/peter/Software/r7rs-libs/rebottled-examples/examples.txt
+ /home/peter/Software/r7rs-libs/robin-tests/output.txt
+ /home/peter/Software/r7rs-libs/robin-tests/voc.txt
+ /home/peter/Software/r7rs-libs/jacal/files.txt
+ /home/peter/Software/r7rs-libs/announce.txt)
 ----
 
 === make-directory
@@ -57,8 +102,47 @@ indexterm2:[+make-directory+] creates a directory with the given name:
 
 [source,lisp]
 ----
-#|kawa:16|# (make-directory "test-directory")
+#|kawa:6|# (make-directory "test-directory")
 ----
 
+=== Example: Count lines of Scheme code
 
+The program "scmcount.sps" in "robin-examples" illustrates using some of these 
+functions to scan through all child directories from a given directory 
+for Scheme files.  The number of code lines in each file is then counted, 
+and a list displayed of the full file paths and the counts.
+
+[source,lisp]
+----
+(define (collect-information directory)
+  (let ((current (current-directory)))
+    (guard (err (else (display err))) ; ignore any errors - e.g. permission errors
+           (change-directory directory)                                             ; <1>
+           (let ((chop (+ 1 (string-length (current-directory)))))
+             (list-glob "**/*.s?*"                                                  ; <2>
+                        (lambda (filename) ; chop starts directory from filename
+                          (update-information (string-copy filename chop))))        ; <3>
+             (change-directory current)))))                                         ; <4>
+----
+<1> Move to the given directory
+<2> Search for potential Scheme source files in any child directory
+<3> Gather information about each potential Scheme file
+<4> And return to the original directory
+
+----
+ $ sagittarius -L . -L srfis/sagittarius/ robin-examples/scmcount.sps rebottled
+ --------------------------
+ cl-pdf-utils.sld    334
+       cl-pdf.sld    315
+  json-parser.sld    306
+  json-select.sld    270
+   json-tools.sld    407
+      packrat.sld    269
+      pregexp.sld    675
+   quaternion.sld    286
+      schelog.sld    518
+ --------------------------
+ Total files: 9
+ Total lines: 3380
+----
 
