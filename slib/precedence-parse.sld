@@ -55,7 +55,8 @@
 
 (define-library
   (slib precedence-parse)
-  (export prec:nofix 
+  (export tok:read-char
+          prec:nofix 
           prec:prefix
           prec:infix
           prec:nary

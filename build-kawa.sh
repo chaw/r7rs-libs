@@ -4,6 +4,7 @@
 # Reference kawa implementation to use
 KAWA=kawa
 OPTS="--r7rs -d bin "
+CLASSPATH=bin:$CLASSPATH
 
 # Remove existing files, if present
 if [ -d "bin" ]; then
@@ -37,3 +38,8 @@ cd bin
 jar cf r7rs-libs.jar .
 cd ..
 mv bin/r7rs-libs.jar .
+
+# Tidy up
+if [ -d "bin" ]; then
+  rm -rf bin
+fi

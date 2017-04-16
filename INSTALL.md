@@ -6,16 +6,16 @@ Minor adjustments may be needed to make them work completely on other implementa
 In most cases, installation is straightforward:
 
 Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
-button above: the directory containing the files is SCHEME_LIBS.
-
-Call your implementation with SCHEME_LIBS in its library path.  e.g.
+button above.  If the directory containing the files is SCHEME_LIBS,
+you must call your implementation with SCHEME_LIBS in its library path.  e.g.
 
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
     > sagittarius -L SCHEME_LIBS -L SCHEME_LIBS/srfis/sagittarius program.sps
 
-Note that Larceny has all required SRFIs to support the libraries.  For Chibi and Sagittarius, 
-you also need to reference the implementation specific SRFIs, in the directory srfis/IMPLEMENTATION.
+Note that Larceny has all required SRFIs to support the complete collection.  
+For Chibi and Sagittarius, you also need to reference the implementation-specific SRFIs, 
+in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
 
 The -examples and -tests directories are not needed if you are only using the libraries in 
 your programs.

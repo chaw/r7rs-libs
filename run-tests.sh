@@ -1,6 +1,9 @@
-# Run tests: chibi/kawa/larceny argument selects implementation
+# Run tests: chibi/kawa/larceny/sagittarius argument selects implementation
+# For Kawa, the build script must first be run, which leaves r7rs-libs.jar 
+#           in the current directory.
 
 if [ "$1" = "kawa" ]; then
+  CLASSPATH=r7rs-libs.jar:$CLASSPATH
   PROG="kawa --r7rs "
 else if [ "$1" = "larceny" ]; then
   PROG="larceny -r7rs -program "

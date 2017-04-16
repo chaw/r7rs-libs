@@ -1,12 +1,17 @@
 
 (define-library
   (slib common-list-functions)
-  (export fold-left
+  (export adjoin
+          fold-left
           fold-right
-          position)
+          position
+          reduce)
   (import (scheme base))
 
   (begin
+
+    ;; Returns list with object added, unless object already in the list
+    (define (adjoin obj lst) (if (memv obj lst) lst (cons obj lst)))
 
     ;; note, R6RS fold-left has different order of args in f to SRFI 1
     (define (fold-left f i l)
@@ -21,6 +26,11 @@
           (f (car rest)
              (iter (cdr rest)))))
       (iter l))
+
+    (define (reduce pred? lst)
+      (cond ((null? lst) lst)
+            ((null? (cdr lst)) (car lst))
+            (else (fold-left pred? (car lst) (cdr lst)))))
 
     ;@
     ;; note, list-index in srfi-1 uses a procedure to test for the object

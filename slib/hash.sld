@@ -120,12 +120,15 @@
     ;;; vectors.  This also allows us to use it for both hashq and hashv.
     ;@
     (define hashv
-      (if (provided? 'object-hash)
-        (lambda (obj k)
-          (if (or (string? obj) (pair? obj) (vector? obj))
-            (modulo (object-hash obj) k)
-            (hash:hash obj k)))
-        hash))
+      hash)
+    ;; PCL: object-hash can be provided by implementation, hence provided? test
+    ;; we currently don't have this, so just return 'hash' for everything
+;      (if (provided? 'object-hash)
+;        (lambda (obj k)
+;          (if (or (string? obj) (pair? obj) (vector? obj))
+;            (modulo (object-hash obj) k)
+;            (hash:hash obj k)))
+;        hash))
     (define hashq hashv)
 
     ))
