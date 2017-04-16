@@ -4,6 +4,7 @@
 ;;;   item is contained in, and also for joining two sets together
 
 ;; Written by Peter Lane, 2017
+;; Modifications by Sudarshan S Chawathe, 2017.
 
 ;; # Open Works License
 ;; 
@@ -143,13 +144,14 @@
     ;; input: a disjoint-set
     ;; output: returns the number of sets in the disjoint-set
     (define (disjoint-set:size set)
-      (let ((parents '()))
+      (let ((roots-ht (make-hash-table (disjoint-set:item-equals? set)
+                                       (hash-table-hash-function
+                                        (disjoint-set:items set)))))
         (hash-table-walk (disjoint-set:items set)
                          (lambda (k v)
-                           (let ((repn (disjoint-set:find set k)))
-                             (unless (member repn parents (disjoint-set:item-equals? set))
-                               (set! parents (cons repn parents))))))
-        (length parents)))
-
+                           (hash-table-set! roots-ht
+                                            (disjoint-set:find set k)
+                                            #t)))
+        (hash-table-size roots-ht))) 
     ))
 
