@@ -23,8 +23,10 @@ Takes two arguments: the disjoint set and the item.  Return value is undefined.
 
 === disjoint-set:find 
 
-indexterm2:[+disjoint-set:find+] takes two arguments, the disjoint set and an item.  The 
-function returns the representative item for the group that the given item is in.
+indexterm2:[+disjoint-set:find+] takes two arguments, the disjoint set and an item, and an 
+optional default value.  The function returns the representative item for the group that 
+the given item is in, or the default value if not present (default is +'item-not-found+
+if not provided).
 
 === disjoint-set:union
 
@@ -42,7 +44,7 @@ indexterm:[Kruskal's Algorithm]
 This example illustrates how disjoint sets can be used in Kruskal's algorithm to find a 
 minimal spanning set.  (The complete code is in "robin-examples/kruskal.sps")
 
-[source,lisp]
+[source,scheme]
 ----
 (define (kruskal graph)
   (let ((result '())

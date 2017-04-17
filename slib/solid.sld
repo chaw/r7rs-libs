@@ -1017,8 +1017,8 @@
                      (set! color (solid:color color))))
               (cond ((not color))
                     ((< (string-length color) 24))
-                    ((equal? "appearance Appearance {" (substring color 0 23))
-                     (set! color (substring color 23 (+ -1 (string-length color))))))
+                    ((equal? "appearance Appearance {" (string-copy color 0 23))
+                     (set! color (string-copy color 23 (+ -1 (string-length color))))))
               (sprintf
                 #f "appearance Appearance {%s\\n  texture ImageTexture { url %#a }%s}\\n"
                 (or color "")

@@ -64,9 +64,8 @@ Either:
 Kawa uses the colon to access properties of a value, such as fields or methods, 
 as explained in https://www.gnu.org/software/kawa/Colon-notation.html[].
 
-This sometimes causes problems if mixing Java calls with libraries containing 
-names with colons: one solution is to rename on import, or use the 
-| ... | vertical bar syntax when referring to the library names.
+This sometimes causes problems in interpretation: one solution is to rename these names on 
+import, or use the | ... | vertical bar syntax when referring to the library names.
 ****
 
 === Documentation

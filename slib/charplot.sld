@@ -53,7 +53,7 @@
     (define (charplot:number->string x mwid)
       (define str (sprintf #f "%g" x))
       (if (> (string-length str) mwid)
-        (substring str 0 mwid)
+        (string-copy str 0 mwid)
         str))
 
     ;;;SCALE is a list of numerator and denominator.
@@ -119,7 +119,7 @@
       (define (center-field str width ln cl)
         (define len (string-length str))
         (if (< width len)
-          (center-field (substring str 0 width) width ln cl)
+          (center-field (string-copy str 0 width) width ln cl)
           (do ((cnt (+ -1 len) (+ -1 cnt))
                (adx (+ (quotient (- width len) 2) cl) (+ 1 adx))
                (idx 0 (+ 1 idx)))

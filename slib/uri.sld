@@ -229,15 +229,15 @@
 
     (define (uri:decode-authority authority)
       (define idx-at (string-index authority #\@))
-      (let* ((userinfo (and idx-at (uric:decode (substring authority 0 idx-at))))
+      (let* ((userinfo (and idx-at (uric:decode (string-copy authority 0 idx-at))))
              (hostport
                (if idx-at
-                 (substring authority (+ 1 idx-at) (string-length authority))
+                 (string-copy authority (+ 1 idx-at) (string-length authority))
                  authority))
              (cdx (string-index hostport #\:))
-             (host (if cdx (substring hostport 0 cdx) hostport))
+             (host (if cdx (string-copy hostport 0 cdx) hostport))
              (port (and cdx
-                        (substring hostport (+ 1 cdx) (string-length hostport)))))
+                        (string-copy hostport (+ 1 cdx) (string-length hostport)))))
         (if (or userinfo port)
           (list userinfo host (or (string->number port) port))
           host)))
@@ -249,12 +249,12 @@
         (lambda (txt chr)
           (define idx (string-index txt chr))
           (if idx
-            (cons (substring txt 0
+            (cons (string-copy txt 0
                              (if (and (positive? idx)
                                       (char=? cr (string-ref txt (+ -1 idx))))
                                (+ -1 idx)
                                idx))
-                  (uri:split-fields (substring txt (+ 1 idx) (string-length txt))
+                  (uri:split-fields (string-copy txt (+ 1 idx) (string-length txt))
                                     chr))
             (list txt)))))
 
@@ -265,51 +265,51 @@
            (edx (string-index query-string #\=)
                 (string-index query-string #\=)))
         ((not edx) lst)
-        (let* ((rxt (substring query-string (+ 1 edx) (string-length query-string)))
+        (let* ((rxt (string-copy query-string (+ 1 edx) (string-length query-string)))
                (adx (string-index rxt #\&))
                (urid (uric:decode
-                       (substring rxt 0 (or adx (string-length rxt)))))
+                       (string-copy rxt 0 (or adx (string-length rxt)))))
                (name (string-ci->symbol
-                       (uric:decode (substring query-string 0 edx)))))
+                       (uric:decode (string-copy query-string 0 edx)))))
           (if (not (equal? "" urid))
             (set! lst (cons (list name urid) lst))
             ;; (set! lst (append lst (map (lambda (value) (list name value))
             ;; 			     (uri:split-fields urid #\newline))))
             )
           (set! query-string
-            (if adx (substring rxt (+ 1 adx) (string-length rxt)) "")))))
+            (if adx (string-copy rxt (+ 1 adx) (string-length rxt)) "")))))
 
     (define (uri:split uri-reference)
       (define len (string-length uri-reference))
       (define idx-sharp (string-index uri-reference #\#))
       (let ((fragment (and idx-sharp
-                           (substring uri-reference (+ 1 idx-sharp) len)))
+                           (string-copy uri-reference (+ 1 idx-sharp) len)))
             (uri (if idx-sharp
                    (and (not (zero? idx-sharp))
-                        (substring uri-reference 0 idx-sharp))
+                        (string-copy uri-reference 0 idx-sharp))
                    uri-reference)))
         (if uri
           (let* ((len (string-length uri))
                  (idx-? (string-index uri #\?))
-                 (query (and idx-? (substring uri (+ 1 idx-?) len)))
+                 (query (and idx-? (string-copy uri (+ 1 idx-?) len)))
                  (front (if idx-?
-                          (and (not (zero? idx-?)) (substring uri 0 idx-?))
+                          (and (not (zero? idx-?)) (string-copy uri 0 idx-?))
                           uri)))
             (if front
               (let* ((len (string-length front))
                      (cdx (string-index front #\:))
-                     (scheme (and cdx (substring front 0 cdx)))
+                     (scheme (and cdx (string-copy front 0 cdx)))
                      (path (if cdx
-                             (substring front (+ 1 cdx) len)
+                             (string-copy front (+ 1 cdx) len)
                              front)))
                 (cond ((eqv? 0 (substring? "//" path))
                        (set! len (string-length path))
-                       (set! path (substring path 2 len))
+                       (set! path (string-copy path 2 len))
                        (set! len (+ -2 len))
                        (let* ((idx-/ (string-index path #\/))
-                              (authority (substring path 0 (or idx-/ len)))
+                              (authority (string-copy path 0 (or idx-/ len)))
                               (path (if idx-/
-                                      (substring path idx-/ len)
+                                      (string-copy path idx-/ len)
                                       "")))
                          (list scheme authority path query fragment)))
                       (else (list scheme #f path query fragment))))
@@ -346,15 +346,15 @@
           ((string-index uri #\%)
            => (lambda (idx)
                 (if (and (< (+ 2 idx) len)
-                         (string->number (substring uri (+ 1 idx) (+ 2 idx)) 16)
-                         (string->number (substring uri (+ 2 idx) (+ 3 idx)) 16))
+                         (string->number (string-copy uri (+ 1 idx) (+ 2 idx)) 16)
+                         (string->number (string-copy uri (+ 2 idx) (+ 3 idx)) 16))
                   (string-append
-                    (substring uri 0 idx)
+                    (string-copy uri 0 idx)
                     (string (integer->char
                               (string->number
-                                (substring uri (+ 1 idx) (+ 3 idx))
+                                (string-copy uri (+ 1 idx) (+ 3 idx))
                                 16)))
-                    (sub (substring uri (+ 3 idx) (string-length uri)))))))
+                    (sub (string-copy uri (+ 3 idx) (string-length uri)))))))
           (else uri)))
       (sub uri-component))
 

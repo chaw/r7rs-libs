@@ -4,6 +4,7 @@
 ;;;   item is contained in, and also for joining two sets together
 
 ;; Written by Peter Lane, 2017
+;; Modifications by Sudarshan S Chawathe, 2017.
 
 ;; # Open Works License
 ;; 
@@ -47,7 +48,7 @@
 ;;;    Effect: converts item into a disjoint set item and adds to the disjoint-set
 ;;;    Output: unspecified
 ;;; disjoint-set:find
-;;;    Input: a disjoint set and an item
+;;;    Input: a disjoint set, an item, and an optional default value (for if not found)
 ;;;    Output: a reference to the representative item of set that given item appears in
 ;;; disjoint-set:union
 ;;;    Input: a disjoint set and two representative items
@@ -67,7 +68,8 @@
           disjoint-set:find 
           disjoint-set:union
           disjoint-set:size)
-  (import (scheme base) (scheme write)
+  (import (scheme base)
+          (scheme case-lambda)
           (srfi 1)
           (srfi 69))
 
@@ -104,20 +106,24 @@
                        item 
                        (make-item item item 0)))
 
-    ;; input: a disjoint-set and an item
+    ;; input: a disjoint-set, an item and an optional value to return if not found
     ;; effect: none - but path compression is used to optimise future searches
     ;; output: a representative item in set 
-    (define (disjoint-set:find set item)
-      (unless (disjoint-set? set)
-        (error "disjoint-set:find Expected a disjoint-set for set" set))
-      (let ((repn (hash-table-ref (disjoint-set:items set) item (lambda () #f))))
-        (if repn
-          (if ((disjoint-set:item-equals? set) item (parent repn))
-            (parent repn)
-            (let ((res (disjoint-set:find set (parent repn))))
-              (parent-set! repn res) ; path compression 
-              res))
-          'item-not-found)))
+    (define disjoint-set:find
+      (case-lambda
+        ((set item)
+         (disjoint-set:find set item 'item-not-found))
+        ((set item default)
+         (unless (disjoint-set? set)
+           (error "disjoint-set:find Expected a disjoint-set for set" set))
+         (let ((repn (hash-table-ref/default (disjoint-set:items set) item #f)))
+           (if repn
+             (if ((disjoint-set:item-equals? set) item (parent repn))
+               (parent repn)
+               (let ((res (disjoint-set:find set (parent repn))))
+                 (parent-set! repn res) ; path compression 
+                 res))
+             default)))))
 
     ;; input: a disjoint-set and representatives of two sets
     ;; effect: modify disjoint-set so the two represented sets are equivalent
@@ -125,8 +131,8 @@
     (define (disjoint-set:union set item-1 item-2)
       (unless (disjoint-set? set)
         (error "disjoint-set:union Expected a disjoint-set for set" set))
-      (let ((root-1 (hash-table-ref (disjoint-set:items set) (disjoint-set:find set item-1) (lambda () #f)))
-            (root-2 (hash-table-ref (disjoint-set:items set) (disjoint-set:find set item-2) (lambda () #f))))
+      (let ((root-1 (hash-table-ref/default (disjoint-set:items set) (disjoint-set:find set item-1) #f))
+            (root-2 (hash-table-ref/default (disjoint-set:items set) (disjoint-set:find set item-2) #f)))
         (unless root-1 
           (error "disjoint-set:union Item not found in disjoint-set items" item-1))
         (unless root-2
@@ -143,13 +149,15 @@
     ;; input: a disjoint-set
     ;; output: returns the number of sets in the disjoint-set
     (define (disjoint-set:size set)
-      (let ((parents '()))
+      (let ((roots-ht (make-hash-table (disjoint-set:item-equals? set)
+                                       (hash-table-hash-function 
+                                         (disjoint-set:items set)))))
         (hash-table-walk (disjoint-set:items set)
                          (lambda (k v)
-                           (let ((repn (disjoint-set:find set k)))
-                             (unless (member repn parents (disjoint-set:item-equals? set))
-                               (set! parents (cons repn parents))))))
-        (length parents)))
+                           (hash-table-set! roots-ht
+                                            (disjoint-set:find set k)
+                                            #t)))
+        (hash-table-size roots-ht)))
 
     ))
 

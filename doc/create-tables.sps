@@ -1,5 +1,6 @@
 ;; This program creates the tables of information on library imports/imported by
 ;; used in the documentation
+;; -- run from root directory of r7rs-libs
 
 (import (scheme base)
         (scheme cxr)
@@ -33,7 +34,7 @@
           exports)))
 
 (define (library-path? path)
-  (pregexp-match "[:alnum:]*\[:alnum:]*.sld$" path))
+  (pregexp-match "[:alnum:]*.sld$" path))
 
 (define (library-defn? expr)
   (and (not (eof-object? expr))

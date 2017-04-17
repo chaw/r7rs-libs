@@ -148,6 +148,7 @@ moved, as required, into `(slib common)`.
     available as parameters
   * three test cases fail (a known issue in this implementation)
   * alternatively use (srfi 28)
+  * Larceny 0.99 often cycles with "Unhandled condition" errors when using format (though tests all pass and some examples work fine)
 * printf
 * scanf
 * getopt

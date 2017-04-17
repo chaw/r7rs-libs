@@ -115,7 +115,7 @@
             (let* ((str (pretty-print->string datum))
                    (len (+ -1 (string-length str))))
               (cond ((eqv? (string-index str #\newline) len)
-                     (string-append "<TT>" (substring str 0 len) "</TT>"))
+                     (string-append "<TT>" (string-copy str 0 len) "</TT>"))
                     (else (html:pre str))))))
         (sprintf #f " <TR VALIGN=TOP>\\n%s\\n"
                  (apply string-append
@@ -383,7 +383,7 @@
                        (else (if (eq? 'boolean type) 'boolean 'single))))
                    (case (string-ref dstr len)
                      ((#\* #\+)
-                      (set! type (string->symbol (substring dstr 0 len)))
+                      (set! type (string->symbol (string-copy dstr 0 len)))
                       (set! domain type)))
                    `(,idx ,column ,arity ,domain
                           ,(make-defaulter arity type) #f "")))
@@ -470,7 +470,7 @@
                   (let* ((str (pretty-print->string datum))
                          (len (+ -1 (string-length str))))
                     (cond ((eqv? (string-index str #\newline) len)
-                           (string-append "<B>" (substring str 0 len) "</B>"))
+                           (string-append "<B>" (string-copy str 0 len) "</B>"))
                           (else (html:pre str))))))))
         (lambda (row)
           (string-append

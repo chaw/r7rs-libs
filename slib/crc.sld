@@ -71,7 +71,7 @@
     ;@
     (define (crc:make-table str)
       (define deg (+ -1 (string-length str)))
-      (define generator (string->number (substring str 1 (string-length str)) 2))
+      (define generator (string->number (string-copy str 1 (string-length str)) 2))
       (define crctab (make-vector 256))
       (if (not (eqv? #\1 (string-ref str 0)))
         (slib:error 'crc:make-table 'first-digit-of-polynomial-must-be-1 str))

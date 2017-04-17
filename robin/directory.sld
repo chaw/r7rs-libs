@@ -101,9 +101,9 @@
               (only (kawa base) as invoke invoke-static)
               (only (srfi 1) fold remove))
       (begin
-        (define (is-directory? dir)
+        (define (is-directory? filename)
           (invoke-static java.nio.file.Files 'isDirectory 
-                         (as java.nio.file.Path (str->path dir))))
+                         (as java.nio.file.Path (str->path filename))))
 
         (define (change-directory str) (system (string-append "cd " str)))
 
@@ -127,14 +127,14 @@
           (case-lambda 
             ((dir)
              (list-directory-files dir #f))
-            ((dir flag)
+            ((dir flag) 
              (map (lambda (file) ; list-directory-files must return just the filenames
                     (if flag ; on true, return complete path, else just filename part
                       (invoke (invoke (str->path file) 'toAbsolutePath)
                               'toString)
                       (invoke (invoke (str->path file) 'getFileName)
                               'toString)))
-                  (remove is-directory? (list-directory dir))))))
+                  (remove is-directory? (map (lambda (p) (string-append dir "/" p)) (list-directory dir)))))))
 
         (define list-glob
           (case-lambda 

@@ -10,7 +10,7 @@ algorithm is a variant of the Russell Soundex algorithm, designed to work
 better for Slavic and Yiddish names.  The implementation here uses the table
 from http://www.jewishgen.org/InfoFiles/soundex.html[].
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:6|# (daitch-mokotoff-soundex "LONDON")
 863600
@@ -22,7 +22,7 @@ from http://www.jewishgen.org/InfoFiles/soundex.html[].
 
 For some words, multiple codes are possible - pass an optional second argument +'all+ to get a list of codes:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (daitch-mokotoff-soundex "auerbach")
 097500
@@ -37,7 +37,7 @@ The +hamming-distance+ function takes two arguments and an optional comparison p
 can be strings, lists, vectors or bytevectors.  The comparison procedure defaults to +char=?+ for strings,
 +=+ for bytevectors, and +equal?+ for everything else.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (hamming-distance "This string" "that strong")
 4
@@ -56,7 +56,7 @@ procedure.  The sequences can be strings, lists, vectors or bytevectors.  The
 comparison procedure defaults to +char=?+ for strings, +=+ for bytevectors, and
 +equal?+ for everything else.
  
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (levenshtein-distance "sitting" "kitten")
 3
@@ -75,7 +75,7 @@ can be found at http://aspell.net/metaphone/[].
 
 The +metaphone+ function simply takes a word to convert into a coded representation of its sound:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (metaphone "smith")
 SM0
@@ -100,7 +100,7 @@ sequences can be strings, lists, vectors or bytevectors.  The comparison
 procedure defaults to +char=?+ for strings, +=+ for bytevectors, and +equal?+
 for everything else.
 
-[source,lisp]
+[source,scheme]
 ----
 > (levenshtein-distance "kitten" "sitting")
 3
@@ -122,7 +122,7 @@ reducing words to a base form.  More details of the algorithm are at https://tar
 
 The function simply takes the word to change, and returns the stemmed form:
 
-[source,lisp]
+[source,scheme]
 ----
 > (porter-stem "running")
 "run"
@@ -148,7 +148,7 @@ indexterm2:[+sorenson-dice-similarity+] returns a measure of how similar two str
 on n-grams of characters.  An optional third argument provides the number 
 of characters in the n-grams, which defaults to 2:
 
-[source,lisp]
+[source,scheme]
 ----
 > (sorenson-dice-similarity "rabbit" "racket")
 1/5
@@ -168,7 +168,7 @@ indexterm2:[+soundex+] is exported from +(slib soundex)+.
 
 indexterm2:[+string->n-grams+] separates a string into overlapping groups of +n+ letters.
 
-[source,lisp]
+[source,scheme]
 ----
 > (string->n-grams "ABCDE" 1)
 ("A" "B" "C" "D" "E")
@@ -185,7 +185,7 @@ indexterm2:[+words->with-commas+] is a function taking a list of strings and
 adding commas in between the items up to the last item, which is preceded 
 by an "and".  For example:
 
-[source,lisp]
+[source,scheme]
 ----
 > (words->with-commas '())
 ""
@@ -214,14 +214,14 @@ target width, it is allowed to overlap.
 
 For example, setting:
 
-[source,lisp]
+[source,scheme]
 ----
 (define *text* "Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary. Scheme demonstrates that a very small number of rules for forming expressions, with no restrictions on how they are composed, suffice to form a practical and efficient programming language that is flexible enough to support most of the major programming paradigms in use today.")
 ----
 
 We can wrap to a width of 50 characters using:
 
-[source,lisp]
+[source,scheme]
 ----
 > (word-wrap *text* 50)
 Programming languages should be designed not by
@@ -238,7 +238,7 @@ paradigms in use today.
 
 and we can wrap to a width of 60 characters using:
 
-[source,lisp]
+[source,scheme]
 ----
 > (word-wrap *text* 60)
 Programming languages should be designed not by piling

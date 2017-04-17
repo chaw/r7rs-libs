@@ -3,7 +3,8 @@
 
 (import (scheme base)
         (scheme cxr)
-        (slib format)
+        ;        (slib format)  ; Note: Larceny does not like format!
+        (scheme write)
         (srfi 1)
         (srfi 69)
         (srfi 95)
@@ -35,7 +36,15 @@
 
 (let* ((graph '((a b 3) (a e 1) (b c 5) (b e 4) (c d 2) (c e 6) (d e 7)))
        (res (kruskal graph)))
-  (format #t "MST has ~a links~&" (length res))
-  (format #t "~{   : ~a~&~}" res)
-  (format #t "Total length: ~a~&" (fold + 0 (map caddr res))))
+  (display (string-append "MST has "
+                          (number->string (length res))
+                          " links\n"))
+  (for-each (lambda (link) (display "  : ") (display link) (newline))
+            res)
+  (display (string-append "Total length: "
+                          (number->string (fold + 0 (map caddr res)))
+                          "\n")))
+;  (format #t "MST has ~a links~&" (length res))
+;  (format #t "~{   : ~a~&~}" res)
+;  (format #t "Total length: ~a~&" (fold + 0 (map caddr res))))
 

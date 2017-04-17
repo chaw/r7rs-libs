@@ -150,7 +150,7 @@
             (+ format:output-col 1))))
 
       ;;(define (format:out-substr str i n)  ; this allocates a new string
-      ;;  (display (substring str i n) format:port)
+      ;;  (display (string-copy str i n) format:port)
       ;;  (set! format:output-col (+ format:output-col n)))
 
       (define (format:out-substr str i n)
@@ -192,7 +192,7 @@
           (slib:error 'format "argument not an integer" number))
         (let ((numstr (number->string number radix)))
           (if (and format:radix-pref (not (= radix 10)))
-            (set! numstr (substring numstr 2 (string-length numstr))))
+            (set! numstr (string-copy numstr 2 (string-length numstr))))
           (if (and (null? pars) (not modifier))
             (format:out-str numstr)
             (let ((l (length pars))
@@ -1055,7 +1055,7 @@
                                (format:out-str
                                  (if format:radix-pref
                                    (let ((s (number->string c 8)))
-                                     (substring s 2 (string-length s)))
+                                     (string-copy s 2 (string-length s)))
                                    (number->string c 8))))
                               (else
                                 (format:out-char ch)))))
@@ -1207,13 +1207,13 @@
                                (cond
                                  ((eq? modifier 'colon)
                                   (set! clause-default #t)
-                                  (substring format-string clause-pos
-                                             (- format:pos 3)))
+                                  (string-copy format-string clause-pos
+                                               (- format:pos 3)))
                                  ((memq modifier '(at colon-at))
                                   (slib:error 'format "illegal modifier in ~~;"))
                                  (else
-                                   (substring format-string clause-pos
-                                              (- format:pos 2))))))
+                                   (string-copy format-string clause-pos
+                                                (- format:pos 2))))))
                          (set! clauses (append clauses (list clause-str)))
                          (set! clause-pos format:pos)))
                      (anychar-dispatch))
@@ -1226,8 +1226,8 @@
                        (slib:error 'format "no parameter allowed in ~~]"))
                      (cond
                        ((zero? conditional-nest)
-                        (let ((clause-str (substring format-string clause-pos
-                                                     (- format:pos 2))))
+                        (let ((clause-str (string-copy format-string clause-pos
+                                                       (- format:pos 2))))
                           (if clause-default
                             (set! clause-default clause-str)
                             (set! clauses (append clauses (list clause-str)))))
@@ -1282,8 +1282,8 @@
                        (slib:error 'format "no parameters allowed in ~~}" params))
                      (if (zero? iteration-nest)
                        (let ((iteration-str
-                               (substring format-string iteration-pos
-                                          (- format:pos (if modifier 3 2)))))
+                               (string-copy format-string iteration-pos
+                                            (- format:pos (if modifier 3 2)))))
                          (if (string=? iteration-str "")
                            (set! iteration-str (next-arg)))
                          (case iteration-type
@@ -1397,9 +1397,9 @@
                        (set! params
                          (append params
                                  (list (string->number
-                                         (substring format-string
-                                                    num-str-beg
-                                                    num-str-end))))))
+                                         (string-copy format-string
+                                                      num-str-beg
+                                                      num-str-end))))))
                      (set! param-value-found #t)
                      (tilde-dispatch))
                     ((#\V)		 ; Variable parameter from next argum.
@@ -1508,11 +1508,11 @@
                "\""
                (let loop ((i 0) (j 0))   ; taken from Marc Feeley's pp.scm
                  (if (= j obj-len)
-                   (string-append (substring obj i j) "\"")
+                   (string-append (string-copy obj i j) "\"")
                    (let ((c (string-ref obj j)))
                      (if (or (char=? c #\\)
                              (char=? c #\"))
-                       (string-append (substring obj i j) "\\"
+                       (string-append (string-copy obj i j) "\\"
                                       (loop j (+ j 1)))
                        (loop i (+ j 1))))))))
            obj))
@@ -1578,7 +1578,7 @@
           (if format:read-proof "\"" "")
           (if (format:iobj-case-conv)
             ((format:iobj-case-conv)
-              (call-with-output-string (lambda (p) (display iobj p))))
+             (call-with-output-string (lambda (p) (display iobj p))))
             (call-with-output-string (lambda (p) (display iobj p))))
           (if format:read-proof "\"" ""))
         (call-with-output-string (lambda (p) (display iobj p)))))
@@ -1614,7 +1614,7 @@
             ((>= int-rep 128)			; octal representation
              (if format:radix-pref
                (let ((s (number->string int-rep 8)))
-                 (substring s 2 (string-length s)))
+                 (string-copy s 2 (string-length s)))
                (number->string int-rep 8)))
             (else (string ch))))))
 

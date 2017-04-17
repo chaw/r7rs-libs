@@ -98,8 +98,8 @@
                   (i 0 (+ 1 i)))
                ((or (>= i l) (char=? #\= (string-ref optarg i)))
                 (cond ((>= i l) (option-arg #f) optarg)
-                      (else (option-arg (substring optarg (+ 1 i) l))
-                            (substring optarg 0 i))))))
+                      (else (option-arg (string-copy optarg (+ 1 i) l))
+                            (string-copy optarg 0 i))))))
             (else opt))))
 
   ))

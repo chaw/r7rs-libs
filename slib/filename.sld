@@ -45,7 +45,7 @@
                (case pch
                  ((#\? #\*)
                   (loop (+ i 1)
-                        (cons (substring pat i (+ i 1)) toks)))
+                        (cons (string-copy pat i (+ i 1)) toks)))
                  ((#\[)
                   (let ((j
                           (let search ((j (+ i 2)))
@@ -59,13 +59,13 @@
                                  (+ j 1)
                                  j))
                               (else (search (+ j 1)))))))
-                    (loop (+ j 1) (cons (substring pat i (+ j 1)) toks))))
+                    (loop (+ j 1) (cons (string-copy pat i (+ j 1)) toks))))
                  (else
                    (let search ((j (+ i 1)))
                      (cond ((= j (string-length pat))
-                            (loop j (cons (substring pat i j) toks)))
+                            (loop j (cons (string-copy pat i j) toks)))
                            ((memv (string-ref pat j) '(#\? #\* #\[))
-                            (loop j (cons (substring pat i j) toks)))
+                            (loop j (cons (string-copy pat i j) toks)))
                            (else (search (+ j 1)))))))))))
         ((pair? pat)
          (for-each (lambda (elt) (or (string? elt)
@@ -110,10 +110,10 @@
                     (lambda (ch)
                       (or (ch=? chrsi ch) (nxt ch))))))))
       (define (match-set tok nxt)
-        (let ((chrs (substring tok 1 (- (string-length tok) 1))))
+        (let ((chrs (string-copy tok 1 (- (string-length tok) 1))))
           (if (and (positive? (string-length chrs))
                    (memv (string-ref chrs 0) '(#\^ #\!)))
-            (let ((pred (match-set1 (substring chrs 1 (string-length chrs)))))
+            (let ((pred (match-set1 (string-copy chrs 1 (string-length chrs)))))
               (lambda (str k kmatch)
                 (and (< k (string-length str))
                      (not (pred (string-ref str k)))
@@ -162,7 +162,7 @@
                   ((car wild?)
                    (loop (cdr inds)
                          (cdr wild?)
-                         (cons (substring str (car inds) (cadr inds)) res)))
+                         (cons (string-copy str (car inds) (cadr inds)) res)))
                   (else
                     (loop (cdr inds) (cdr wild?) res)))))))
 
@@ -199,7 +199,7 @@
                       (loop '() '() lits res))
                      ((car wild?)
                       (loop (cdr inds) (cdr wild?) (cdr lits)
-                            (cons (substring str (car inds) (cadr inds))
+                            (cons (string-copy str (car inds) (cadr inds))
                                   res)))
                      (else
                        (loop (cdr inds) (cdr wild?) lits res)))))))))

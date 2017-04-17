@@ -65,7 +65,7 @@
                     ((or (>= j n)
                          (not (or (char-numeric? (string-ref str j))
                                   (char=? #\# (string-ref str j)))))
-                     (cont j (if (= i j) "0" (substring str i j))))))
+                     (cont j (if (= i j) "0" (string-copy str i j))))))
                 (define (point i cont)
                   (if (and (< i n)
                            (char=? #\. (string-ref str i)))
@@ -112,7 +112,7 @@
                                                         (loop (+ j 1) (- ex 1)))
                                                        (else
                                                          (cont i sgn
-                                                               (substring digs (- j 1) ndigs)
+                                                               (string-copy digs (- j 1) ndigs)
                                                                ex))))))))))))))))))
                 (real 0
                       (lambda (i sgn digs ex)
@@ -162,7 +162,7 @@
                                                                     (string-ref str n))
                                                                 #\0 #\#))))))
                              (else
-                               (let ((res (substring str 0 (+ ndigs 1)))
+                               (let ((res (string-copy str 0 (+ ndigs 1)))
                                      (dig (lambda (i)
                                             (let ((c (string-ref str i)))
                                               (if (char-numeric? c)
@@ -191,7 +191,7 @@
                   (let loop ((i (- (string-length res) 1)))
                     (if (or (<= i strip-0s)
                             (not (char=? #\0 (string-ref res i))))
-                      (substring res 0 (+ i 1))
+                      (string-copy res 0 (+ i 1))
                       (loop (- i 1))))
                   res)))
 
@@ -214,11 +214,11 @@
                      (>= pos fl))
                    (define (incomplete)
                      (slib:error 'printf "conversion specification incomplete"
-                            format-string))
+                                 format-string))
                    (define (wna)
                      (slib:error 'printf "wrong number of arguments"
-                            (length args)
-                            format-string))
+                                 (length args)
+                                 format-string))
                    (define (out* strs)
                      (if (string? strs) (out strs)
                        (let out-loop ((strs strs))
@@ -300,7 +300,7 @@
                               (if fixcase (set! s (fixcase s)))
                               (let ((pre (cond ((equal? "" s) "")
                                                ((eqv? #\- (string-ref s 0))
-                                                (set! s (substring s 1 (string-length s)))
+                                                (set! s (string-copy s 1 (string-length s)))
                                                 "-")
                                                (signed "+")
                                                (blank " ")
@@ -325,8 +325,8 @@
                                                         ((char=? #\0 (string-ref digs 0)) 1)
                                                         (else 0)))
                                               (i1 (max 1 (+ 1 exp)))
-                                              (idigs (substring digs i0 i1))
-                                              (fdigs (substring digs i1
+                                              (idigs (string-copy digs i0 i1))
+                                              (fdigs (string-copy digs i1
                                                                 (string-length digs))))
                                          (cons idigs
                                                (if (and (string=? fdigs "")
@@ -344,11 +344,11 @@
                               (let* ((digs (stdio:round-string
                                              digs (+ 1 precision) (and strip-0s 0)))
                                      (istrt (if (char=? #\0 (string-ref digs 0)) 1 0))
-                                     (fdigs (substring
+                                     (fdigs (string-copy
                                               digs (+ 1 istrt) (string-length digs)))
                                      (exp (if (zero? istrt) exp (- exp 1))))
                                 (list
-                                  (substring digs istrt (+ 1 istrt))
+                                  (string-copy digs istrt (+ 1 istrt))
                                   (if (and (string=? fdigs "") (not alternate-form))
                                     "" ".")
                                   fdigs
@@ -461,7 +461,7 @@
                                         (else (car args)))))
                                (cond ((not (or (negative? precision)
                                                (>= precision (string-length s))))
-                                      (set! s (substring s 0 precision))))
+                                      (set! s (string-copy s 0 precision))))
                                (and
                                  (out* (cond
                                          ((<= width (string-length s)) s)
@@ -489,7 +489,7 @@
                                          (lambda (s)
                                            (define sl (- pr (string-length s)))
                                            (set! pr (cond ((negative? sl)
-                                                           (out (substring s 0 pr)) 0)
+                                                           (out (string-copy s 0 pr)) 0)
                                                           (else (out s) sl)))
                                            (positive? sl)))
                                        ((negative? pr)
@@ -508,7 +508,7 @@
                                            (define sl (- pr (string-length s)))
                                            (cond ((negative? sl)
                                                   (set! os (string-append
-                                                             os (substring s 0 pr))))
+                                                             os (string-copy s 0 pr))))
                                                  (else (set! os (string-append os s))))
                                            (set! pr sl)
                                            (positive? sl)))))
@@ -584,7 +584,7 @@
                                     (string-set! s cnt (string-ref x i))
                                     (set! cnt (+ cnt 1)))
                                   (let ()
-                                    (set! s (string-append (substring s 0 cnt) x))
+                                    (set! s (string-append (string-copy s 0 cnt) x))
                                     (set! cnt (string-length s))
                                     (set! end cnt))))
                                ((and str (>= cnt end)))
@@ -598,7 +598,7 @@
                        args)
                 (cond ((string? str) cnt)
                       ((eqv? end cnt) s)
-                      (else (substring s 0 cnt)))))
+                      (else (string-copy s 0 cnt)))))
 
             (define stdio:fprintf fprintf)
 

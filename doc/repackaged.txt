@@ -33,7 +33,7 @@ is not to include those operators from +(scheme base)+!
 For the first example, consider the function +(* x x)+.  It's derivative is +2x+.  To get a function 
 to compute the derivative at a given point, we apply the indexterm2:[+derivative-F+] function to it (for forward-mode).
 
-[source,lisp]
+[source,scheme]
 ----
 (import (except (scheme base) + - * / expt square = < > <= >= zero? positive? negative? real?)
         (scheme write)
@@ -53,7 +53,7 @@ The output is:
 
 Some further examples:
 
-[source,lisp]
+[source,scheme]
 ----
 (define (g x) (/ (* (+ x 1) (- x 2))
                  (+ x 3)))
@@ -153,7 +153,7 @@ The library allows us to construct and output PDF documents.  The following exam
 displays two repeated blocks of text and a title in a variety of fonts, sizes and 
 positions in the document.
 
-[source,lisp]
+[source,scheme]
 ----
 (define (ex1)
   (pdf:with-document-to-file 

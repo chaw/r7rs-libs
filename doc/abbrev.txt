@@ -16,7 +16,7 @@ Output:
 
 For example:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:9|# (import (robin abbrev))
 #|kawa:10|# (abbrev '("scheme" "scala" "lisp"))
@@ -32,7 +32,7 @@ letters, as "s" and "sc" are prefixes to both.
 
 The optional prefix will only include words that have that prefix, allowing us to select a subset of the strings to generate abbreviations for.  For example:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:11|# (abbrev '("scheme" "scala" "lisp") "s")
 ((scala . scala) (scal . scala) (sca . scala) 
@@ -44,7 +44,7 @@ With the "s" prefix included, "lisp" is no longer in the output.
 As a simple application, the abbreviations can be used as a word or 
 command expander:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (define shortcuts (abbrev '("scheme" "scala" "lisp")))
 #|kawa:3|# (cdr (assoc "l" shortcuts))

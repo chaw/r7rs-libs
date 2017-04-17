@@ -138,7 +138,7 @@
       (and str (string? str) (positive? (string-length str))
            (let ((hh #f) (mm 0) (ss 0) (junk #f))
              (let ((scan (scanf-read-list "%u:%u:%u%s" (if (memv (string-ref str 0) '(#\+ #\-))
-                                                         (substring str 1 (string-length str))
+                                                         (string-copy str 1 (string-length str))
                                                          str))))
                (when (> (length scan) 0) (set! hh (car scan)))
                (when (> (length scan) 1) (set! mm (cadr scan)))
@@ -184,7 +184,7 @@
             ((or (not tz)
                  (eqv? #\: (string-ref tz 0)))
              (let ()
-               (read-tzfile (and tz (substring tz 1 (string-length tz))))))
+               (read-tzfile (and tz (string-copy tz 1 (string-length tz))))))
             (else (string->time-zone tz))))
 
     ))

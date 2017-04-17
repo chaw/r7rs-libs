@@ -44,7 +44,7 @@
                                   (let loop ((i 0))
                                     (let ((c (read-char inp)))
                                       (cond ((eof-object? c)
-                                             (set! s (string-append s (substring buf 0 i))))
+                                             (set! s (string-append s (string-copy buf 0 i))))
                                             ((>= i 512)
                                              (set! s (string-append s buf (string c)))
                                              (loop 0))

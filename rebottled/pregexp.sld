@@ -544,7 +544,7 @@
                                        ))))
                         (if backref
                           (pregexp-string-match
-                            (substring s (car backref) (cdr backref))
+                            (string-copy s (car backref) (cdr backref))
                             s i n (lambda (i) (sk i)) fk)
                           (sk i))))
                      ((:sub)
@@ -664,7 +664,7 @@
                           (let ((backref (pregexp-list-ref backrefs br)))
                             (if backref
                               (string-append r
-                                             (substring str (car backref) (cdr backref)))
+                                             (string-copy str (car backref) (cdr backref)))
                               r)))))
                 (loop (+ i 1) (string-append r (string c)))))))))
 
@@ -700,7 +700,7 @@
                (map
                  (lambda (ix-pr)
                    (and ix-pr
-                        (substring str (car ix-pr) (cdr ix-pr))))
+                        (string-copy str (car ix-pr) (cdr ix-pr))))
                  ix-prs)))))
 
     (define pregexp-split
@@ -716,15 +716,15 @@
                        (let ((j (car jk)) (k (cdr jk)))
                          ;(printf "j = ~a; k = ~a; i = ~a~n" j k i)
                          (cond ((= j k)
-                                ;(printf "producing ~s~n" (substring str i (+ j 1)))
+                                ;(printf "producing ~s~n" (string-copy str i (+ j 1)))
                                 (loop (+ k 1) 
-                                      (cons (substring str i (+ j 1)) r) #t))
+                                      (cons (string-copy str i (+ j 1)) r) #t))
                                ((and (= j i) picked-up-one-undelimited-char?)
                                 (loop k r #f))
                                (else
-                                 ;(printf "producing ~s~n" (substring str i j))
-                                 (loop k (cons (substring str i j) r) #f)))))))
-                  (else (loop n (cons (substring str i n) r) #f)))))))
+                                 ;(printf "producing ~s~n" (string-copy str i j))
+                                 (loop k (cons (string-copy str i j) r) #f)))))))
+                  (else (loop n (cons (string-copy str i n) r) #f)))))))
 
     (define pregexp-replace
       (lambda (pat str ins)
@@ -735,9 +735,9 @@
                   (m-i (caar pp))
                   (m-n (cdar pp)))
               (string-append
-                (substring str 0 m-i)
+                (string-copy str 0 m-i)
                 (pregexp-replace-aux str ins ins-len pp)
-                (substring str m-n n)))))))
+                (string-copy str m-n n)))))))
 
     (define pregexp-replace*
       (lambda (pat str ins)
@@ -760,11 +760,11 @@
                     ;replaced in r, so let's just
                     ;append the rest of str
                     (string-append
-                      r (substring str i n)))
+                      r (string-copy str i n)))
                   (loop (cdar pp)
                         (string-append
                           r
-                          (substring str i (caar pp))
+                          (string-copy str i (caar pp))
                           (pregexp-replace-aux str ins ins-len pp))))))))))
 
     (define pregexp-quote

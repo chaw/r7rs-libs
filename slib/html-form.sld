@@ -233,7 +233,7 @@
                                   (sprintf #f "%s\\n" (html:plain line)))
                                 default-list)))
                (len (+ -1 (string-length str))))
-          (if (positive? len) (substring str 0 len) str))
+          (if (positive? len) (string-copy str 0 len) str))
         (sprintf #f "</TEXTAREA>\\n")))
 
     (define (html:s<? s1 s2)

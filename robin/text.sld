@@ -349,11 +349,11 @@
       ;   "x" -> "s"
       ;   "wh" -> "w"
       (define (adapt-initial-letters str)
-        (cond ((member (substring str 0 2) '("ae" "gn" "kn" "pn" "wr") string=?)
+        (cond ((member (string-copy str 0 2) '("ae" "gn" "kn" "pn" "wr") string=?)
                (string-copy str 1))
               ((char=? #\x (string-ref str 0))
                (string-append "s" (string-copy str 1)))
-              ((string=? "wh" (substring str 0 2))
+              ((string=? "wh" (string-copy str 0 2))
                (string-append "w" (string-copy str 2)))
               (else
                 str)))

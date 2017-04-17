@@ -85,16 +85,16 @@
                       (char-upper-case? (string-ref nstr (+ -1 idx)))
                       (char-lower-case? (string-ref nstr idx)))
                  (set! nstr
-                   (string-append (substring nstr 0 (+ -1 idx))
+                   (string-append (string-copy nstr 0 (+ -1 idx))
                                   delimitr
-                                  (substring nstr (+ -1 idx)
+                                  (string-copy nstr (+ -1 idx)
                                              (string-length nstr)))))
                 ((and (char-lower-case? (string-ref nstr (+ -1 idx)))
                       (char-upper-case? (string-ref nstr idx)))
                  (set! nstr
-                   (string-append (substring nstr 0 idx)
+                   (string-append (string-copy nstr 0 idx)
                                   delimitr
-                                  (substring nstr idx
+                                  (string-copy nstr idx
                                              (string-length nstr)))))))))
 
     ))

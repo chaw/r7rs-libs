@@ -10,6 +10,9 @@ CLASSPATH=bin:$CLASSPATH
 if [ -d "bin" ]; then
   rm -rf bin
 fi
+if [ -e "r7rs-libs.jar" ]; then
+  rm r7rs-libs.jar
+fi
 # Make bin
 mkdir bin
 

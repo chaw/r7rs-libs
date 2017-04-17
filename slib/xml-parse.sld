@@ -78,7 +78,7 @@
     ;;;; Three functions from SRFI-13
     ; procedure string-concatenate-reverse STRINGS [FINAL END]
     (define (ssax:string-concatenate-reverse strs final end)
-      (if (null? strs) (substring final 0 end)
+      (if (null? strs) (string-copy final 0 end)
         (let*
           ((total-len
              (let loop ((len end) (lst strs))
@@ -287,11 +287,11 @@
           (let loop ((i 0) (c c))
             (cond
               ((memv c break-chars)
-               (if (null? filled-buffer-l) (substring buffer 0 i)
+               (if (null? filled-buffer-l) (string-copy buffer 0 i)
                  (ssax:string-concatenate-reverse filled-buffer-l buffer i)))
               ((eof-object? c)
                (if (memq '*eof* break-chars)	; was EOF expected?
-                 (if (null? filled-buffer-l) (substring buffer 0 i)
+                 (if (null? filled-buffer-l) (string-copy buffer 0 i)
                    (ssax:string-concatenate-reverse filled-buffer-l buffer i))
                  (slib:error port "EOF while reading a token " comment)))
               ((>= i curr-buf-len)
@@ -352,7 +352,7 @@
                       (read-char port) ; move to the next char
                       (loop (+ 1 i)))
                     ;; incl-list/pred decided it had had enough
-                    (if (null? filled-buffer-l) (substring buffer 0 i)
+                    (if (null? filled-buffer-l) (string-copy buffer 0 i)
                       (ssax:string-concatenate-reverse filled-buffer-l buffer i)))))))
 
           ;; incl-list/pred is a list of allowed characters
@@ -363,7 +363,7 @@
                 (let ((c (peek-char port)))
                   (cond
                     ((not (memv c incl-list/pred))
-                     (if (null? filled-buffer-l) (substring buffer 0 i)
+                     (if (null? filled-buffer-l) (string-copy buffer 0 i)
                        (ssax:string-concatenate-reverse filled-buffer-l buffer i)))
                     (else
                       (string-set! buffer i c)

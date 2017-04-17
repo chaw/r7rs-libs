@@ -233,9 +233,9 @@
                   ((substring? old text)
                    => (lambda (idx)
                         (string-append
-                          (substring text 0 idx)
+                          (string-copy text 0 idx)
                           new
-                          (sub (substring
+                          (sub (string-copy
                                  text (+ idx (string-length old))
                                  (string-length text))))))
                   (else text)))
