@@ -522,3 +522,47 @@ the contents of the XML document read from the input port.
 Notice the XML strings are converted to s-expressions.  Attributes are marked
 "@".  All values are strings.
 
+
+=== Time/Date 
+
+The R7RS standard has a library +(scheme time)+ which contains three functions:
++current-second+, to obtain the current time in seconds since 1/1/1970;
++current-jiffy+, which returns an implementation-defined fraction of a second
+from an implementation-specific start point; and +jiffies-per-second+, which
+returns the implementation-specific number of "jiffies" per second.  The libraries  
+provided in SLIB help convert to and from larger units of time (such as days and years), 
+and also take account of time-zones.  SRFI 19 provides a more useful standard 
+library for working with dates and times, where available.
+
+SLIB comes with several libraries for managing times and dates:
+
+* +(slib common-lisp-time)+: functions for managing _universal_ time
+* +(slib posix-time)+: functions for converting time in _posix_ form
+* +(slib time-core)+: main time conversion functions
+* +(slib time-zone)+: computes timezones and DST from the time-zone environment variable
+* +(slib tzfile)+: reads from a time-zone file
+
+Time formats:
+
+Decoded Time:: nine values for second, minute, hour, date, month, year, day-of-week, daylight-saving-time? and time-zone.
+Universal Time:: number of seconds since 1st January 1900
+
+==== +(slib common-lisp-time)+
+
+These functions are based on those in Common Lisp to convert between 
+Decoded Time and Universal Time.
+
+indexterm2[+get-decoded-time+] returns the current time in Decoded Time format,
+as nine values.
+
+indexterm2:[+get-universal-time+] returns the current time of day as a single
+integer in Universal Time format representing the number of seconds since
+1/1/1900: note, R7RS's +(current-second)+ returns the number of seconds since
+1/1/1970.
+
+indexterm2:[+decode-universal-time+] converts a universal time (with an optional time-zone) into the nine values of Decoded Time format.
+
+indexterm2:[+encode-universal-time+] takes the nine values of Decoded Time 
+format, and returns a Universal Time representation.  An optional tenth value
+specifies the desired time zone.
+

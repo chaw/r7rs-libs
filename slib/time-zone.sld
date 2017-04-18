@@ -39,7 +39,7 @@
 ;; corruption.
 ;;
 ;; I have corrected most of the failings of the C-library time interface in
-;; SLIB while maintaining compatablility.  I wrote support for Linux
+;; SLIB while maintaining compatability.  I wrote support for Linux
 ;; timezone files because on a system where TZ is not set, there is no
 ;; other way to reveal this information.  HP-UX appears to have a more
 ;; sensible arrangement; I invite you to add support for it and other

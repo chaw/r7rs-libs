@@ -43,7 +43,7 @@ referring to the library names.
 
 # Testing
 
-The collection comes with a large number of tests, which be run using the script "run-tests.sh".
+The collection comes with a large number of tests, which can be run using the script "run-tests.sh".
 Pass the name of your Scheme implementation as an argument: supported implementations are Chibi, 
 Kawa, Larceny and Sagittarius.  i.e.
 
