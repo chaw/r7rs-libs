@@ -39,5 +39,7 @@
 (test-equal 0 (sorenson-dice-index '("a" "b" "c") '("A" "B" "D")))
 (test-equal 2/3 (sorenson-dice-index '("a" "b" "c") '("A" "B" "D") string-ci=?))
 
+(test-approx-same 0.136919958784 (perlin-noise 3.14 42 7) 0.00000000001) ; test used on Rosetta code
+
 (test-end)
 

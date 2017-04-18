@@ -36,8 +36,9 @@ kawa/bin script.
 
 Kawa uses the colon to access properties of a value, such as fields or methods, 
 as explained in   https://www.gnu.org/software/kawa/Colon-notation.html
-This sometimes causes problems in interpretation: one solution is to rename these names on 
-import, or use the | ... | vertical bar syntax when referring to the library names.
+This sometimes causes problems in interpretation: one solution is to rename
+names with colons on import, or use the | ... | vertical bar syntax when
+referring to the library names.
 
 
 # Testing
@@ -72,7 +73,7 @@ Optionally (these steps are ignored, if the programs are not found):
 * evince: to display the final pdf (or use your own pdf-viewer)
 * html-page-splitter: a ruby program (gem install html_page_splitter) to divide
   a large html file into chapters (as I have placed online)
-* pdftk: to splice in the alternative title page (otherwise you get a2x's default)
+* pdftk: to splice in the alternative title page in the pdf (otherwise you get a2x's default)
 
 To build the documentation, use the script "mk-doc.sh" with an input telling it which 
 form of documentation to create:
@@ -86,7 +87,7 @@ Note: this will
    files of data and tables for the documentation, using the source code for each library.
 2. depending on your choice of output format, runs either "doc/mk-html.sh" or "doc/show-pdf.sh"
 
-If you requested output as:
+The finished documentation is left in the "doc" folder.  If you requested output as:
 
 * html: one of
   * a single file "doc/r7rs.html", or

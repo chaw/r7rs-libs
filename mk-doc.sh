@@ -18,7 +18,7 @@ fi
 fi
 fi
 
-# create data tables
+echo "creating data tables"
 $PROG doc/create-tables.sps
 
 # Depending on input arg, build that documentation

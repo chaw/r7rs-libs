@@ -158,6 +158,22 @@ range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 9/2
 ----
 
+=== perlin-noise
+
+indexterm:[Perlin Noise]
+indexterm2:[+perlin-noise+] is a function returning a random value computed using a gradient function.
+Perlin Noise was invented by http://en.wikipedia.org/wiki/Ken_Perlin[Ken Perlin] and has been widely
+applied in computer graphics.  The implementation here is a conversion of the 
+http://mrl.nyu.edu/~perlin/noise/[Java reference implementation].
+
++perlin-noise+ takes three numbers as input, and returns a single number (all numbers inexact).
+
+[source,scheme]
+----
+sash> (perlin-noise 12.3 4.2 5.7)
+0.4085747160714242
+----
+
 === permutations
 
 indexterm2:[+permutations+] returns the number of ways to take k things from n without replacement, when the order matters.
