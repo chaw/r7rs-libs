@@ -91,8 +91,8 @@
                          (remainder secs 60)	; Seconds.	[0-61] (2 leap seconds)
                          (quotient secs 60)	; Minutes.	[0-59]
                          tm_hour		; Hours.	[0-23]
-                         (+ tm_mday 1)	; Day.		[1-31]
-                         tm_mon		; Month.	[0-11]
+                         (+ tm_mday 1)	        ; Day.		[1-31]
+                         tm_mon		        ; Month.	[0-11]
                          (- tm_year 1900)	; Year	- 1900.
                          tm_wday		; Day of week.	[0-6]
                          tm_yday		; Days in year. [0-365]

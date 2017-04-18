@@ -23,13 +23,15 @@
 
 (define-library
   (slib posix-time)
-  (export gmtime
-          localtime
-          gmktime
-          mktime
-          asctime
-          gtime
-          ctime)
+  (export 
+    asctime
+    ctime
+    gmktime
+    gmtime
+    gtime
+    localtime
+    mktime
+    )
   (import (scheme base)
           (scheme char)
           (scheme process-context)

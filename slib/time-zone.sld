@@ -86,7 +86,7 @@
                          (char-numeric? (string-ref path 0)))
                      (string-append tzfile:vicinity path))
                     (else path))))
-        (or (and (file-exists? realpath)
+        (or (and (file-exists? realpath) ; returns #f if no file found, e.g. on Windows
                  (let ((zone #f))
                    (set! zone (tzfile:read realpath))
                    (and zone (list->vector (cons 'tz:file zone)))))

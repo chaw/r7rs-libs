@@ -151,6 +151,7 @@ moved, as required, into `(slib common)`.
   * Larceny 0.99 often cycles with "Unhandled condition" errors when using format (though tests all pass and some examples work fine)
 * printf
 * scanf
+  * Note: sscanf showing some problems in other libraries
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
 * comparse
@@ -169,6 +170,7 @@ moved, as required, into `(slib common)`.
 * pprint-file
 * time-core
 * time-zone
+  * some problems caused by sscanf
 * posix-time
 * common-lisp-time
 * tzfile
