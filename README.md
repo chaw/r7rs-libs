@@ -151,7 +151,7 @@ moved, as required, into `(slib common)`.
   * Larceny 0.99 often cycles with "Unhandled condition" errors when using format (though tests all pass and some examples work fine)
 * printf
 * scanf
-  * Note: sscanf showing some problems in other libraries
+  * Note: scanf and sscanf showing some problems in other libraries
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
 * comparse
@@ -163,6 +163,7 @@ moved, as required, into `(slib common)`.
   * http:byline exported as a parameter object
 * html-for-each
 * uri
+  * Some tests fail on Kawa due to scanf giving "Bad type on operand stack"
 * xml-parse
 * generic-write
 * object->string

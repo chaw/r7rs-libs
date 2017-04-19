@@ -369,6 +369,42 @@ Finally, don't forget to close the database, which ensures everything is saved o
 (close-database mydb)
 ----
 
+=== Dynamic: +(import (slib dynamic))+
+
+indexterm:[dynamic]
+Provides a kind of name-value store, which can be accessed globally.  (This is 
+essentially the same as R7RS parameters, with a different syntax.)
+
+indexterm2:[+make-dynamic+] creates a dynamic object wrapping a given object.
+
+indexterm2:[+dynamic?+] returns true only if the given object is a dynamic.
+
+indexterm2:[+dynamic-ref+] returns the value of a given dynamic object.
+
+indexterm2:[+dynamic-set!+] changes the value of the given dynamic object.
+
+indexterm2:[+call-with-dynamic-binding+] temporarily rebinds a given dynamic 
+object to a new value within the given procedure.
+
+[source,scheme]
+----
+(let ((x (make-dynamic 'a))         ; <1>
+      (y (make-dynamic 'b)))
+  (dynamic? x)                      ; <2>
+  (eq? 'a (dynamic-ref x))          ; <3>
+  (eq? 'b (dynamic-ref y))
+  (dynamic-set! x 'c)               ; <4>
+  (call-with-dynamic-binding x 'd   ; <5>
+    (lambda () (eq? 'd (dynamic-ref x))))
+  (eq? 'c (dynamic-ref x)))         ; <6>
+----
+<1> Names +x+ as the dynamic object with value +'a+
+<2> Returns +#t+ as +x+ is a dynamic object
+<3> Retrieves the value of the given dynamic object, and checks it is correct
+<4> Changes the value of the given dynamic object
+<5> Within the +lambda+ +x+ is not bound to +'d+
+<6> and +x+ reverts to holding +'c+ after the call
+
 === Factor: +(import (slib factor))+
 
 Functions for testing if numbers are primes, generating prime numbers, and to factor numbers.
@@ -575,14 +611,16 @@ as nine values.  +(get-decoded-time)+ is short for +(decode-universal-time (get-
 ----
 
 indexterm2:[+get-universal-time+] returns the current time of day as a single
-integer in Universal Time format representing the number of seconds since
-1/1/1900: note, R7RS's +(current-second)+ returns the number of seconds since
-1/1/1970.
+integer in _Universal Time_ format representing the number of seconds since
+1/1/1900: note for comparison how R7RS's +(current-second)+ returns a much smaller 
+value (_Calendar Time_, the number of seconds since 1/1/1970).
 
 [source,scheme]
 ----
 > (get-universal-time)
 3701527370.61162
+> (current-second)
+1492540922.30859
 ----
 
 indexterm2:[+decode-universal-time+] converts a universal time (with an optional time-zone) into the nine values of Decoded Time format.
@@ -619,15 +657,12 @@ indexterm:[core-time]
 A collection of functions to help in time conversions based around TM Time.  
 
 indexterm2:[+current-time+] is the same as +current-second+.  This is the +Calendar Time+, 
-defined relative to 1/1/1970.  +get-universal-time+ instead returns +Universal Time+,
-defined relative to 1/1/1900, and so returns larger numbers:
+defined relative to 1/1/1970.  
 
 [source,scheme]
 ----
 > (current-time)
 1492540922.30859
-> (get-universal-time)
-3701529735.96287
 ----
 
 indexterm2:[+difftime+] subtracts two times, given as seconds.
@@ -654,10 +689,9 @@ assuming the location is GMT:
 > (time:gmtime (current-time))
 #(39 45 18 18 3 117 2 107 0 0 "GMT")            ; <1>
 ----
-<1> time is 18:45 39s, month is April (3), year is 2017 (117+1900), day of week
-    is Tuesday (2), 108 days from 1st January
-
-The last 0 is for the offset due to the time zone.
+<1> time is 18:45 39s, 18 is the date, month is April (3), year is 2017 (117+1900), 
+    day of week is Tuesday (2), 108 days from 1st January.  The last 0 is for
+    the offset due to the time zone.
 
 Note that +time:gmtime+ calls indexterm2:[+time:split+]: +(time:gmtime tm)+ = +(time:split tm 0 0 "GMT")+
 
@@ -666,7 +700,7 @@ Note that +time:gmtime+ calls indexterm2:[+time:split+]: +(time:gmtime tm)+ = +(
 indexterm:[posix-time] This library provides data structures and functions similar to those 
 in C's "time.h".
 
-indexterm2:[+asctime+] converts a TM time into a string representation:
+indexterm2:[+asctime+] converts a _TM time_ into a string representation:
 
 [source,scheme]
 ----
@@ -674,7 +708,7 @@ indexterm2:[+asctime+] converts a TM time into a string representation:
 "Tue Apr 18 20:18:15 2017\n"
 ----
 
-indexterm2:[+gmtime+] takes a time in seconds and returns the _TM Time_ information, assuming
+indexterm2:[+gmtime+] takes a Calendar time (in seconds) and returns the _TM Time_ information, assuming
 the location is GMT (the same as +time:gmtime+).
 
 indexterm2:[+gtime+] is short for +(asctime (gmtime ..))+
@@ -685,14 +719,14 @@ indexterm2:[+gtime+] is short for +(asctime (gmtime ..))+
 "Tue Apr 18 20:38:28 2017\n"
 ----
 
-indexterm2:[+localtime+] converts a universal time into a _TM Time_.  An optional second 
+indexterm2:[+localtime+] converts a Calendar time into a _TM Time_.  An optional second 
 argument specifies the time zone.
 
 [source,scheme]
 ----
-> (localtime (current-second) (read-tzfile "Asia/Calcutta"))
+> (localtime (current-time) (read-tzfile "Asia/Calcutta"))
 #(51 16 2 19 3 117 3 108 0 -19800 #(73 83 84))
-> (localtime (current-second))
+> (localtime (current-time))
 #(8 47 21 18 3 117 2 107 1 -3600 #(66 83 84))
 ----
 
@@ -706,7 +740,7 @@ indexterm2:[+ctime+] is short for +(asctime (localtime ...))+
 "Wed Apr 19 02:16:20 2017\n"
 ----
 
-indexterm2:[+mktime+] converts the _TM Time_ to universal time:
+indexterm2:[+mktime+] converts the _TM Time_ to Calendar time:
 
 [source,scheme]
 ----
@@ -812,4 +846,157 @@ information from a system-specified file.  For example, on Linux, the file may b
 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6
 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6 5 6))
 ----
+
+=== +(slib uri)+
+
+A package for creating, decoding and testing various forms of URI.
+
+indexterm2:[+absolute-path?+] returns true if the given filename is an absolute
+path, or false if it depends on the current directory.
+
+[source,scheme]
+----
+> (absolute-path? "/usr/local/bin/scheme")
+#t
+> (absolute-path? "../filename")
+#f
+----
+
+indexterm2:[+absolute-uri?+] returns true if the given uri is an absolute uri (containing 
+a complete description of the named resource), or false otherwise.
+
+[source,scheme]
+----
+> (absolute-uri? "ftp://example.org/resource.txt")
+#t
+> (absolute-uri? "resource.txt")
+#f
+----
+
+indexterm2:[+glob-pattern?+] returns true if the given string contains any symbol typically 
+used in a indexterm2:[glob], i.e. * ? [ ]
+
+[source,scheme]
+----
+> (glob-pattern? "/home/dir/*/file.txt")
+#t
+> (glob-pattern? "/home/dir/x/file?.txt")
+#t
+> (glob-pattern? "/home/dir/x/fil[e].txt")
+#t
+> (glob-pattern? "/home/dir/x/file.txt")
+#f
+----
+
+The following four functions generate html text for different purposes:
+
+* indexterm2:[+html:anchor+] creates a named location given a name as a string.
+* indexterm2:[+html:base+] returns a string representing the base of given uri.
+* indexterm2:[+html:isindex+] creates a string for a search prompt (now deprecated for html forms).
+* indexterm2:[+html:link+] takes a uri and title, and returns a link to uri displaying the title.
+
+[source,scheme]
+----
+> (html:anchor "location")    ;; <1>
+<A NAME="location"></A>     
+> (html:base "http:peterlane.info")
+<BASE HREF="http:peterlane.info">
+> (html:isindex "Search term: ")
+<ISINDEX PROMPT="Search term: ">
+> (html:link "http://peterlane.info" "home page")
+<A HREF="http://peterlane.info">home page</A>
+----
+<1> Use "<A HREF=#location>" to link back to this location.
+
+indexterm2:[+make-uri+] constructs a URI given from 0 to 5 arguments.  These are: scheme, authority,
+path, query, fragment.  These are optional from the front, so a single argument will be treated as the 
+fragment; two arguments as a query and then a fragment, etc.
+
+[source,scheme]
+----
+> (make-uri)                                                          ; <1>
+
+> (make-uri "xyz")                                                    ; <2>
+#xyz
+> (make-uri "query" "xyz")                                            ; <3>
+?query#xyz
+> (make-uri "http" "peterlane.info" "/files/location" "query" "xyz")  ; <4>
+http://peterlane.info/files/location?query#xyz
+----
+<1> Returns the empty string
+<2> Single argument is a Fragment
+<3> Query and Fragment
+<4> All components: the authority in this case is the web address, and the path the relative location of files
+
+indexterm2:[+null-directory?+] takes a string and returns true if the string
+names the current directory (so changing to it would not make any change).
+
+indexterm2:[+parse-ftp-address+] converts a string, representing an ftp address, into a list of up 
+to four values: the username, password, remote site, and remote directory.  +#f+ is returned if any 
+of these values is not present, or +#f+ instead of a list if the string is not an ftp address.
+
+[source,scheme]
+----
+> (parse-ftp-address "ftp://username@ftp.someplace.site/")
+("username" #f "ftp.someplace.site" #f)
+> (parse-ftp-address "ftp://username:password@ftp.someplace.site/dir")
+("username" "password" "ftp.someplace.site" "dir")
+----
+
+indexterm2:[+path->uri+] converts a given path (as a string) into a URI with an absolute address.
+
+[source,scheme]
+----
+> (path->uri "filename.txt")
+file:/home/NAME/CURRENT-DIRECTORY/filename.txt
+> (path->uri "/usr/local/filename.txt")
+file:/usr/local/filename.txt
+----
+
+indexterm2:[+uri->tree+] takes a URI and returns a list of five values corresponding to the scheme, authority, path, query, fragment:
+
+[source,scheme]
+----
+> (uri->tree "file:/usr/local/filename.txt")
+(file #f ("" "usr" "local" "filename.txt") #f #f)
+----
+
+indexterm2:[+uri:decode-query+] converts a given query string into an association list
+of key-value pairs:
+
+[source,scheme]
+----
+> (uri:decode-query "name=XXX&date=32")
+((date "32") (name "XXX"))
+----
+
+indexterm2:[+uri:make-path+] takes a list of strings, and returns a path component by joining 
+the strings together with a suitable separator:
+
+[source,scheme]
+----
+> (uri:make-path '("a" "b" "c"))
+"a/b/c"
+----
+
+indexterm2:[+uri:splitfields+] splits a string at a given character.
+
+[source,scheme]
+----
+> (uri:splitfields "some text to split" #\space)
+'("some" "text" "to" "split")
+----
+
+indexterm2:[+uric:decode+] and indexterm2:[+uric:encode+] convert a string to and from a form 
+with certain characters rewritten using % octal values:
+
+[source,scheme]
+----
+> (uric:decode "xxx%20yyy")
+"xxx yyy"
+> (uric:encode "xxx yyy")
+"xxx%20yyy"
+----
+
+An optional second argument to +uric:encode+ provides a string of characters to allow.
 

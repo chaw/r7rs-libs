@@ -23,8 +23,9 @@
   (slib coerce)
   (export type-of
           coerce)
-  (import (scheme base)
-          (slib common))
+  (import (except (scheme base) equal?)
+          (slib common)
+          (srfi 63))
 
   (begin
 
@@ -44,7 +45,7 @@
         ((list? obj)		'list)
         ((pair? obj)		'pair)
         ((vector? obj)	'vector)
-        ((and (provided? 'array) (array? obj))	'array)
+        ((and (array? obj))	'array)
         (else		'?)))
 
     ;;@body

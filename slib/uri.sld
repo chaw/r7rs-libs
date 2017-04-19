@@ -21,25 +21,28 @@
 
 (define-library
   (slib uri)
-  (export make-uri
-          uri:make-path
-          html:anchor
-          html:link
-          html:base
-          html:isindex
-          uri->tree
-          uri:split-fields
-          uri:decode-query
-          uric:encode
-          uric:decode
-          uri:path->keys
-          path->uri
-          absolute-uri?
-          absolute-path?
-          null-directory?
-          glob-pattern?
-          parse-ftp-address)
+  (export 
+    absolute-path?
+    absolute-uri?
+    glob-pattern?
+    html:anchor
+    html:base
+    html:isindex
+    html:link
+    make-uri
+    null-directory?
+    parse-ftp-address
+    path->uri
+    uri->tree
+    uri:decode-query
+    uri:make-path
+    uri:path->keys  ; ?? What does this do ??
+    uri:split-fields
+    uric:decode
+    uric:encode
+    )
   (import (scheme base)
+          (scheme case-lambda)
           (scheme char)
           (scheme cxr)
           (slib coerce)
@@ -65,14 +68,14 @@
     ;;@args scheme authority path query fragment
     ;;
     ;;Returns a Uniform Resource Identifier string from component arguments.
-    (define (make-uri . args)
-      (define nargs (length args))
-      (set! args (reverse args))
-      (let ((fragment  (if (>= nargs 1) (car args) #f))
-            (query     (if (>= nargs 2) (cadr args) #f))
-            (path      (if (>= nargs 3) (caddr args) #f))
-            (authority (if (>= nargs 4) (cadddr args) #f))
-            (scheme    (if (>= nargs 5) (list-ref args 4) #f)))
+    (define (make-uri . args-in)
+      (let* ((args (reverse args-in))
+             (nargs (length args))
+             (fragment  (if (>= nargs 1) (car args) #f))
+             (query     (if (>= nargs 2) (cadr args) #f))
+             (path      (if (>= nargs 3) (caddr args) #f))
+             (authority (if (>= nargs 4) (cadddr args) #f))
+             (scheme    (if (>= nargs 5) (list-ref args 4) #f)))
         (string-append
           (if scheme (sprintf #f "%s:" scheme) "")
           (cond ((string? authority)
@@ -250,10 +253,10 @@
           (define idx (string-index txt chr))
           (if idx
             (cons (string-copy txt 0
-                             (if (and (positive? idx)
-                                      (char=? cr (string-ref txt (+ -1 idx))))
-                               (+ -1 idx)
-                               idx))
+                               (if (and (positive? idx)
+                                        (char=? cr (string-ref txt (+ -1 idx))))
+                                 (+ -1 idx)
+                                 idx))
                   (uri:split-fields (string-copy txt (+ 1 idx) (string-length txt))
                                     chr))
             (list txt)))))
@@ -323,18 +326,22 @@
     ;;@body Returns a copy of the string @1 in which all @dfn{unsafe} octets
     ;;(as defined in RFC 2396) have been @samp{%} @dfn{escaped}.
     ;;@code{uric:decode} decodes strings encoded by @0.
-    (define (uric:encode uri-component allows)
-      (set! uri-component (sprintf #f "%a" uri-component))
-      (apply string-append
-             (map (lambda (chr)
-                    (if (or (char-alphabetic? chr)
-                            (char-numeric? chr)
-                            (string-index "-_.!~*'()" chr)
-                            (string-index allows chr))
-                      (string chr)
-                      (let ((code (char->integer chr)))
-                        (sprintf #f "%%%02x" code))))
-                  (string->list uri-component))))
+    (define uric:encode
+      (case-lambda 
+        ((uri-component)
+         (uric:encode uri-component ""))
+        ((uri-component-in allows)
+         (let ((uri-component (sprintf #f "%a" uri-component-in)))
+           (apply string-append
+                  (map (lambda (chr)
+                         (if (or (char-alphabetic? chr)
+                                 (char-numeric? chr)
+                                 (string-index "-_.!~*'()" chr)
+                                 (string-index allows chr))
+                           (string chr)
+                           (let ((code (char->integer chr)))
+                             (sprintf #f "%%%02x" code))))
+                       (string->list uri-component)))))))
 
     ;;@body Returns a copy of the string @1 in which each @samp{%} escaped
     ;;characters in @1 is replaced with the character it encodes.  This
@@ -435,9 +442,12 @@
            => (lambda (host)
                 (let ((login #f) (path #f) (dross #f))
                   (let ((scan (scanf-read-list "%[^/]/%[^@]%s" (car host))))
-                    (set! login (car scan))
-                    (set! path (cadr scan))
-                    (set! dross (caddr scan)))
+                    (when (>= (length scan) 1)
+                      (set! login (car scan)))
+                    (when (>= (length scan) 2)
+                      (set! path (cadr scan)))
+                    (when (>= (length scan) 3)
+                      (set! dross (caddr scan))))
                   ; (sscanf (car host) "%[^/]/%[^@]%s" login path dross) ; sscanf not working correctly
                   (and login
                        (append (cond
@@ -454,10 +464,14 @@
           (else
             (let ((user@site #f) (colon #f) (path #f) (dross #f))
               (let ((scan (scanf-read-list "%[^/]/%[^@] %s" uri)))
-                (set! user@site (car scan))
-                (set! colon (cadr scan))
-                (set! path (caddr scan))
-                (set! dross (cadddr scan))
+                (when (>= (length scan) 1)
+                  (set! user@site (car scan)))
+                (when (>= (length scan) 2)
+                  (set! colon (cadr scan)))
+                (when (>= (length scan) 3)
+                  (set! path (caddr scan)))
+                (when (>= (length scan) 4)
+                  (set! dross (cadddr scan)))
                 (case (length scan)
                   ((2 3)
                    (let ((user #f) (site #f))

@@ -3,7 +3,7 @@
 #           in the current directory.
 
 if [ "$1" = "kawa" ]; then
-  CLASSPATH=r7rs-libs.jar:$CLASSPATH
+  export CLASSPATH=r7rs-libs.jar
   PROG="kawa --r7rs "
 else if [ "$1" = "larceny" ]; then
   PROG="larceny -r7rs -program "

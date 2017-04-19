@@ -4,7 +4,7 @@
 # Reference kawa implementation to use
 KAWA=kawa
 OPTS="--r7rs -d bin "
-CLASSPATH=bin:$CLASSPATH
+export CLASSPATH=bin
 
 # Remove existing files, if present
 if [ -d "bin" ]; then
