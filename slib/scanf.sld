@@ -26,13 +26,14 @@
 
 (define-library
   (slib scanf)
-  (export scanf
-          sscanf
-          fscanf
+  (export ;scanf
+          ;sscanf
+          ;fscanf
           scanf-read-list)
   (import (scheme base)
+          (scheme case-lambda)
           (scheme char)
-          (scheme cxr)
+          (scheme cxr)      (scheme write)
           (slib common)
           (slib string-port))
 
@@ -214,19 +215,19 @@
 
                      ;;(trace read-word read-signed read-ui read-radixed-unsigned read-x read-o read-u)
 
-                     (cond ((not report-field?) (set! fc (read-char format-port))))
-                     (if (char-numeric? fc) (set! width 0))
+                     (when (not report-field?) (set! fc (read-char format-port)))
+                     (when (char-numeric? fc) (set! width 0))
                      (do () ((or (eof-object? fc) (char-non-numeric? fc)))
                        (set! width (+ (* 10 width) (string->number (string fc))))
                        (set! fc (read-char format-port)))
                      (case fc			;ignore h,l,L modifiers.
                        ((#\h #\l #\L) (set! fc (read-char format-port))))
                      (case fc
-                       ((#\n) (if (not report-field?)
+                       ((#\n) (when (not report-field?)
                                 (slib:error 'scanf "not saving %n??"))
                               (add-item -1 chars-scanned)) ;-1 is special flag.
                        ((#\c #\C)
-                        (if (not width) (set! width 1))
+                        (when (not width) (set! width 1))
                         (let ((str (make-string width)))
                           (do ((i 0 (+ 1 i))
                                (c (peek-char input-port) (peek-char input-port)))
@@ -303,20 +304,22 @@
     ;;;This implements a Scheme-oriented version of SCANF: returns a list of
     ;;;objects read (rather than set!-ing values).
     ;@
-    (define (scanf-read-list format-string . optarg)
-      (define input-port
-        (cond ((null? optarg) (current-input-port))
-              ((not (null? (cdr optarg)))
-               (slib:error 'scanf-read-list 'wrong-number-of-args optarg))
-              (else (car optarg))))
-      (cond ((input-port? input-port)
-             (stdio:scan-and-set format-string input-port #f))
-            ((string? input-port)
-             (call-with-input-string
-               input-port (lambda (input-port)
-                            (stdio:scan-and-set format-string input-port #f))))
-            (else (slib:error 'scanf-read-list "argument 2 not a port"
-                              input-port))))
+    (define scanf-read-list
+      (case-lambda
+        ((format-string)
+         (scanf-read-list format-string (current-input-port)))
+        ((format-string input-port)
+         (cond ((input-port? input-port)
+                (stdio:scan-and-set format-string input-port #f))
+               ((string? input-port)
+                (call-with-input-string
+                  input-port (lambda (input-port)
+                               (stdio:scan-and-set format-string input-port #f))))
+               (else 
+                 (slib:error 'scanf-read-list "argument 2 not a port"
+                             input-port))))
+        (else
+          (slib:error 'scanf-read-list 'wrong-number-of-args))))
 
     (define (stdio:setter-procedure sexp)
       (let ((v (gentemp)))
@@ -339,6 +342,8 @@
                   ((cdr) `(lambda (,v) (set-cdr! ,@(cdr sexp) ,v) #t))
                   (else (slib:error 'scanf "setter not known" sexp)))))))
 
+    ;; TODO: use syntax-rules correctly?
+
     ;@
     (define-syntax scanf
       (syntax-rules 
@@ -348,9 +353,6 @@
                               ,@(map stdio:setter-procedure args)))))
 
 
-;    (defmacro scanf (format-string . args)
-;      `(stdio:scan-and-set ,format-string (current-input-port)
-;                           ,@(map stdio:setter-procedure args)))
     ;@
     (define-syntax sscanf
       (syntax-rules 
@@ -359,9 +361,6 @@
          `(stdio:scan-and-set ,format-string ,str
                               ,@(map stdio:setter-procedure args)))))
 
-;    (defmacro sscanf (str format-string . args)
-;      `(stdio:scan-and-set ,format-string ,str
-;                           ,@(map stdio:setter-procedure args)))
     ;@
     (define-syntax fscanf
       (syntax-rules 
@@ -370,9 +369,6 @@
          `(stdio:scan-and-set ,format-string ,input-port
                               ,@(map stdio:setter-procedure args)))))
 
-;    (defmacro fscanf (input-port format-string . args)
-;      `(stdio:scan-and-set ,format-string ,input-port
-;                           ,@(map stdio:setter-procedure args)))
 
     ))
 

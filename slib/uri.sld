@@ -435,7 +435,7 @@
     ;;remote-directory
     ;;@end enumerate
     (define (parse-ftp-address uri)
-      (let ((length? (lambda (len lst) (and (eqv? len (length lst)) lst))))
+      (let ((length? (lambda (len lst) (and (list? lst) (eqv? len (length lst)) lst))))
         (cond
           ((not uri) #f)
           ((length? 1 (scanf-read-list " ftp://%s %s" uri))
@@ -448,7 +448,6 @@
                       (set! path (cadr scan)))
                     (when (>= (length scan) 3)
                       (set! dross (caddr scan))))
-                  ; (sscanf (car host) "%[^/]/%[^@]%s" login path dross) ; sscanf not working correctly
                   (and login
                        (append (cond
                                  ((length? 2 (scanf-read-list "%[^@]@%[^@]%s" login))
@@ -475,14 +474,17 @@
                 (case (length scan)
                   ((2 3)
                    (let ((user #f) (site #f))
-                     (cond ((or (eqv? 2 (sscanf user@site "/%[^@/]@%[^@]%s"
-                                                user site dross))
-                                (eqv? 2 (sscanf user@site "%[^@/]@%[^@]%s"
-                                                user site dross)))
-                            (list user #f site path))
-                           ((eqv? 1 (sscanf user@site "@%[^@]%s" site dross))
-                            (list #f #f site path))
-                           (else (list #f #f user@site path)))))
+                     (let ((try1 (scanf-read-list user@site "/%[^@/]@%[^@]%s"))
+                           (try2 (scanf-read-list user@site "%[^@/]@%[^@]%s"))
+                           (try3 (scanf-read-list user@site "@%[^@]%s")))
+                       (cond ((= 2 (length try1))
+                              (list (car try1) #f (cadr try1) path))
+                             ((= 2 (length try2))
+                              (list (car try2) #f (cadr try2) path))
+                             ((= 1 (length try3))
+                              (list #f #f (car try3) path))
+                             (else 
+                               (list #f #f user@site path))))))
                   (else
                     (let ((site (scanf-read-list " %[^@/] %s" uri)))
                       (and (length? 1 site) (list #f #f (car site) #f)))))))))))

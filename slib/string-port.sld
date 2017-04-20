@@ -18,50 +18,26 @@
 ;each case.
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
+;;
+;; Rewritten to use string-ports and not temporary files
 
 (define-library
   (slib string-port)
   (export call-with-output-string
           call-with-input-string)
-  (import (scheme base)
-          (scheme file)
-          (scheme write)
-          (slib common))
+  (import (scheme base))
 
   (begin
 
-    ;N.B.: This implementation assumes you have tmpnam and
-    ;delete-file defined in your .init file.  tmpnam generates
-    ;temp file names.  delete-file may be defined to be a dummy
-    ;procedure that does nothing.
     ;@
     (define (call-with-output-string f)
-      (let ((tmpf (tmpnam)))
-        (call-with-output-file tmpf f)
-        (let ((s "") (buf (make-string 512)))
-          (call-with-input-file tmpf
-                                (lambda (inp)
-                                  (let loop ((i 0))
-                                    (let ((c (read-char inp)))
-                                      (cond ((eof-object? c)
-                                             (set! s (string-append s (string-copy buf 0 i))))
-                                            ((>= i 512)
-                                             (set! s (string-append s buf (string c)))
-                                             (loop 0))
-                                            (else
-                                              (string-set! buf i c)
-                                              (loop (+ i 1))))))))
-          (delete-file tmpf)
-          s)))
+      (parameterize ((current-output-port (open-output-string)))
+                    (f)
+                    (get-output-string (current-output-port))))
+
     ;@
     (define (call-with-input-string s f)
-      (let ((tmpf (tmpnam)))
-        (call-with-output-file tmpf
-                               (lambda (outp)
-                                 (display s outp)))
-        (let ((x (call-with-input-file tmpf f)))
-          (delete-file tmpf)
-          x)))
+      (call-with-port (open-input-string s) f))
 
     ))
 

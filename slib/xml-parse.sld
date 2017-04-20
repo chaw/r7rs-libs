@@ -33,40 +33,43 @@
 
 (define-library
   (slib xml-parse)
-  (export ssax:reverse-collect-str
-          ssax:reverse-collect-str-drop-ws
-          ssax:assert-current-char
-          ssax:skip-while
-          ssax:init-buffer
-          ssax:next-token
-          ssax:next-token-of
-          ssax:read-string
-          ssax:skip-S
-          ssax:read-NCName
-          ssax:read-QName
-          ssax:read-markup-token
-          ssax:skip-pi
-          ssax:read-pi-body-as-string
-          ssax:skip-internal-dtd
-          ssax:read-cdata-body
-          ssax:read-char-ref
-          ssax:handle-parsed-entity
+  (export 
           attlist-add
           attlist-remove-top
-          ssax:read-attributes
-          ssax:resolve-name
-          ssax:complete-start-tag
-          ssax:read-external-id
-          ssax:scan-misc
-          ssax:read-char-data
+          ssax:assert-current-char
           ssax:assert-token
-          ssax:make-pi-parser
+          ssax:complete-start-tag
+          ssax:handle-parsed-entity
+          ssax:init-buffer
           ssax:make-elem-parser
           ssax:make-parser
-          ssax:xml->sxml)
+          ssax:make-pi-parser
+          ssax:next-token
+          ssax:next-token-of
+          ssax:Prefix-XML
+          ssax:read-NCName
+          ssax:read-QName
+          ssax:read-attributes
+          ssax:read-cdata-body
+          ssax:read-char-data
+          ssax:read-char-ref
+          ssax:read-external-id
+          ssax:read-markup-token
+          ssax:read-pi-body-as-string
+          ssax:read-string
+          ssax:resolve-name
+          ssax:reverse-collect-str-drop-ws
+          ssax:scan-misc
+          ssax:skip-S
+          ssax:skip-internal-dtd
+          ssax:skip-pi
+          ssax:skip-while
+          ssax:xml->sxml
+    ssax:reverse-collect-str
+          )
   (import (scheme base)
           (scheme char)
-          (scheme cxr)
+          (scheme cxr)  
           (slib common)
           (slib rev2-procedures)
           (slib string-search)
@@ -379,7 +382,7 @@
     (define (ssax:read-string len port)
       (define buffer (make-string len))
       (do ((idx 0 (+ 1 idx)))
-        ((>= idx len) idx)
+        ((>= idx len) (string-copy buffer 0 idx))
         (let ((chr (read-char port)))
           (cond ((eof-object? chr)
                  (set! idx (+ -1 idx))
@@ -869,7 +872,7 @@
             (let ((fragment (ssax:next-token '() cdata-delimiters "reading CDATA" port)))
               ;; that is, we're reading the char after the 'fragment'
               (case (read-char port)
-                ((#\newline) (loop (str-handler fragment #\newline seed)))
+                ((#\newline) (loop (str-handler fragment (string #\newline) seed)))
                 ((#\])
                  (if (not (eqv? (peek-char port) #\]))
                    (loop (str-handler fragment "]" seed))
@@ -898,7 +901,7 @@
                                       (str-handler fragment "&" seed)))))))
                 (else ; Must be CR: if the next char is #\newline, skip it
                   (if (eqv? (peek-char port) #\newline) (read-char port))
-                  (loop (str-handler fragment #\newline seed)))
+                  (loop (str-handler fragment (string #\newline) seed)))
                 ))))))
 
     ;;@body

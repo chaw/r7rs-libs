@@ -114,10 +114,10 @@
                   ((1) (and (<= 0 day 365)
                             (list #f #t day)))
                   (else #f)))
-              (let ((scan (scanf "M%u.%u.%u%s" str)))
-                (set! month (car scan))
+              (let ((scan (scanf-read-list "M%u.%u.%u%s" str)))
+                (set! month (car scan)) ;; assumes three values always retrieved
                 (set! week (cadr scan))
-                (set! day (caddr scan))
+                (set! day (caddr scan)) 
                 (when (= 4 (length scan)) (set! junk (cadddr scan)))
                 (case (length scan)
                   ((3) (and (<= 1 month 12)

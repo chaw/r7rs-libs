@@ -101,6 +101,9 @@ displaying the n-grams, and working with a deterministic finite-state automaton.
 
 Some tests and examples are provided, but otherwise this collection needs documenting.
 
+https://www.researchgate.net/publication/248392618_The_Scheme_Natural_Language_Toolkit_SNLTK_NLP_libraries_for_R6RS_and_Racket[SNLTK] 
+publication from European Lisp Symposium, 2011.
+
 === Purely Functional Data Structures: +(import (pfds NNNN))+
 
 indexterm:[pfds]

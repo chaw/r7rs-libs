@@ -29,6 +29,7 @@
 
 (test-equal '("username" #f "ftp.someplace.site" #f) (parse-ftp-address "ftp://username@ftp.someplace.site/"))
 (test-equal '("username" "password" "ftp.someplace.site" "dir") (parse-ftp-address "ftp://username:password@ftp.someplace.site/dir"))
+(test-equal (list #f #f "rnd::address" #f) (parse-ftp-address "rnd::address"))
 
 (test-equal "file:/usr/local/filename.txt" (path->uri "/usr/local/filename.txt"))
 (test-equal '(file #f ("" "usr" "local" "filename.txt") #f #f) (uri->tree "file:/usr/local/filename.txt"))
