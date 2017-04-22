@@ -6,6 +6,9 @@ if type sagittarius ; then
 else if type kawa ; then
   CLASSPATH=r7rs-libs.jar:$CLASSPATH
   PROG="kawa --r7rs "
+else if type gosh ; then
+  export GAUCHE_KEYWORD_IS_SYMBOL=1
+  PROG="gosh -r7 -I . -I srfis/gauche/ "
 else if type larceny ; then
   PROG="larceny -r7rs -program "
 else if type chibi-scheme ; then
@@ -13,6 +16,7 @@ else if type chibi-scheme ; then
 else
   echo "Could not find a supported Scheme implementation"
   exit
+fi
 fi
 fi
 fi

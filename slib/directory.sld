@@ -46,6 +46,17 @@
        (define (pathname->dirname path)
          (string-append (path-directory path) "/"))
        (define list-directory-files directory-files)))
+
+    (gauche
+      (import (file util))
+      (begin
+        ; current-directory exported
+        (define (make-directory str) (current-directory str))
+        (define (pathname->dirname path)
+          (let-values (((dir name ext) (decompose-path path)))
+                      dir))
+        (define list-directory-files directory-list)))
+
     (kawa
       (import (only (kawa lib files) create-directory path-directory)
               (only (kawa lib ports) current-path)
@@ -65,6 +76,7 @@
                  (let ((path (invoke file 'toString)))
                    (string-copy path (string-length (pathname->dirname path)))))
                (invoke (java.io.File (as String dir)) 'listFiles)))))
+
     (larceny
       (import (primitives current-directory list-directory)
               (only (srfi 59) pathname->vicinity))
@@ -73,6 +85,7 @@
         (define (make-directory str) (system (string-append "mkdir " str)))
         (define pathname->dirname pathname->vicinity)
         (define list-directory-files list-directory)))
+
     (sagittarius
       (import (sagittarius)
               (util file)
@@ -87,6 +100,7 @@
                         "")))
         (define (list-directory-files dir)
           (filter file-regular? (read-directory dir)))))
+
     (else
       (error "(slib directory) not supported for current R7RS Scheme implementation")))
 

@@ -94,6 +94,52 @@
 
        (define make-directory create-directory*)))
     ;;
+    (gauche
+      (import (file util)
+              (srfi 1))
+      (begin
+        (define (change-directory str) (current-directory str))
+        
+        ; current-directory exported
+        
+        (define (delete-directory str) (delete-directory* str))
+        
+        (define list-directory directory-list)
+
+        (define list-directory-files
+          (case-lambda 
+            ((dir)
+             (list-directory-files dir #f))
+            ((dir flag)
+             (let ((curr (current-directory)))
+               (let-values (((subdirs files) (directory-list2 dir)))
+                           (if flag
+                             (map (lambda (file) (string-append curr "/" dir "/" file))
+                                  files)
+                             files))))))
+
+        (define list-glob 
+          (case-lambda 
+            ((glob) ; return result as a list
+             (define glob-match? (filename:match?? glob))
+             (define (collect-files dir) ; return list of all files, recursively, in dir
+               (let-values (((subdirs files) (directory-list2 dir)))
+                           (fold append (filter glob-match? files)
+                                 (map collect-files subdirs))))
+             ;
+             (collect-files (current-directory)))
+            ((glob proc) ; apply proc to each result in list, returns #f
+             (define glob-match? (filename:match?? glob))
+             (define (process-files dir)
+               (let-values (((subdirs files) (directory-list2 dir)))
+                           (for-each proc (filter glob-match? files))
+                           (for-each collect-files subdirs)))
+             ;
+             (process-files (current-directory))
+             #f)))
+
+        (define (make-directory str) (current-directory str))))
+    ;;
     (kawa ; good support through JVM, except for cd
       (import (only (kawa lib files) create-directory)
               (only (kawa lib ports) current-path)

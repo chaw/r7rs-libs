@@ -1,4 +1,4 @@
-# Run tests: chibi/kawa/larceny/sagittarius argument selects implementation
+# Run tests: chibi/gauche/kawa/larceny/sagittarius argument selects implementation
 # For Kawa, the build script must first be run, which leaves r7rs-libs.jar 
 #           in the current directory.
 
@@ -12,6 +12,7 @@ else if [ "$1" = "chibi" ]; then
 else if [ "$1" = "sagittarius" ]; then
   PROG="sagittarius -r7 -L . -L srfis/sagittarius "
 else if [ "$1" = "gauche" ]; then
+  export GAUCHE_KEYWORD_IS_SYMBOL=1
   PROG="gosh -r7 -I . -I srfis/gauche/ "
 else
   echo "Unknown implementation"

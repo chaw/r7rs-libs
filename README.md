@@ -7,9 +7,13 @@ Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http
 Tested against:
 
 * Chibi 0.7.3: https://github.com/ashinn/chibi-scheme/
+* Gauche 0.9.5: http://practical-scheme.net/gauche/
+  * ensure the environment variable GAUCHE_KEYWORD_IS_SYMBOL is set so that 
+    keywords are treated as symbols
 * Kawa 2.3: https://www.gnu.org/software/kawa/
 * Larceny 0.99: http://www.larcenists.org/
 * Sagittarius 0.8.2: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
+
 
 ## AutoDiff
 
@@ -77,6 +81,7 @@ sources:
 * cl-pdf-utils
 * json-parser - Takashi Kato's libraries for working with JSON
 * json-select
+  * Gauche does not currently load json-parser/select - syntax error
 * json-tools
 * packrat - Tony Garnock-Jones' Packrat Parser Library
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme

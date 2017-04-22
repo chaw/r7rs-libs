@@ -28,6 +28,10 @@
 
   ;; Use underlying 'system' implementation, if it exists
   (cond-expand
+    (gauche
+      (import (only (gauche base) sys-system))
+      (begin
+        (define system sys-system)))
     (kawa 
       (import (kawa lib system)))
     (larceny

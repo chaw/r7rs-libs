@@ -1,6 +1,6 @@
 # Install
 
-These libraries have mostly been tested on Chibi, Kawa, Larceny and Sagittarius.  
+These libraries have mostly been tested on Chibi, Gauche, Kawa, Larceny and Sagittarius.  
 Minor adjustments may be needed to make them work completely on other implementations of R7RS.
 
 In most cases, installation is straightforward:
@@ -13,11 +13,12 @@ directory containing the files is SCHEME_LIBS, you must call your
 implementation with SCHEME_LIBS in its library path.  e.g.
 
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
+    > gosh -r7 -I SCHEME_LIBS -I SCHEME_LIBS/srfis/gauche program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
     > sagittarius -L SCHEME_LIBS -L SCHEME_LIBS/srfis/sagittarius program.sps
 
 Note that Larceny has all required SRFIs to support the complete collection.
-For Chibi and Sagittarius, you also need to reference the
+For Chibi, Gauche and Sagittarius, you also need to reference the
 implementation-specific SRFIs, in the directory
 SCHEME_LIBS/srfis/IMPLEMENTATION.
 
@@ -49,19 +50,20 @@ referring to the library names.
 
 The collection comes with a large number of tests, which can be run using the script "run-tests.sh".
 Pass the name of your Scheme implementation as an argument: supported implementations are Chibi, 
-Kawa, Larceny and Sagittarius.  i.e.
+Gauche, Kawa, Larceny and Sagittarius.  i.e.
 
-* $ sh run-tests.sh chibi
-* $ sh run-tests.sh kawa
-* $ sh run-tests.sh larceny
-* $ sh run-tests.sh sagittarius
+* sh run-tests.sh chibi
+* sh run-tests.sh gauche
+* sh run-tests.sh kawa
+* sh run-tests.sh larceny
+* sh run-tests.sh sagittarius
 
 The tests can take a long time to run, depending on your implementation.  The final set of 
 libraries, "Weinholt", can be particularly difficult, so the script asks before running them. 
 I don't recommend testing Weinholt with Chibi or Larceny.
 
 Apart from (slib format), which has three known issues, and Weinholt, all tests are expected 
-to pass on all supported implementations.
+to pass on all supported implementations. [Exceptions are listed in README.md]
 
 
 # Documentation
@@ -82,8 +84,8 @@ Optionally (these steps are ignored, if the programs are not found):
 To build the documentation, use the script "mk-doc.sh" with an input telling it which 
 form of documentation to create:
 
-* $ sh mk-doc.sh html
-* $ sh mk-doc.sh pdf
+* sh mk-doc.sh html
+* sh mk-doc.sh pdf
 
 Note: this will
 
