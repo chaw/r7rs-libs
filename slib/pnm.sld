@@ -53,7 +53,7 @@
           (else
             (if (char-whitespace? chr)
               (loop (read-char port))
-              (slib:error chr 'unexpected 'character))))))
+              (error chr 'unexpected 'character))))))
 
     ;; Comments beginning with "#" and ending with newline are permitted in
     ;; the header of a pnm file.
@@ -61,7 +61,7 @@
       (let loop ()
         (let ((chr (peek-char port)))
           (cond ((eof-object? chr)
-                 (slib:error 'unexpected 'eof port))
+                 (error 'unexpected 'eof port))
                 ((char-whitespace? chr)
                  (read-char port)
                  (loop))
@@ -180,7 +180,7 @@
         array
         (do ((chr (read-char port) (read-char port))
              (cnt 0 (+ 1 cnt)))
-          ((eof-object? chr) (slib:error cnt 'bytes 'remain 'in port)))))
+          ((eof-object? chr) (error cnt 'bytes 'remain 'in port)))))
 
     ;;@args path array
     ;;
@@ -205,7 +205,7 @@
                                      (lambda () (define hib (read-byte port))
                                        (+ (* 256 hib) (read-byte port)))))
                        (if (eof-object? (peek-char port)) array
-                         (slib:error type 'not 'at 'file 'end)))
+                         (error type 'not 'at 'file 'end)))
                      (define (read-text)
                        (array-map! array (lambda () (read port)))
                        (if (not (eof-object? (read port)))
@@ -263,7 +263,7 @@
                   ((pbm-raw) "P4")
                   ((pgm-raw) "P5")
                   ((ppm-raw) "P6")
-                  (else (slib:error 'pnm:array-write "bad type" type)))))
+                  (else (error 'pnm:array-write "bad type" type)))))
           (display magic port) (newline port)
           (for-each (lambda (str)
                       (display "#" port) (display str port) (newline port))
@@ -278,7 +278,7 @@
             ((pbm-raw)
              (newline port)
              (if (not (boolean? (array-ref array 0 0)))
-               (slib:error 'pnm:array-write "expected bit-array" array))
+               (error 'pnm:array-write "expected bit-array" array))
              (pnm:write-bits array port))
             ((pgm-raw ppm-raw)
              (newline port)
@@ -325,16 +325,16 @@
              (or (and (eqv? 2 rnk)
                       (integer? (car shp))
                       (integer? (cadr shp)))
-                 (slib:error 'pnm:array-write "bad shape" type array))
+                 (error 'pnm:array-write "bad shape" type array))
              (or (eqv? 1 maxval)
-                 (slib:error 'pnm:array-write "maxval supplied not 1" type))
+                 (error 'pnm:array-write "maxval supplied not 1" type))
              (write-header type (car shp) (cadr shp) #f)
              (write-pixels type array 1))
             ((pgm pgm-raw)
              (or (and (eqv? 2 rnk)
                       (integer? (car shp))
                       (integer? (cadr shp)))
-                 (slib:error 'pnm:array-write "bad shape" type array))
+                 (error 'pnm:array-write "bad shape" type array))
              (write-header type (car shp) (cadr shp) maxval)
              (write-pixels type array maxval))
             ((ppm ppm-raw)
@@ -342,10 +342,10 @@
                       (integer? (car shp))
                       (integer? (cadr shp))
                       (eqv? 3 (caddr shp)))
-                 (slib:error 'pnm:array-write "bad shape" type array))
+                 (error 'pnm:array-write "bad shape" type array))
              (write-header type (car shp) (cadr shp) maxval)
              (write-pixels type array maxval))
-            (else (slib:error 'pnm:array-write type 'unrecognized 'type))))
+            (else (error 'pnm:array-write type 'unrecognized 'type))))
         (call-with-open-ports
           (open-file port 'wb)
           (lambda (port)

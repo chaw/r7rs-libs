@@ -31,7 +31,6 @@
           gray-code>=?
           delaminate-list)
   (import (scheme base)
-          (slib common)
           (srfi 60))
 
   (begin
@@ -165,7 +164,7 @@
       (logxor k (arithmetic-shift k -1)))
     (define (gray-code->integer k)
       (if (negative? k)
-        (slib:error 'gray-code->integer 'negative? k)
+        (error 'gray-code->integer 'negative? k)
         (let ((kln (integer-length k)))
           (do ((d 1 (* d 2))
                (ans (logxor k (arithmetic-shift k -1)) ; == (integer->gray-code k)

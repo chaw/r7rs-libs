@@ -30,8 +30,7 @@
           pregexp-quote)
   (import (scheme base)
           (scheme char)
-          (scheme cxr)
-          (slib format))
+          (scheme cxr))
 
   (begin
 
@@ -64,9 +63,7 @@
               (set-cdr! s r)
               (loop d s))))))
 
-    (define pregexp-error
-      (lambda whatever 
-        (error (format #f "Error: ~a" whatever))))
+    (define pregexp-error error)
 
     (define pregexp-read-pattern
       (lambda (s i n)

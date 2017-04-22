@@ -79,7 +79,7 @@
     (define mdbm:*databases* (make-exchanger '()))
     (define (mdbm:return-dbs dbs)
       (if (mdbm:*databases* dbs)
-        (slib:error 'mdbm:*databases* 'double 'set!)))
+        (error 'mdbm:*databases* 'double 'set!)))
 
     (define (mdbm:find-db? rdb dbs)
       (and dbs
@@ -90,11 +90,11 @@
               (and (not (null? dbs))
                    (if (and (procedure? rdb)
                             (not (eq? ((caar dbs) 'filename) (rdb 'filename))))
-                     (slib:error ((caar dbs) 'filename) 'open 'twice)
+                     (error ((caar dbs) 'filename) 'open 'twice)
                      (car dbs)))))))
 
     (define (mdbm:remove-entry dbs entry)
-      (cond ((null? dbs) (slib:error 'mdbm:remove-entry 'not 'found entry))
+      (cond ((null? dbs) (error 'mdbm:remove-entry 'not 'found entry))
             ((eq? entry (car dbs)) (cdr dbs))
             (else (cons (car dbs) (mdbm:remove-entry (cdr dbs) entry)))))
 
@@ -476,7 +476,7 @@
              ((tab 'close-table))))
           ((and (symbol? prikeys) (eq? prikeys slots))
            (cond ((not (table-exists? slots))
-                  (slib:error "Table doesn't exist:" slots)))
+                  (error "Table doesn't exist:" slots)))
            (set! new-tables (cons name new-tables))
            (let ((tab (create-table name slots)))
              ((tab 'row:insert*) data)

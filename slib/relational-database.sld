@@ -93,7 +93,7 @@
 
       (define (basic name)
         (let ((meth (base name)))
-          (cond ((not meth) (slib:error 'make-relational-system
+          (cond ((not meth) (error 'make-relational-system
                                         "essential method missing for:" name)))
           meth))
 
@@ -105,7 +105,7 @@
         (map (lambda (row)
                (let ((domrow (assq (car (cddddr row)) domains:init-data)))
                  (cond (domrow (cadddr domrow))
-                       (else (slib:error 'itypes "type not found for:"
+                       (else (error 'itypes "type not found for:"
                                          (car (cddddr row)))))))
              rows))
 
@@ -162,8 +162,9 @@
                  (cattab (and lldb (base:open-table lldb base:catalog-id 1
                                                     (itypes catalog:init-cols)))))
             (cond
-              ((not lldb) (slib:error 'make-base "failed.") #f)
-              ((not cattab) (slib:error 'make-base "catalog missing.")
+              ((not lldb) (error 'make-base "failed.") #;#f 
+                          )
+              ((not cattab) (error 'make-base "catalog missing.")
                             (close-base lldb)
                             #f)
               (else
@@ -174,7 +175,7 @@
                       )
                   (cond
                     ((not (and catdes-id domdes-id domtab-id desdes-id))
-                     (slib:error 'create-database "make-table failed.")
+                     (error 'create-database "make-table failed.")
                      (close-base lldb)
                      #f)
                     (else
@@ -286,7 +287,7 @@
                       (key->list #f))
 
                   (or desc-table
-                      (slib:error "descriptor table doesn't exist for:" table-name))
+                      (error "descriptor table doesn't exist for:" table-name))
                   (do ((ci column-limit (+ -1 ci)))
                     ((zero? ci))
                     (let* ((des:row (des:get-row desc-table ci))
@@ -321,24 +322,24 @@
                                               (p? (and tab (tab 'get 1))))
                                          (cond
                                            ((not tab)
-                                            (slib:error "foreign key table missing for:"
+                                            (error "foreign key table missing for:"
                                                         foreign-name))
                                            ((not (= (tab 'primary-limit) 1))
-                                            (slib:error "foreign key table wrong type:"
+                                            (error "foreign key table wrong type:"
                                                         foreign-name))
                                            (else p?)))))
                                 column-foreign-check-list))))
                         (else
-                          (slib:error "missing domain for column:" ci column-name)))
+                          (error "missing domain for column:" ci column-name)))
                       (cond
                         ((row-ref des:row columns:primary?-pos)
                          (set! primary-limit (max primary-limit ci))
                          (cond
                            ((base:supported-key-type? (car column-type-list)))
-                           (else (slib:error "key type not supported by base tables:"
+                           (else (error "key type not supported by base tables:"
                                              (car column-type-list)))))
                         ((base:supported-type? (car column-type-list)))
-                        (else (slib:error "type not supported by base tables:"
+                        (else (error "type not supported by base tables:"
                                           (car column-type-list))))))
                   (set! base-table
                     (base:open-table lldb (row-ref cat:row catalog:bastab-id-pos)
@@ -366,7 +367,7 @@
                              (lambda (mkeys)
                                (define mlim (length mkeys))
                                (cond ((> mlim primary-limit)
-                                      (slib:error "too many keys:" mkeys))
+                                      (error "too many keys:" mkeys))
                                      ((= mlim primary-limit) mkeys)
                                      (else
                                        (append mkeys
@@ -434,25 +435,25 @@
                           (check-rules
                             (lambda (row)
                               (if (= column-limit (length row)) #t
-                                (slib:error "bad row length:" row))
+                                (error "bad row length:" row))
                               (for-each
                                 (lambda (cir dir value column-name column-domain
                                              foreign)
                                   (cond
                                     ((and dir (not (dir value)))
-                                     (slib:error "violated domain integrity rule:"
+                                     (error "violated domain integrity rule:"
                                                  table-name column-name
                                                  column-domain value))
                                     ((and cir (not (cir value)))
-                                     (slib:error "violated column integrity rule:"
+                                     (error "violated column integrity rule:"
                                                  table-name column-name value))
                                     ((and foreign (not (foreign value)))
-                                     (slib:error "foreign key missing:"
+                                     (error "foreign key missing:"
                                                  table-name column-name value))))
                                 cirs dirs row column-name-alist column-domain-list
                                 column-foreign-check-list)
                               (cond ((and uir (not (uir row)))
-                                     (slib:error "violated user integrity rule:"
+                                     (error "violated user integrity rule:"
                                                  row)))))
                           (putter
                             ((basic 'make-putter) primary-limit column-type-list))
@@ -461,7 +462,7 @@
                               (check-rules row)
                               (let ((ckey (combine-primary-keys row)))
                                 (if (present? base-table ckey)
-                                  (slib:error 'row:insert "row present:" row))
+                                  (error 'row:insert "row present:" row))
                                 (putter base-table ckey
                                         (list-tail row primary-limit)))))
                           (row:update
@@ -516,7 +517,7 @@
                                       ((and (integer? column)
                                             (<= 1 column column-limit))
                                        column)
-                                      (else (slib:error "column not in table:"
+                                      (else (error "column not in table:"
                                                         column table-name)))))))
                       (lambda args
                         (cond
@@ -537,7 +538,7 @@
                            (let ((pp (assq (car args) export-alist)))
                              (and pp (cdr pp))))
                           ((not (null? (cddr args)))
-                           (slib:error "too many arguments to methods:" args))
+                           (error "too many arguments to methods:" args))
                           (else
                             (let ((ci (translate-column (cadr args))))
                               (cond
@@ -596,7 +597,8 @@
                     (set! rdms:catalog (open-table rdms:catalog-name #t)))
                 (cond
                   ((table-exists? table-name)
-                   (slib:error "table already exists:" table-name) #f)
+                   (error "table already exists:" table-name) #;#f
+                   )
                   ((null? desc-in)
                    (let ((colt-id
                            (base:make-table lldb 1 (itypes columns:init-cols))))
@@ -629,11 +631,11 @@
                                      ((coltable 'get* 'column-number))
                                      ((coltable 'get* 'primary-key?))
                                      ((coltable 'get* 'domain-name)))
-                           (cond (colerr (slib:error "some column lacks a number.") #f)
+                           (cond (colerr (error "some column lacks a number.") #f)
                                  ((or (< prilimit 1)
                                       (and (> prilimit 4)
                                            (not (= prilimit colimit))))
-                                  (slib:error "unreasonable number of primary keys:"
+                                  (error "unreasonable number of primary keys:"
                                               prilimit))
                                  (else
                                    ((rdms:catalog 'row:insert)
@@ -641,8 +643,8 @@
                                           (base:make-table lldb prilimit types) #f #f))
                                    (open-table table-name #t)))))
                        (else
-                         (slib:error "table descriptor not found for:" desc) #f)))))
-                  (else (slib:error 'create-table "too many args:"
+                         (error "table descriptor not found for:" desc) #f)))))
+                  (else (error 'create-table "too many args:"
                                     (cons table-name desc-in))
                         #f)))))
 

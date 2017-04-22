@@ -118,6 +118,9 @@ Main changes are:
 * code uses SRFIs where possible
 * defmacro not included
 * parameters wrap exported variables
+* slib:error replaced by error, to reduce library dependencies
+* (srfi 59) for vicinities has been removed: 
+  * added function `pathname->dirname` to (slib directory) to replace `pathname->vicinity`
 
 The following list of packages reflects the contents page of the slib
 documentation, and gives some notes on any changes or choices made:
@@ -151,7 +154,8 @@ moved, as required, into `(slib common)`.
   * Larceny 0.99 often cycles with "Unhandled condition" errors when using format (though tests all pass and some examples work fine)
 * printf
 * scanf
-  * Note: scanf and sscanf showing some problems in other libraries
+  * Note: scanf, fscanf and sscanf removed (as no define-macro)
+  * Additionally exports scanf-read-values
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
 * comparse
@@ -163,7 +167,6 @@ moved, as required, into `(slib common)`.
   * http:byline exported as a parameter object
 * html-for-each
 * uri
-  * Some tests fail on Kawa due to scanf giving "Bad type on operand stack"
 * xml-parse
 * generic-write
 * object->string
@@ -171,7 +174,6 @@ moved, as required, into `(slib common)`.
 * pprint-file
 * time-core
 * time-zone
-  * some problems caused by sscanf
 * posix-time
 * common-lisp-time
 * tzfile
@@ -275,7 +277,6 @@ Some of the libraries require the following SRFIs (in place of related SLIB file
 * srfi 1   Lists
 * srfi 13  Strings
 * srfi 27  Random Bits
-* srfi 59  Vicinities
 * srfi 60  Integers as Bits
 * srfi 63  Arrays
 * srfi 69  Hash Tables 
@@ -288,7 +289,6 @@ some implementations and support the above libraries.  Provided SRFIs:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
 * srfi 42  simply the reference implementation (not needed)
-* srfi 59  for Chibi, Kawa, Sagittarius
 * srfi 60  for Chibi
 * srfi 63  SLIB's array.scm implemented as a srfi library
 * srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for running tests with Chibi

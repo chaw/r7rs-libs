@@ -271,7 +271,7 @@
                   ((string? k) k)
                   ((symbol? k) (symbol->string k))
                   ((vector? k) (map key->sortable (vector->list k)))
-                  (else (slib:error "unsortable key" k))))
+                  (else (error "unsortable key" k))))
           ;; This routine assumes that the car of its operands are either
           ;; numbers or strings (or lists of those).
           (define (car-key-< x y)

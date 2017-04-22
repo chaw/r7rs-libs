@@ -208,7 +208,7 @@
         (lambda (comname command-callback)
           (cond ((not comname) (set! comname '*default*)))
           (cond ((not (comgetrow comname))
-                 (slib:error 'command 'not 'known: comname)))
+                 (error 'command 'not 'known: comname)))
           (let* ((command:row (comgetrow comname))
                  (parameter-table
                    ((rdb 'open-table) (row-ref command:row 'parameters) #f))

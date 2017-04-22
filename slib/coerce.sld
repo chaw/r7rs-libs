@@ -24,7 +24,6 @@
   (export type-of
           coerce)
   (import (except (scheme base) equal?)
-          (slib common)
           (srfi 63))
 
   (begin
@@ -53,7 +52,7 @@
     ;;@code{string}, @code{symbol}, @code{list}, or @code{vector} to
     ;;@2 (which must be one of these symbols).
     (define (coerce obj result-type)
-      (define (err) (slib:error 'coerce 'not obj '-> result-type))
+      (define (err) (error 'coerce 'not obj '-> result-type))
       (define obj-type (type-of obj))
       (cond
         ((eq? obj-type result-type) obj)

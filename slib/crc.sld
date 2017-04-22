@@ -37,7 +37,6 @@
   (import (scheme base)
           (scheme file)
           (slib byte)
-          (slib common)
           (srfi 60))
 
   (begin
@@ -74,9 +73,9 @@
       (define generator (string->number (string-copy str 1 (string-length str)) 2))
       (define crctab (make-vector 256))
       (if (not (eqv? #\1 (string-ref str 0)))
-        (slib:error 'crc:make-table 'first-digit-of-polynomial-must-be-1 str))
+        (error 'crc:make-table 'first-digit-of-polynomial-must-be-1 str))
       (if (< deg 8)
-        (slib:error 'crc:make-table 'degree-must-be>7 deg str))
+        (error 'crc:make-table 'degree-must-be>7 deg str))
       (and
         generator
         (do ((i 0 (+ 1 i))

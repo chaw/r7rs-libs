@@ -51,7 +51,7 @@
                           (let search ((j (+ i 2)))
                             (cond
                               ((>= j (string-length pat))
-                               (slib:error 'glob:make-matcher
+                               (error 'glob:make-matcher
                                            "unmatched [" pat))
                               ((char=? #\] (string-ref pat j))
                                (if (and (< (+ j 1) (string-length pat))
@@ -69,11 +69,11 @@
                            (else (search (+ j 1)))))))))))
         ((pair? pat)
          (for-each (lambda (elt) (or (string? elt)
-                                     (slib:error 'glob:pattern->tokens
+                                     (error 'glob:pattern->tokens
                                                  "bad pattern" pat)))
                    pat)
          pat)
-        (else (slib:error 'glob:pattern->tokens "bad pattern" pat))))
+        (else (error 'glob:pattern->tokens "bad pattern" pat))))
 
     (define (glob:make-matcher pat ch=? ch<=?)
       (define (match-end str k kmatch)
@@ -181,7 +181,7 @@
             (pat-wild? (map wildcard? (glob:pattern->tokens pattern)))
             (matcher (glob:make-matcher pattern ch=? ch<=?)))
         (or (= (countq #t pat-wild?) (countq #f tmpl-literals))
-            (slib:error 'glob:make-substituter
+            (error 'glob:make-substituter
                         "number of wildcards doesn't match" pattern template))
         (lambda (str)
           (let ((indices (matcher str)))
@@ -258,14 +258,14 @@
             ((string? template)
              (glob:make-substituter pattern template char=? char<=?))
             (else
-              (slib:error 'filename:substitute?? "bad second argument" template))))
+              (error 'filename:substitute?? "bad second argument" template))))
     (define (filename:substitute-ci?? pattern template)
       (cond ((procedure? template)
              (glob:caller-with-matches pattern template char-ci=? char-ci<=?))
             ((string? template)
              (glob:make-substituter pattern template char-ci=? char-ci<=?))
             (else
-              (slib:error 'filename:substitute-ci?? "bad second argument" template))))
+              (error 'filename:substitute-ci?? "bad second argument" template))))
 
     ;;@example
     ;;((filename:substitute?? "scm_[0-9]*.html" "scm5c4_??.htm")
@@ -290,7 +290,7 @@
                                        char=? char<=?))
              (g (lambda (st)
                   (or (f st)
-                      (slib:error 'replace-suffix "suffix doesn't match:"
+                      (error 'replace-suffix "suffix doesn't match:"
                                   old st)))))
         (if (pair? str)
           (map g str)

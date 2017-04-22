@@ -50,7 +50,6 @@
           (scheme write)
           (rebottled pregexp)
           (only (robin statistics) sorenson-dice-index)
-          (only (slib common) identity)
           (slib soundex)                                              
           (srfi 1)
           (srfi 69)
@@ -556,7 +555,7 @@
                   (seq-length seq-1))
                  (else
                    (let loop ((curr-2 (make-vector (+ 1 (seq-length seq-2)) 0))
-                              (curr-1 (list->vector (list-tabulate (+ 1 (seq-length seq-2)) identity)))
+                              (curr-1 (list->vector (list-tabulate (+ 1 (seq-length seq-2)) (lambda (x) x))))
                               (i 0))
                      (if (= i (seq-length seq-1)) ; finished
                        (vector-ref curr-1 (- (vector-length curr-1) 1))

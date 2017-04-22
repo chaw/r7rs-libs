@@ -68,7 +68,6 @@
           (slib array-for-each)
           (slib color)
           (slib color-space)
-          (slib common)
           (slib daylight)
           (slib printf)
           (srfi 63))
@@ -147,7 +146,7 @@
       (if (vector? obj) (set! obj (vector->list obj)))
       (case (length obj)
         ((2) (apply sprintf #f "%g %g" obj))
-        (else (slib:error 'coordinates2string obj))))
+        (else (error 'coordinates2string obj))))
 
     ;; This one will duplicate number argument.
     (define (coordinate2string obj)
@@ -158,7 +157,7 @@
       (if (vector? obj) (set! obj (vector->list obj)))
       (case (length obj)
         ((3) (apply sprintf #f "%g %g %g" obj))
-        (else (slib:error 'coordinates3string obj))))
+        (else (error 'coordinates3string obj))))
 
     ;; This one will triplicate number argument.
     (define (coordinate3string obj)
@@ -173,7 +172,7 @@
              (list (/ (quotient obj 65536) 255)
                    (/ (modulo (quotient obj 256) 256) 255)
                    (/ (modulo obj 256) 255)))
-            (else (slib:error 'solid:color? obj))))
+            (else (error 'solid:color? obj))))
 
     (define (color->vrml-field obj)
       (and obj (coordinates3string (solid-color->sRGB obj))))
@@ -207,7 +206,7 @@
                        (- (cos th))
                        (* -1 (cos ph) (sin th)))))
           ((3) obj)
-          (else (slib:error 'not 'direction obj)))))
+          (else (error 'not 'direction obj)))))
 
     ;;@body
     ;;
@@ -227,7 +226,7 @@
       (if (vector? colors) (set! colors (vector->list colors)))
       (if (vector? angles) (set! angles (vector->list angles)))
       (if (not (eqv? (length colors) (length angles)))
-        (slib:error 'scene:sphere 'length (length colors) (length angles)))
+        (error 'scene:sphere 'length (length colors) (length angles)))
       ;;(@print angles)
       (cond ((< (car angles) 90)
              (set! colors (cons (car colors) colors))
@@ -729,7 +728,7 @@
                  (solid:scale
                    geometry
                    (apply solid:sphere .5 appearance)))
-                (else (slib:error 'solid:ellipsoid '? (cons geometry appearance)))))
+                (else (error 'solid:ellipsoid '? (cons geometry appearance)))))
 
         ;;@args coordinates appearance
         ;;@args coordinates
@@ -754,7 +753,7 @@
             (case (length args)
               ((1) (car args))
               ((0) "")
-              (else (slib:error 'solid:indexed-polylines 'too-many-args)))
+              (else (error 'solid:indexed-polylines 'too-many-args)))
             " geometry "
             (solid:node
               " IndexedLineSet"
@@ -781,7 +780,7 @@
           (define y/2 (/ y 2))
           (define dims (array-dimensions xz-array))
           ;;(define (sfbool bool) (if bool "TRUE" "FALSE"))
-          (if (not (eqv? 2 (cadr dims))) (slib:error 'solid:prism 'dimensions dims))
+          (if (not (eqv? 2 (cadr dims))) (error 'solid:prism 'dimensions dims))
           (sprintf #f
                    "\
                    Shape {
@@ -843,7 +842,7 @@
           (define (solid:bry width heights depth args)
             (define dimensions (array-dimensions heights))
             (if (not (eqv? 2 (length dimensions)))
-              (slib:error 'solid:basrelief 'rank? dimensions))
+              (error 'solid:basrelief 'rank? dimensions))
             (let ((xdim (cadr dimensions))
                   (zdim (car dimensions)))
               (define elevs (solid:extract-elevations heights dimensions))
@@ -855,7 +854,7 @@
                     ((2) (cadr args))
                     ((1) (car args))
                     ((0) "")
-                    (else (slib:error 'solid:basrelief 'too-many-args)))
+                    (else (error 'solid:basrelief 'too-many-args)))
                   " geometry "
                   (solid:node
                     " ElevationGrid"
@@ -889,7 +888,7 @@
                                    lns))
                    (set! hts '()))))
               heights)
-            (if (not (null? hts)) (slib:error 'solid:extract-elevations 'leftover hts))
+            (if (not (null? hts)) (error 'solid:extract-elevations 'leftover hts))
             (apply string-append (reverse lns)))
 
           (define (solid:extract-colors heights colora)
@@ -900,7 +899,7 @@
                         (equal? '(0 1 0 1) (map -
                                                 (apply append hdims)
                                                 (apply append cdims)))))
-                  (else (slib:error 'solid:basrelief 'mismatch 'dimensions hdims cdims)))
+                  (else (error 'solid:basrelief 'mismatch 'dimensions hdims cdims)))
             (let ((ldim (cadr cdims))
                   (cnt 0)
                   (sts '())

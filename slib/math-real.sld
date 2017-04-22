@@ -59,19 +59,19 @@
     (define (must-be-real name proc)
       (and proc
            (lambda (x1)
-             (if (real? x1) (proc x1) (slib:error name x1)))))
+             (if (real? x1) (proc x1) (error name x1)))))
     (define (must-be-real+ name proc)
       (and proc
            (lambda (x1)
              (if (and (real? x1) (>= x1 0))
                (proc x1)
-               (slib:error name x1)))))
+               (error name x1)))))
     (define (must-be-real-1+1 name proc)
       (and proc
            (lambda (x1)
              (if (and (real? x1) (<= -1 x1 1))
                (proc x1)
-               (slib:error name x1)))))
+               (error name x1)))))
     ;@
     (define ln (and (provided? 'real) log))
     (define real-abs  (must-be-real 'abs abs))
@@ -89,7 +89,7 @@
            (lambda (x1 x2)
              (if (and (real? x1) (real? x2))
                (proc x1 x2)
-               (slib:error name x1 x2)))))
+               (error name x1 x2)))))
     ;@
     (define make-rectangular
       (must-be-real2 'make-rectangular 
@@ -104,7 +104,7 @@
            (lambda (base x)
              (if (and (real? x) (positive? x) (real? base) (positive? base))
                (/ (ln x) (ln base))
-               (slib:error 'real-log base x)))))
+               (error 'real-log base x)))))
 
     ;@
     (define (real-expt x1 x2)
@@ -112,7 +112,7 @@
                   (real? x2)
                   (or (not (negative? x1)) (integer? x2)))
              (expt x1 x2))
-            (else (slib:error 'real-expt x1 x2))))
+            (else (error 'real-expt x1 x2))))
 
     ;@
     (define real-atan
@@ -123,6 +123,6 @@
                           (and (= 1 (length x))
                                (real? (car x)))))
                (atan y x)
-               (slib:error 'real-atan y x)))))
+               (error 'real-atan y x)))))
 
     ))

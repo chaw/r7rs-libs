@@ -39,8 +39,7 @@
           tzfile:get-std-spec
           tzfile:get-zone-spec)
   (import (scheme base)
-          (scheme time)
-          (slib common))
+          (scheme time))
 
   (begin
 
@@ -170,7 +169,7 @@
                                   (+ -1 tr-month)))
                           (d (modulo (- tr-day fdow) 7) (+ 7 d)))
                        ((>= d mmax) (+ -7 d))))
-                    (else (slib:error 'tzrule->caltime
+                    (else (error 'tzrule->caltime
                                       "week out of range" tr-week))))
                 (+ tr-day
                    (if (and (not tr-week) (>= tr-day 60) (leap-year? year))
@@ -195,7 +194,7 @@
                      (list (if (vector-ref zone-spec 2) 1 0)
                            (- (vector-ref zone-spec 1))
                            (vector-ref zone-spec 0))))
-        (else (slib:error 'tz:params "unknown timezone type" tz))))
+        (else (error 'tz:params "unknown timezone type" tz))))
 
     (define (tzfile:transition-index time zone)
       (define times (difftime time time:year-70))

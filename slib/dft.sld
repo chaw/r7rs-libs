@@ -39,7 +39,6 @@
           dft-1)
   (import (except (scheme base) equal?)
           (scheme inexact)
-          (slib common)
           (slib subarray)
           (srfi 1)
           (srfi 60)
@@ -150,7 +149,7 @@
     (define (dft:check-dimensions ara name)
       (for-each (lambda (n)
                   (if (not (eqv? n (expt 2 (integer-length (+ -1 n)))))
-                    (slib:error name "array length not power of 2" n)))
+                    (error name "array length not power of 2" n)))
                 (array-dimensions ara)))
 
     ;;@args array prot

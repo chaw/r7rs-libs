@@ -7,7 +7,6 @@ cd srfis/kawa
 :: 63 as a Scheme module
 call kawa -d ../../bin -C srfi/27.sld
 call kawa --r7rs -d ../../bin -C srfi/42.sld
-call kawa --r7rs -d ../../bin -C srfi/59.sld
 call kawa --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 

@@ -28,7 +28,6 @@
           (scheme char)
           (scheme complex)
           (scheme write)
-          (slib common)
           (slib generic-write))
 
           (begin
@@ -213,10 +212,10 @@
                    (define (end-of-format?)
                      (>= pos fl))
                    (define (incomplete)
-                     (slib:error 'printf "conversion specification incomplete"
+                     (error 'printf "conversion specification incomplete"
                                  format-string))
                    (define (wna)
-                     (slib:error 'printf "wrong number of arguments"
+                     (error 'printf "wrong number of arguments"
                                  (length args)
                                  format-string))
                    (define (out* strs)
@@ -571,7 +570,7 @@
                      (s (cond ((string? str) str)
                               ((number? str) (make-string str))
                               ((not str) (make-string 100))
-                              (else (slib:error 'sprintf "first argument not understood"
+                              (else (error 'sprintf "first argument not understood"
                                                 str))))
                      (end (string-length s)))
                 (apply stdio:iprintf

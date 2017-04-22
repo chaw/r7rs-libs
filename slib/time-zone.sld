@@ -90,7 +90,7 @@
                  (let ((zone #f))
                    (set! zone (tzfile:read realpath))
                    (and zone (list->vector (cons 'tz:file zone)))))
-            (slib:error 'read-tzfile realpath))))
+            (error 'read-tzfile realpath))))
 
     ;;; Parse Posix TZ string.
 
@@ -127,12 +127,18 @@
                   (else #f)))))))
 
     (define (string->transition-time str)
-      (let ((date #f) (time "2") (junk #f))
-        (and (or (eqv? 2 (sscanf str "%[JM.0-9]/%[:0-9]%s" date time junk))
-                 (eqv? 1 (sscanf str "%[JM.0-9]" date junk)))
-             (let ((day (string->transition-day-time date))
-                   (tim (string->time-offset time)))
-               (and day tim (append day (list tim)))))))
+      (define (mk-transition date time)
+        (let ((day (string->transition-day-time date))
+              (tim (string->time-offset time)))
+          (and day tim (append day (list tim)))))
+      ;
+      (let ((case1 (scanf-read-list "%[JM.0-9]/%[:0-9]%s" str)))
+        (if (= 2 (length case1))
+          (mk-transition (car case1) (cadr case1))
+          (let ((case2 (scanf-read-list "%[JM.0-9]" str)))
+            (if (= 1 (length case2))
+              (mk-transition (car case2) "2")
+              #f)))))
 
     (define (string->time-offset str)
       (and str (string? str) (positive? (string-length str))
@@ -151,23 +157,27 @@
                        (+ ss (* 60 (+ mm (* hh 60))))))))))
 
     (define (string->time-zone tz)
-      (let ((tzname #f) (offset #f) (dtzname #f) (doffset #f)
-                        (start-str #f) (end-str #f) (junk #f))
-        (define found
-          (sscanf
-            tz "%[^0-9,+-]%[-:+0-9]%[^0-9,+-]%[-:+0-9],%[JM.0-9/:],%[JM.0-9/:]%s"
-            tzname offset dtzname doffset start-str end-str junk))
-        (set! offset (string->time-offset offset))
-        (set! doffset (string->time-offset doffset))
-        (cond
-          ((and offset (eqv? 3 found))
-           (set! doffset (+ -3600 offset))
-           (set! found
-             (+ 1
-                (sscanf
-                  tz "%[^0-9,+-]%[-:+0-9]%[^0-9,+-],%[JM.0-9/:],%[JM.0-9/:]%s"
-                  tzname offset dtzname start-str end-str junk)))
-           (set! offset (string->time-offset offset))))
+      (let* ((case1 (scanf-read-list "%[^0-9,+-]%[-:+0-9]%[^0-9,+-]%[-:+0-9],%[JM.0-9/:],%[JM.0-9/:]%s" tz))
+             (found (length case1))
+             (tzname (and (>= found 1) (list-ref case1 0)))
+             (offset (and (>= found 2) (string->time-offset (list-ref case1 1))))
+             (dtzname (and (>= found 3) (list-ref case1 2)))
+             (doffset (and (>= found 4) (string->time-offset (list-ref case1 3))))
+             (start-str (and (>= found 5) (list-ref case1 4)))
+             (end-str (and (>= found 6) (list-ref case1 5)))
+             (junk (and (>= found 7) (list-ref case1 6))))
+        (when (and offset (= 3 found))
+          (set! doffset (+ -3600 offset))
+          (let* ((case2 (scanf-read-list "%[^0-9,+-]%[-:+0-9]%[^0-9,+-],%[JM.0-9/:],%[JM.0-9/:]%s" tz))
+                 (found2 (length case2)))
+            (set! found (+ 1 (length case2)))
+            (when (>= found2 1) (set! tzname (list-ref case2 0)))
+            (when (>= found2 2) (set! offset (list-ref case2 1)))
+            (when (>= found2 3) (set! dtzname (list-ref case2 2)))
+            (when (>= found2 4) (set! start-str (list-ref case2 3)))
+            (when (>= found2 5) (set! end-str (list-ref case2 4)))
+            (when (>= found2 6) (set! junk (list-ref case2 5)))
+            (set! offset (string->time-offset offset))))
         (case found
           ((2) (vector 'tz:fixed tz tzname offset))
           ((4) (vector 'tz:rule tz tzname dtzname offset doffset

@@ -74,7 +74,6 @@
           (scheme file)
           (scheme inexact)
           (scheme read)
-          (slib common)
           (srfi 60)
           (srfi 95))
 
@@ -352,11 +351,11 @@
                  (append parametric-factors '(1 1))))
           ((2) (append parametric-factors '(1)))
           ((3) parametric-factors)
-          (else (slib:error 'parametric-factors 'too-many parametric-factors))))
+          (else (error 'parametric-factors 'too-many parametric-factors))))
       (and ans
            (for-each (lambda (obj)
                        (if (not (number? obj))
-                         (slib:error 'parametric-factors 'not 'number? obj)))
+                         (error 'parametric-factors 'not 'number? obj)))
                      ans))
       ans)
     ;;; http://www.brucelindbloom.com/index.html?Eqn_DeltaE_CIE94.html
@@ -489,7 +488,7 @@
            (data *cie1931* (cdr data)))
         ((>= wlen 780) )
         (when (not (eqv? wlen (caar data)))
-          (slib:error *cie1931* 'expected wlen 'not (caar data)))
+          (error *cie1931* 'expected wlen 'not (caar data)))
         (vector-set! cie:x-bar idx (list-ref (car data) 1))
         (vector-set! cie:y-bar idx (list-ref (car data) 2))
         (vector-set! cie:z-bar idx (list-ref (car data) 3))))
@@ -530,7 +529,7 @@
           (list (interpolate cie:x-bar wlf res)
                 (interpolate cie:y-bar wlf res)
                 (interpolate cie:z-bar wlf res)))
-        (slib:error 'wavelength->XYZ 'out-of-range wl)))
+        (error 'wavelength->XYZ 'out-of-range wl)))
     (define (wavelength->chromaticity wl)
       (XYZ->chromaticity (wavelength->XYZ wl)))
     ;@
@@ -584,7 +583,7 @@
                  (set! x (+ x (* (vector-ref cie:x-bar kdx) inten)))
                  (set! y (+ y (* (vector-ref cie:y-bar kdx) inten)))
                  (set! z (+ z (* (vector-ref cie:z-bar kdx) inten))))))))
-        (else (slib:error 'spectrum->XYZ 'wna args))))
+        (else (error 'spectrum->XYZ 'wna args))))
     (define (spectrum->chromaticity . args)
       (XYZ->chromaticity (apply spectrum->XYZ args)))
     ;@

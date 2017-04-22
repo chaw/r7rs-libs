@@ -31,9 +31,9 @@
 
     ;@
     (define (call-with-output-string f)
-      (parameterize ((current-output-port (open-output-string)))
-                    (f)
-                    (get-output-string (current-output-port))))
+      (let ((sport (open-output-string)))
+        (f sport)
+        (get-output-string sport)))
 
     ;@
     (define (call-with-input-string s f)

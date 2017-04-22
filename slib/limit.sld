@@ -27,7 +27,6 @@
           (scheme complex)
           (scheme cxr)
           (scheme inexact)
-          (slib common)
           (slib root))
 
   (begin
@@ -126,11 +125,11 @@
 
     (define (limit proc x1 x2 . k-in)
       (let ((k (if (null? k-in) 8 (car k-in))))
-        (cond ((not (finite? x2)) (slib:error 'limit 'infinite 'x2 x2))
+        (cond ((not (finite? x2)) (error 'limit 'infinite 'x2 x2))
               ((not (finite? x1))
-               (or (positive? (* x1 x2)) (slib:error 'limit 'start 'mismatch x1 x2))
+               (or (positive? (* x1 x2)) (error 'limit 'start 'mismatch x1 x2))
                (limit (lambda (x) (proc (/ x))) 0.0 (/ x2) k))
-              ((= x1 (+ x1 x2)) (slib:error 'limit 'null 'range x1 (+ x1 x2)))
+              ((= x1 (+ x1 x2)) (error 'limit 'null 'range x1 (+ x1 x2)))
               (else (let ((dec (/ x2 k)))
                       (do ((x (+ x1 x2 0.0) (- x dec))
                            (cnt (+ -1 k) (+ -1 cnt))

@@ -71,7 +71,7 @@
                              ((number? obj) (s2cis (number->string obj)))
                              ((symbol? obj) (symbol->string obj))
                              ((not obj) "")
-                             (else (slib:error 'wrong-type-to 'symbol-append obj))))
+                             (else (error 'wrong-type-to 'symbol-append obj))))
                      args))))))
     ;@
     (define (StudlyCapsExpand nstr . delimitr-in)

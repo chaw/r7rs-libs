@@ -21,7 +21,6 @@ cd srfis/kawa
 # 63 as a Scheme module
 ${KAWA} -d ../../bin -C srfi/27.sld
 ${KAWA} --r7rs -d ../../bin -C srfi/42.sld
-${KAWA} --r7rs -d ../../bin -C srfi/59.sld
 ${KAWA} --r7rs -d ../../bin -C srfi/63.sld
 cd ../..
 
@@ -43,6 +42,6 @@ cd ..
 mv bin/r7rs-libs.jar .
 
 # Tidy up
-if [ -d "bin" ]; then
-  rm -rf bin
-fi
+#if [ -d "bin" ]; then
+#  rm -rf bin
+#fi

@@ -26,7 +26,6 @@
   (import (scheme base)
           (scheme process-context)
           (slib coerce)
-          (slib common)
           (slib common-list-functions)
           (slib getopt)
           (slib parameters)
@@ -162,7 +161,7 @@
                           ((and (member curopt optnames)
                                 (adjoin-val (list-ref *argv* (option-index)) curopt))
                            ((option-index) (+ 1 (option-index))) (loop))
-                          (else (slib:error 'getopt->parameter-list curopt
+                          (else (error 'getopt->parameter-list curopt
                                             (list-ref *argv* (option-index))
                                             'not 'supported)))))
                      (else (finish))))

@@ -47,7 +47,6 @@
           command->p-specs)
   (import (scheme base)
           (scheme eval)
-          (slib common)
           (slib common-list-functions)
           (slib databases)
           (slib object-string)
@@ -161,11 +160,11 @@
       (string-append
         (apply string-append
                (if (substring? "--" line1)
-                 (slib:error 'html:comment "line contains --" line1)
+                 (error 'html:comment "line contains --" line1)
                  (sprintf #f "<!--%s--" line1))
                (map (lambda (line)
                       (if (substring? "--" line)
-                        (slib:error 'html:comment "line contains --" line)
+                        (error 'html:comment "line contains --" line)
                         (sprintf #f "\\n  --%s--" line)))
                     lines))
         (sprintf #f ">\\n")))
@@ -187,7 +186,7 @@
     ;;form.  @0 returns the HTML @dfn{form}.
     (define (html:form method action . body)
       (cond ((not (memq method '(get head post put delete)))
-             (slib:error 'html:form "method unknown:" method)))
+             (error 'html:form "method unknown:" method)))
       (string-append
         (apply string-append
                (sprintf #f "<FORM METHOD=%#a ACTION=%#a>\\n"

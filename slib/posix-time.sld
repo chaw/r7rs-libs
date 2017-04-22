@@ -35,7 +35,6 @@
   (import (scheme base)
           (scheme char)
           (scheme process-context)
-          (slib common)
           (slib time-core)
           (slib time-zone))
 
@@ -54,7 +53,7 @@
               (if (>= type-idx (vector-length mode-table))
                 (vector-ref (vector-ref mode-table 0) 1)
                 (- (vector-ref (vector-ref mode-table type-idx) 1)))))))
-        (else (slib:error 'tz:std-offset "unknown timezone type" zone))))
+        (else (error 'tz:std-offset "unknown timezone type" zone))))
     ;@
     (define (localtime caltime . tz-in)
       (let ((tz (if (null? tz-in) (tzset) (car tz-in))))
@@ -153,7 +152,7 @@
                    (vector-set! tzname 1 (vector-ref rec 0)))
                  (if (not (vector-ref tzname 0))
                    (vector-set! tzname 0 (vector-ref rec 0))))))))
-        (else (slib:error 'tzset "unknown timezone type" tz)))
+        (else (error 'tzset "unknown timezone type" tz)))
       tz:default)
 
     ))

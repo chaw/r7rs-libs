@@ -62,7 +62,7 @@
     ;;@end example
     (define (symmetric:modulus m)
       (cond ((or (not (number? m)) (not (positive? m)) (even? m))
-             (slib:error 'symmetric:modulus m))
+             (error 'symmetric:modulus m))
             (else (quotient (+ -1 m) -2))))
 
     ;;@args modulus
@@ -136,7 +136,7 @@
     ;;Returns an integer n such that 1 = (n * @var{n2}) mod @var{modulus}.  If
     ;;@var{n2} has no inverse mod @var{modulus} an error is signaled.
     (define (modular:invert m a)
-      (define (barf) (slib:error 'modular:invert "can't invert" m a))
+      (define (barf) (error 'modular:invert "can't invert" m a))
       (cond ((eqv? 1 (abs a)) a)		; unit
             (else
               (let ((pm (modular:characteristic m)))

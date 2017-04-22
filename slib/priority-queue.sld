@@ -35,8 +35,7 @@
           heap-length
           heap-insert!
           heap-extract-max!)
-  (import (scheme base)
-          (slib common))
+  (import (scheme base))
 
   (begin
 
@@ -124,7 +123,7 @@
     ;;@1, an error is signaled.
     (define (heap-extract-max! pqueue)
       (if (< (pqueue-size pqueue) 1)
-        (slib:error "heap underflow" pqueue)
+        (error "heap underflow" pqueue)
         (let ((max (heap:ref pqueue 1)))
           (heap:set! pqueue 1 (heap:ref pqueue (pqueue-size pqueue)))
           (heap:set-size! pqueue (+ -1 (pqueue-size pqueue)))

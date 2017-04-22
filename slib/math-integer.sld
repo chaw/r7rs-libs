@@ -32,7 +32,6 @@
           (rename modulo-ei modulo)
           round-quotient)
   (import (scheme base)
-          (slib common)
           (srfi 60))
 
   (begin
@@ -54,7 +53,7 @@
                   (exact? n2) (integer? n2)
                   (not (and (not (<= -1 n1 1)) (negative? n2))))
              (expt n1 n2))
-            (else (slib:error 'integer-expt n1 n2))))
+            (else (error 'integer-expt n1 n2))))
 
     ;;@body
     ;;Returns the largest exact integer whose power of @1 is less than or
@@ -72,7 +71,7 @@
       (define n 1)
       (define (eigt? k j) (and (exact? k) (integer? k) (> k j)))
       (cond ((not (and (eigt? base 1) (eigt? k 0)))
-             (slib:error 'integer-log base k))
+             (error 'integer-log base k))
             ((< k base) 0)
             (else (ilog 1 base (quotient k base)) n)))
 
@@ -104,14 +103,14 @@
               (vector-ref table n)))
           (if (and (exact? n) (integer? n) (not (negative? n)))
             (isqrt n)
-            (slib:error 'integer-sqrt n)))))
+            (error 'integer-sqrt n)))))
 
     (define (must-be-exact-integer2 name proc)
       (lambda (n1 n2)
         (if (and (integer? n1) (integer? n2) (exact? n1) (exact? n2)
                  (not (zero? n2)))
           (proc n1 n2)
-          (slib:error name n1 n2))))
+          (error name n1 n2))))
     ;;@args n1 n2
     ;;@defunx remainder n1 n2
     ;;@defunx modulo n1 n2

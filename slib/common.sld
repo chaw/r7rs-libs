@@ -13,7 +13,6 @@
           output-port-width
           provided?
           system
-          slib:error
           slib:warn
           software-type
           tmpnam
@@ -97,7 +96,7 @@
                 #f))
         ((w) (open-output-file filename))
         ((wb) (open-binary-output-file filename))
-        (else (slib:error 'open-file "invalid mode" modes))))
+        (else (error 'open-file "invalid mode" modes))))
 
     (define (output-port-height . arg) 24) ; value used in all the .init files
     (define (output-port-width . arg) 79) ; value used in all the .init files
@@ -132,12 +131,6 @@
           (display "Warn: " cep)
           (for-each (lambda (x) (display #\space cep) (write x cep)) args)
           (newline cep))))
-
-    ;;@ define an error procedure for the library
-    (define slib:error
-      (let ((error error))
-        (lambda args
-          (apply error args))))
 
     (define tmpnam (let ((cntr 100))
                      (lambda () (set! cntr (+ 1 cntr))

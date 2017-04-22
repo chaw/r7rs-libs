@@ -296,7 +296,7 @@
               (table:retrieve (or (and (> argc 2) (caddr args)) (table 'row:retrieve)))
               (pkl (length null-keys)))
           (define ptypes (take (table 'column-types) pkl))
-          (if (> argc 4) (slib:error 'command:modify-table 'too-many-args
+          (if (> argc 4) (error 'command:modify-table 'too-many-args
                                      table-name null-keys args))
           (lambda (*keys* *row-hash* . new-row)
             (let* ((new-pkeys (take new-row pkl))
@@ -344,7 +344,7 @@
                 ((symbol) '(nil))
                 ((number) '(0))
                 (else '(#f))))
-             (else (slib:error 'make-defaulter 'unknown 'arity arity)))))
+             (else (error 'make-defaulter 'unknown 'arity arity)))))
 
     ;;@body Given @2 in @1, creates parameter and @code{*command*} tables
     ;;for editing one row of @2 at a time.  @0 returns a procedure taking a

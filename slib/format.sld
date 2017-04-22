@@ -189,7 +189,7 @@
 
       (define (format:out-num-padded modifier number pars radix)
         (if (not (integer? number))
-          (slib:error 'format "argument not an integer" number))
+          (error 'format "argument not an integer" number))
         (let ((numstr (number->string number radix)))
           (if (and format:radix-pref (not (= radix 10)))
             (set! numstr (string-copy numstr 2 (string-length numstr))))
@@ -235,7 +235,7 @@
                 (padch (integer->char (format:par pars l 2 format:space-ch #f))))
             (case modifier
               ((colon colon-at)
-               (slib:error 'format "unsupported modifier for ~~t" modifier))
+               (error 'format "unsupported modifier for ~~t" modifier))
               ((at)				; relative tabulation
                (format:out-fill
                  (if (= colinc 0)
@@ -273,7 +273,7 @@
                     ((= q 0)
                      (loop (remainder n roman-val)
                            (cdr romans) s))))))
-            (slib:error 'format "only positive integers can be romanized"))))
+            (error 'format "only positive integers can be romanized"))))
 
       (define format:num->roman
         (lambda (n)
@@ -300,7 +300,7 @@
                                       s)))
                         (loop r (cdr romans) (cdr boundaries) s))
                       (loop2 (- q 1) r (cons roman-dgt s)))))))
-            (slib:error 'format "only positive integers can be romanized"))))
+            (error 'format "only positive integers can be romanized"))))
 
       (define format:num->cardinal999
         (lambda (n)
@@ -337,7 +337,7 @@
       (define format:num->cardinal
         (lambda (n)
           (cond ((not (integer? n))
-                 (slib:error 'format
+                 (error 'format
                              "only integers can be converted to English cardinals"))
                 ((= n 0) "zero")
                 ((< n 0) (string-append "minus " (format:num->cardinal (- n))))
@@ -375,7 +375,7 @@
       (define format:num->ordinal
         (lambda (n)
           (cond ((not (integer? n))
-                 (slib:error 'format
+                 (error 'format
                              "only integers can be converted to English ordinals"))
                 ((= n 0) "zeroth")
                 ((< n 0) (string-append "minus " (format:num->ordinal (- n))))
@@ -405,7 +405,7 @@
 
       (define (format:out-fixed modifier number pars)
         (if (not (or (number? number) (string? number)))
-          (slib:error 'format "argument is not a number or a number string"
+          (error 'format "argument is not a number or a number string"
                       number))
 
         (let ((l (length pars)))
@@ -465,7 +465,7 @@
 
       (define (format:out-expon modifier number pars)
         (if (not (or (number? number) (string? number)))
-          (slib:error 'format "argument is not a number" number))
+          (error 'format "argument is not a number" number))
 
         (let ((l (length pars)))
           (let ((width (format:par pars l 0 #f "width"))
@@ -557,7 +557,7 @@
 
       (define (format:out-general modifier number pars)
         (if (not (or (number? number) (string? number)))
-          (slib:error 'format "argument is not a number or a number string"
+          (error 'format "argument is not a number or a number string"
                       number))
 
         (let ((l (length pars)))
@@ -588,7 +588,7 @@
 
       (define (format:out-dollar modifier number pars)
         (if (not (or (number? number) (string? number)))
-          (slib:error 'format "argument is not a number or a number string"
+          (error 'format "argument is not a number or a number string"
                       number))
 
         (let ((l (length pars)))
@@ -759,7 +759,7 @@
             ((char=? c #\d) #t)		; decimal radix prefix
             ((char=? c #\#) #t)
             (else
-              (slib:error 'format "illegal character in number->string" c)))))
+              (error 'format "illegal character in number->string" c)))))
 
       (define (format:en-int)	  ; convert exponent string to integer
         (if (= format:en-len 0)
@@ -789,7 +789,7 @@
 
       (define (format:fn-zfill left? n) ; fill current number string with 0s
         (if (> (+ n format:fn-len) format:fn-max) ; from the left or right
-          (slib:error 'format "number is too long to format (enlarge format:fn-max)"))
+          (error 'format "number is too long to format (enlarge format:fn-max)"))
         (set! format:fn-len (+ format:fn-len n))
         (if left?
           (do ((i format:fn-len (- i 1)))	; fill n 0s to left
@@ -804,7 +804,7 @@
 
       (define (format:fn-shiftleft n) ; shift left current number n positions
         (if (> n format:fn-len)
-          (slib:error 'format "internal error in format:fn-shiftleft"
+          (error 'format "internal error in format:fn-shiftleft"
                       (list n format:fn-len)))
         (do ((i n (+ i 1)))
           ((= i format:fn-len)
@@ -895,7 +895,7 @@
            (peek-next-char
              (lambda ()
                (if (>= format:pos format-string-len)
-                 (slib:error 'format "illegal format string")
+                 (error 'format "illegal format string")
                  (string-ref format-string format:pos))))
 
            (one-positive-integer?
@@ -905,13 +905,13 @@
                  ((and (integer? (car params))
                        (>= (car params) 0)
                        (= (length params) 1)) #t)
-                 (else (slib:error 'format "one positive integer parameter expected")))))
+                 (else (error 'format "one positive integer parameter expected")))))
 
            (next-arg
              (lambda ()
                (if (>= arg-pos arg-len)
                  (begin
-                   (slib:error 'format "missing argument(s)")))
+                   (error 'format "missing argument(s)")))
                (add-arg-pos 1)
                (list-ref arglist (- arg-pos 1))))
 
@@ -919,7 +919,7 @@
              (lambda ()
                (add-arg-pos -1)
                (if (negative? arg-pos)
-                 (slib:error 'format "missing backward argument(s)"))
+                 (error 'format "missing backward argument(s)"))
                (list-ref arglist arg-pos)))
 
            (rest-args
@@ -1024,11 +1024,11 @@
                      (anychar-dispatch))
                     ((#\I)			; Complex numbers
                      (if (not format:complex-numbers)
-                       (slib:error 'format
+                       (error 'format
                                    "complex numbers not supported by this scheme system"))
                      (let ((z (next-arg)))
                        (if (not (complex? z))
-                         (slib:error 'format "argument not a complex number"))
+                         (error 'format "argument not a complex number"))
                        (format:out-fixed modifier (real-part z) params)
                        (format:out-fixed 'at (imag-part z) params)
                        (format:out-char #\i))
@@ -1037,7 +1037,7 @@
                      (let ((ch (if (one-positive-integer? params)
                                  (integer->char (car params))
                                  (next-arg))))
-                       (if (not (char? ch)) (slib:error 'format "~~c expects a character" ch))
+                       (if (not (char? ch)) (error 'format "~~c expects a character" ch))
                        (case modifier
                          ((at)
                           (format:out-str (format:char->str ch)))
@@ -1066,7 +1066,7 @@
                        (prev-arg))
                      (let ((arg (next-arg)))
                        (if (not (number? arg))
-                         (slib:error 'format "~~p expects a number argument" arg))
+                         (error 'format "~~p expects a number argument" arg))
                        (if (= arg 1)
                          (if (memq modifier '(at colon-at))
                            (format:out-char #\y))
@@ -1122,7 +1122,7 @@
                     ((#\? #\K)	   ; Indirection (is "~K" in T-Scheme)
                      (cond
                        ((memq modifier '(colon colon-at))
-                        (slib:error 'format "illegal modifier in ~~?" modifier))
+                        (error 'format "illegal modifier in ~~?" modifier))
                        ((eq? modifier 'at)
                         (let* ((frmt (next-arg))
                                (args (rest-args)))
@@ -1158,7 +1158,7 @@
                         (set! arg-pos (if (one-positive-integer? params)
                                         (car params) 0)))
                        ((colon-at)
-                        (slib:error 'format "illegal modifier `:@' in ~~* directive"))
+                        (error 'format "illegal modifier `:@' in ~~* directive"))
                        (else		; jump forward
                          (if (one-positive-integer? params)
                            (do ((i 0 (+ i 1)))
@@ -1176,7 +1176,7 @@
                      (anychar-dispatch))
                     ((#\))			; Case conversion end
                      (if (not format:case-conversion)
-                       (slib:error 'format "missing ~~("))
+                       (error 'format "missing ~~("))
                      (set! format:case-conversion #f)
                      (anychar-dispatch))
                     ((#\[)			; Conditional begin
@@ -1190,7 +1190,7 @@
                           (case modifier
                             ((at) 'if-then)
                             ((colon) 'if-else-then)
-                            ((colon-at) (slib:error 'format "illegal modifier in ~~["))
+                            ((colon-at) (error 'format "illegal modifier in ~~["))
                             (else 'num-case)))
                         (set! conditional-arg
                           (if (one-positive-integer? params)
@@ -1199,9 +1199,9 @@
                      (anychar-dispatch))
                     ((#\;)			; Conditional separator
                      (if (zero? conditional-nest)
-                       (slib:error 'format "~~; not in ~~[~~] conditional"))
+                       (error 'format "~~; not in ~~[~~] conditional"))
                      (if (not (null? params))
-                       (slib:error 'format "no parameter allowed in ~~;"))
+                       (error 'format "no parameter allowed in ~~;"))
                      (if (= conditional-nest 1)
                        (let ((clause-str
                                (cond
@@ -1210,7 +1210,7 @@
                                   (string-copy format-string clause-pos
                                                (- format:pos 3)))
                                  ((memq modifier '(at colon-at))
-                                  (slib:error 'format "illegal modifier in ~~;"))
+                                  (error 'format "illegal modifier in ~~;"))
                                  (else
                                    (string-copy format-string clause-pos
                                                 (- format:pos 2))))))
@@ -1218,12 +1218,12 @@
                          (set! clause-pos format:pos)))
                      (anychar-dispatch))
                     ((#\])			; Conditional end
-                     (if (zero? conditional-nest) (slib:error 'format "missing ~~["))
+                     (if (zero? conditional-nest) (error 'format "missing ~~["))
                      (set! conditional-nest (- conditional-nest 1))
                      (if modifier
-                       (slib:error 'format "no modifier allowed in ~~]"))
+                       (error 'format "no modifier allowed in ~~]"))
                      (if (not (null? params))
-                       (slib:error 'format "no parameter allowed in ~~]"))
+                       (error 'format "no parameter allowed in ~~]"))
                      (cond
                        ((zero? conditional-nest)
                         (let ((clause-str (string-copy format-string clause-pos
@@ -1245,7 +1245,7 @@
                           ((num-case)
                            (if (or (not (integer? conditional-arg))
                                    (< conditional-arg 0))
-                             (slib:error 'format "argument not a positive integer"))
+                             (error 'format "argument not a positive integer"))
                            (if (not (and (>= conditional-arg (length clauses))
                                          (not clause-default)))
                              (add-arg-pos
@@ -1270,16 +1270,16 @@
                                                (car params) #f))))
                      (anychar-dispatch))
                     ((#\})			; Iteration end
-                     (if (zero? iteration-nest) (slib:error 'format "missing ~~{"))
+                     (if (zero? iteration-nest) (error 'format "missing ~~{"))
                      (set! iteration-nest (- iteration-nest 1))
                      (case modifier
                        ((colon)
                         (if (not max-iterations) (set! max-iterations 1)))
-                       ((colon-at at) (slib:error 'format "illegal modifier" modifier))
+                       ((colon-at at) (error 'format "illegal modifier" modifier))
                        (else (if (not max-iterations)
                                (set! max-iterations (format:max-iterations)))))
                      (if (not (null? params))
-                       (slib:error 'format "no parameters allowed in ~~}" params))
+                       (error 'format "no parameters allowed in ~~}" params))
                      (if (zero? iteration-nest)
                        (let ((iteration-str
                                (string-copy format-string iteration-pos
@@ -1291,7 +1291,7 @@
                             (let ((args (next-arg))
                                   (args-len 0))
                               (if (not (list? args))
-                                (slib:error 'format "expected a list argument" args))
+                                (error 'format "expected a list argument" args))
                               (set! args-len (length args))
                               (do ((arg-pos 0 (+ arg-pos
                                                  (format:format-work
@@ -1305,7 +1305,7 @@
                             (let ((args (next-arg))
                                   (args-len 0))
                               (if (not (list? args))
-                                (slib:error 'format "expected a list argument" args))
+                                (error 'format "expected a list argument" args))
                               (set! args-len (length args))
                               (do ((arg-pos 0 (+ arg-pos 1)))
                                 ((or (>= arg-pos args-len)
@@ -1313,7 +1313,7 @@
                                           (>= arg-pos max-iterations))))
                                 (let ((sublist (list-ref args arg-pos)))
                                   (if (not (list? sublist))
-                                    (slib:error 'format
+                                    (error 'format
                                                 "expected a list of lists argument" args))
                                   (format:format-work iteration-str sublist)))))
                            ((rest-args)
@@ -1342,10 +1342,10 @@
                                         arg-pos)
                                        (let ((sublist (list-ref args arg-pos)))
                                          (if (not (list? sublist))
-                                           (slib:error 'format "expected list arguments" args))
+                                           (error 'format "expected list arguments" args))
                                          (format:format-work iteration-str sublist)))))
                               (add-arg-pos usedup-args)))
-                           (else (slib:error 'format "internal error in ~~}")))))
+                           (else (error 'format "internal error in ~~}")))))
                      (anychar-dispatch))
                     ((#\^)			; Up and out
                      (let* ((continue
@@ -1358,7 +1358,7 @@
                                      ((3) (<= (list-ref params 0)
                                               (list-ref params 1)
                                               (list-ref params 2)))
-                                     (else (slib:error 'format "too many parameters")))))
+                                     (else (error 'format "too many parameters")))))
                                 (format:case-conversion ; if conversion stop conversion
                                   (set! format:case-conversion string-copy) #t)
                                 ((= iteration-nest 1) #t)
@@ -1373,21 +1373,21 @@
 
                     ((#\@)			; `@' modifier
                      (if (memq modifier '(at colon-at))
-                       (slib:error 'format "double `@' modifier"))
+                       (error 'format "double `@' modifier"))
                      (set! modifier (if (eq? modifier 'colon) 'colon-at 'at))
                      (tilde-dispatch))
                     ((#\:)			; `:' modifier
                      (if (memq modifier '(colon colon-at))
-                       (slib:error 'format "double `:' modifier"))
+                       (error 'format "double `:' modifier"))
                      (set! modifier (if (eq? modifier 'at) 'colon-at 'colon))
                      (tilde-dispatch))
                     ((#\')			; Character parameter
-                     (if modifier (slib:error 'format "misplaced modifier" modifier))
+                     (if modifier (error 'format "misplaced modifier" modifier))
                      (set! params (append params (list (char->integer (next-char)))))
                      (set! param-value-found #t)
                      (tilde-dispatch))
                     ((#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\- #\+) ; num. paramtr
-                     (if modifier (slib:error 'format "misplaced modifier" modifier))
+                     (if modifier (error 'format "misplaced modifier" modifier))
                      (let ((num-str-beg (- format:pos 1))
                            (num-str-end format:pos))
                        (do ((ch (peek-next-char) (peek-next-char)))
@@ -1403,17 +1403,17 @@
                      (set! param-value-found #t)
                      (tilde-dispatch))
                     ((#\V)		 ; Variable parameter from next argum.
-                     (if modifier (slib:error 'format "misplaced modifier" modifier))
+                     (if modifier (error 'format "misplaced modifier" modifier))
                      (set! params (append params (list (next-arg))))
                      (set! param-value-found #t)
                      (tilde-dispatch))
                     ((#\#)	       ; Parameter is number of remaining args
-                     (if modifier (slib:error 'format "misplaced modifier" modifier))
+                     (if modifier (error 'format "misplaced modifier" modifier))
                      (set! params (append params (list (length (rest-args)))))
                      (set! param-value-found #t)
                      (tilde-dispatch))
                     ((#\,)			; Parameter separators
-                     (if modifier (slib:error 'format "misplaced modifier" modifier))
+                     (if modifier (error 'format "misplaced modifier" modifier))
                      (if (not param-value-found)
                        (set! params (append params '(#f)))) ; append empty paramtr
                      (set! param-value-found #f)
@@ -1430,7 +1430,7 @@
                              nl))))
                      (anychar-dispatch))
                     (else			; Unknown tilde directive
-                      (slib:error 'format "unknown control character"
+                      (error 'format "unknown control character"
                                   (string-ref format-string (- format:pos 1))))))
                  (else (anychar-dispatch)))))) ; in case of conditional
 
@@ -1446,12 +1446,12 @@
               (arg-len (length args)))
           (cond ((< arg-pos arg-len)
                  (set! format:pos (string-length fmt))
-                 (slib:error 'format (- arg-len arg-pos) "superfluous arguments"))
+                 (error 'format (- arg-len arg-pos) "superfluous arguments"))
                 ((> arg-pos arg-len)
-                 (slib:error 'format (- arg-pos arg-len) "missing arguments")))))
+                 (error 'format (- arg-pos arg-len) "missing arguments")))))
 
       ;;(set! format:pos 0)
-      (if (< (length args) 1) (slib:error 'format "not enough arguments"))
+      (if (< (length args) 1) (error 'format "not enough arguments"))
 
       ;; If the first argument is a string, then that's the format string.
       ;; (Scheme->C)
@@ -1467,7 +1467,7 @@
              (let ((port (cond ((boolean? destination) (current-output-port))
                                ((output-port? destination) destination)
                                ((number? destination) (current-error-port))
-                               (else (slib:error "unknown destination type")))))
+                               (else (error "unknown destination type")))))
                (set! format:port port)    ; global port for output routines
                (set! format:output-col (format:get-port-column port))
                (format:out (car arglist) (cdr arglist))
@@ -1481,7 +1481,7 @@
                  (set! format:port port)
                  (format:out (car arglist) (cdr arglist)))))
             (else
-              (slib:error 'format "illegal destination" destination))))))
+              (error 'format "illegal destination" destination))))))
 
     ;; format:obj->str returns a R4RS representation as a string of an
     ;; arbitrary scheme object.
@@ -1589,7 +1589,7 @@
           (if par
             (if name
               (if (< par 0)
-                (slib:error name "parameter must be a positive integer")
+                (error name "parameter must be a positive integer")
                 par)
               par)
             default))

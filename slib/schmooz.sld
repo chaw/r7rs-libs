@@ -28,12 +28,10 @@
           (scheme file)
           (scheme read)
           (scheme write)
-          (slib common)
           (slib directory)
           (slib filename)
           (slib string-search)
-          (only (srfi 1) any)
-          (srfi 59))
+          (only (srfi 1) any))
   
   (begin
 
@@ -104,7 +102,7 @@
           (let loop ((iend istrt))
             (cond ((>= iend (string-length line))
                    (if close
-                     (slib:error close "not found in" line)
+                     (error close "not found in" line)
                      (cons iend
                            (reverse
                              (if (> iend istrt)
@@ -244,7 +242,7 @@
            (else '())))
         ((DEFMACRO) (cons (cadr sexp) (caddr sexp)))
         ((DEFVAR DEFCONST) #f)
-        (else (slib:error 'schmooz "doesn't look like definition" sexp))))
+        (else (error 'schmooz "doesn't look like definition" sexp))))
 
     ;; Generate alist of argument macro definitions.
     ;; If ARGS is a symbol or string, then the definitions will be used in a
@@ -304,7 +302,7 @@
                           "@dots{}"
                           (car args)))
                    (loop (cdr args)))
-                  (else (slib:error 'schmooz-fun args))))))
+                  (else (error 'schmooz-fun args))))))
       (let* ((mac-list (scheme-args->macros args))
              (ops (case defop
                     ((DEFINE-SYNTAX) '("defspec" "defspecx" "defspec"))
@@ -380,14 +378,13 @@
         (read-char port)))
 
     (define (pathname->local-filename path)
-      (define vic (pathname->vicinity path))
+      (define dir (pathname->dirname path))
       (define plen (string-length path))
-      (let ((vlen (string-length vic)))
-        (if (and (substring? vic path)
+      (let ((vlen (string-length dir)))
+        (if (and (substring? dir path)
                  (< vlen plen))
-          ; (in-vicinity (user-vicinity) (string-copy path vlen plen))
-          (in-vicinity (current-directory) (string-copy path vlen plen))
-          (slib:error 'pathname->local-filename path))))
+          (apply string-append (current-directory) (string-copy path vlen plen))
+          (error 'pathname->local-filename path))))
 
     ;;;@ SCHMOOZ files.
     (define schmooz

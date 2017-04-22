@@ -12,8 +12,7 @@
           dynamic-ref
           dynamic-set!
           call-with-dynamic-binding)
-  (import (scheme base)
-          (slib common))
+  (import (scheme base))
 
   (begin
 
@@ -48,7 +47,7 @@
       (guarantee-dynamic dynamic)
       (let loop ((env *current-dynamic-environment*))
         (cond ((not env)
-               (slib:error dynamic:errmsg dynamic))
+               (error dynamic:errmsg dynamic))
               ((eq? (dynamic-environment:dynamic env) dynamic)
                (dynamic-environment:value env))
               (else
@@ -58,7 +57,7 @@
       (guarantee-dynamic dynamic)
       (let loop ((env *current-dynamic-environment*))
         (cond ((not env)
-               (slib:error dynamic:errmsg dynamic))
+               (error dynamic:errmsg dynamic))
               ((eq? (dynamic-environment:dynamic env) dynamic)
                (dynamic-environment:set-value! env obj))
               (else
@@ -79,7 +78,7 @@
 
     (define (guarantee-dynamic dynamic)
       (or (dynamic? dynamic)
-          (slib:error "Not a dynamic" dynamic)))
+          (error "Not a dynamic" dynamic)))
 
     (define dynamic:errmsg
       "No value defined for this dynamic in the current dynamic environment")

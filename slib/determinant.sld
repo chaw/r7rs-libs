@@ -30,7 +30,6 @@
           matrix:product
           matrix:inverse)
   (import (except (scheme base) equal?)
-          (slib common)
           (srfi 63))
 
   (begin
@@ -70,23 +69,23 @@
     (define (matrix->lists matrix)
       (cond ((array? matrix)
              (if (not (eqv? 2 (array-rank matrix)))
-               (slib:error 'not 'matrix matrix))
+               (error 'not 'matrix matrix))
              (matrix2lists matrix))
             ((and (pair? matrix) (list? (car matrix))) matrix)
             ((vector? matrix) (list (vector->list matrix)))
-            (else (slib:error 'not 'matrix matrix))))
+            (else (error 'not 'matrix matrix))))
 
     ;;@body
     ;;Returns the array form of @1.
     (define (matrix->array matrix)
       (cond ((array? matrix)
              (if (not (eqv? 2 (array-rank matrix)))
-               (slib:error 'not 'matrix matrix))
+               (error 'not 'matrix matrix))
              matrix)
             ((and (pair? matrix) (list? (car matrix)))
              (matrix2array matrix '#()))
             ((vector? matrix) matrix)
-            (else (slib:error 'not 'matrix matrix))))
+            (else (error 'not 'matrix matrix))))
 
     (define (matrix:cofactor matrix i j)
       (define mat (matrix->lists matrix))
