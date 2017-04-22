@@ -11,9 +11,12 @@ else if [ "$1" = "chibi" ]; then
   PROG="chibi-scheme -I srfis/chibi/ "
 else if [ "$1" = "sagittarius" ]; then
   PROG="sagittarius -r7 -L . -L srfis/sagittarius "
+else if [ "$1" = "gauche" ]; then
+  PROG="gosh -r7 -I . -I srfis/gauche/ "
 else
   echo "Unknown implementation"
   exit
+fi
 fi
 fi
 fi

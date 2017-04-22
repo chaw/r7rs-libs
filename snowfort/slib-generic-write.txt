@@ -1,0 +1,9 @@
+= Documentation for Generic Write
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Generic_002dWrite.html#Generic_002dWrite[]
+
+To use: +(import (slib generic-write))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

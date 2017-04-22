@@ -33,9 +33,12 @@ interested in using the libraries (but are a good source of examples to learn fr
 
 In most cases, installation is straightforward:
 
-Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
-button on the github repository.  If the directory containing the files is SCHEME_LIBS,
-you must call your implementation with SCHEME_LIBS in its library path.  e.g.
+Some of the libraries are available from http://snow-fort.org/pkg[]
+
+Alternatively, download the entire collection as a zip file and unpack, or
+clone the repository, using the 'Clone or Download' button on the github
+repository.  If the directory containing the files is SCHEME_LIBS, you must
+call your implementation with SCHEME_LIBS in its library path.  e.g.
 
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps

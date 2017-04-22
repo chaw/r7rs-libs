@@ -275,7 +275,7 @@ moved, as required, into `(slib common)`.
 Some of the libraries require the following SRFIs (in place of related SLIB files):
 
 * srfi 1   Lists
-* srfi 13  Strings
+* srfi 13  Strings (For Chibi, alternatives are chosen from (chibi string) or implemented.)
 * srfi 27  Random Bits
 * srfi 60  Integers as Bits
 * srfi 63  Arrays

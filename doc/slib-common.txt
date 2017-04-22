@@ -1,0 +1,90 @@
+== SLIB Common: +(import (slib common))+
+
+This library contains some core functions required throughout the SLIB
+collection.  Apart from +(slib:version)+ users of SLIB probably do not need to
+call these functions.
+
+
+=== add-base-table-implementation
+
+Internal support for database library: adds a supported base implementation
+to the list of such implementations.
+
+=== base-table-implementations
+
+Internal support for database library: contains a list of supported base 
+implementations.
+
+=== call-with-open-ports
+
+http://people.csail.mit.edu/jaffer/slib/Input_002fOutput.html#index-call_002dwith_002dopen_002dports-89[]
+
+=== char-code-limit
+
+A constant 256: One greater than the largest integer which can be returned by
++char->integer+
+
+=== gentemp
+
+Returns a new symbol.
+
+=== identity
+
+A single-parameter identity function.
+
+=== make-exchanger
+
+Provides mutually exclusive access to its resource: when called, it returns its
+current content replacing it with its argument.
+
+http://people.csail.mit.edu/jaffer/slib/Miscellany.html#index-make_002dexchanger-114[]
+
+=== most-positive-fixnum
+
+Constant +#xFFFFFFFF+
+
+=== open-file
+
+A general method to open a port to read or write.
+
+=== output-port-height
+
+A constant 24: default display height (used e.g. in char-plot)
+
+=== output-port-width
+
+A constant 79: default display width (used e.g. in char-plot)
+
+=== provided?
+
+Checks if features, such as big integers, are supported by the current 
+implementation.
+
+=== slib:version
+
+Returns the current version SLIB.
+
+=== slib:warn
+
+Displays a warning to the +current-error-port+ before proceeding.
+
+=== software-type
+
+Returns a symbol indicating the generic operating system type: 
+the choice of possible return types has been reduced for R7RS to 
+'windows, 'posix or 'unix.
+
+=== system
+
+Calls the operating system.
+
+=== tmpnam
+
+A unique string name, used for temporary files.
+
+=== with-load-pathname
+
+Takes a +path+ and a +thunk+, evaluates +thunk+ with an internal variable 
+bound to the path.
+
+http://people.csail.mit.edu/jaffer/slib/Vicinity.html#index-with_002dload_002dpathname-74[]

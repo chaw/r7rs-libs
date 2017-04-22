@@ -161,7 +161,7 @@ range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 === perlin-noise
 
 indexterm:[Perlin Noise]
-indexterm2:[+perlin-noise+] is a function returning a random value computed using a gradient function.
+indexterm2:[+perlin-noise+] is a function returning a value computed using a gradient function.
 Perlin Noise was invented by http://en.wikipedia.org/wiki/Ken_Perlin[Ken Perlin] and has been widely
 applied in computer graphics.  The implementation here is a conversion of the 
 http://mrl.nyu.edu/~perlin/noise/[Java reference implementation].

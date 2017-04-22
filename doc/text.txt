@@ -1,7 +1,8 @@
 == Text: +(import (robin text))+
 
-indexterm:[text] The text library contains a collection of functions for working with strings or 
-text documents.
+indexterm:[text] The text library contains a collection of functions for
+working with strings or text documents, including similarity measures, a
+stemmer and layout.
 
 === daitch-mokotoff-soundex
 
