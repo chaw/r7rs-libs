@@ -402,7 +402,7 @@ object to a new value within the given procedure.
 <2> Returns +#t+ as +x+ is a dynamic object
 <3> Retrieves the value of the given dynamic object, and checks it is correct
 <4> Changes the value of the given dynamic object
-<5> Within the +lambda+ +x+ is not bound to +'d+
+<5> Within the +lambda+ +x+ is now bound to +'d+
 <6> and +x+ reverts to holding +'c+ after the call
 
 === Factor: +(import (slib factor))+
