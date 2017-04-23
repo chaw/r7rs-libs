@@ -14,203 +14,186 @@
 
 ;; -------------------------------------------------------------------
 
-;; Documentation:
-;;
-;; set? : any -> boolean
-;; returns #t if the object is a set, #f otherwise
-;;
-;; make-set : (any any -> boolean) -> set
-;; returns a new empty set ordered by the < procedure
-;;
-;; set-member? : set any -> boolean
-;; returns true if element is in the set
-;;
-;; set-insert : set any -> set
-;; returns a new set created by inserting element into the set argument
-;;
-;; set-remove : set element -> set
-;; returns a new set created by removing element from the set
-;;
-;; set-size : set -> non-negative integer
-;; returns the number of elements in the set
-;;
-;; set<? : set set -> boolean
-;; returns #t if set1 is a proper subset of set2, #f otherwise. That
-;; is, if all elements of set1 are in set2, and there is at least one
-;; element of set2 not in set1.
-;;
-;; set<=? : set set -> boolean
-;; returns #t if set1 is a subset of set2, #f otherwise, i.e. if all
-;; elements of set1 are in set2.
-;;
-;; set=? : set set -> boolean
-;; returns #t if every element of set1 is in set2, and vice versa, #f
-;; otherwise.
-;;
-;; set>=? : set set -> boolean
-;; returns #t if set2 is a subset of set1, #f otherwise.
-;;
-;; set>? : set set -> boolean
-;; returns #t if set2 is a proper subset of set1, #f otherwise.
-;;
-;; subset? : set set -> boolean
-;; same as set<=?
-;;
-;; proper-subset? : set set -> boolean
-;; same as set<?
-;;
-;; set-map : (any -> any) set -> set
-;; returns the new set created by applying proc to each element of the set
-;;
-;; set-fold : (any any -> any) any set -> any
-;; returns the value obtained by iterating the procedure over each
-;; element of the set and an accumulator value. The value of the
-;; accumulator is initially base, and the return value of proc is used
-;; as the accumulator for the next iteration.
-;;
-;; list->set : Listof(any) (any any -> any) -> set
-;; returns the set containing all the elements of the list, ordered by <.
-;;
-;; set->list : set -> Listof(any)
-;; returns all the elements of the set as a list
-;;
-;; set-union : set set -> set
-;; returns the union of set1 and set2, i.e. contains all elements of
-;; set1 and set2.
-;;
-;; set-intersection : set set -> set
-;; returns the intersection of set1 and set2, i.e. the set of all
-;; items that are in both set1 and set2.
-;;
-;; set-difference : set set -> set
-;; returns the difference of set1 and set2, i.e. the set of all items
-;; in set1 that are not in set2.
-;;
-;; set-ordering-procedure : set -> (any any -> boolean)
-;; returns the ordering procedure used internall by the set.
 (define-library 
   (pfds set)
-(export set?
-        make-set
-        set-member?
-        set-insert
-        set-remove
-        set-size
-        set<?
-        set<=?
-        set=?
-        set>=?
-        set>?
-        subset?
-        proper-subset?
-        set-map
-        set-fold
-        list->set
-        set->list
-        set-union
-        set-intersection
-        set-difference
-        set-ordering-procedure
-        )
-(import (scheme base)
-        (pfds bounded-balance-tree)
-        (only (pfds list-helpers) fold-left))
+  (export set?
+          make-set
+          set-member?
+          set-insert
+          set-remove
+          set-size
+          set<?
+          set<=?
+          set=?
+          set>=?
+          set>?
+          subset?
+          proper-subset?
+          set-map
+          set-fold
+          list->set
+          set->list
+          set-union
+          set-intersection
+          set-difference
+          set-ordering-procedure
+          )
+  (import (scheme base)
+          (pfds bounded-balance-tree)
+          (only (pfds list-helpers) fold-left))
 
-(begin
+  (begin
 
-  (define dummy #f)
+    (define dummy #f)
 
-  ;;; basic sets
-  (define-record-type <set>
-                      (%make-set tree)
-                      set?
-                      (tree set-tree ))
+    ;;; basic sets
 
-  (define (set-ordering-procedure set)
-    (bbtree-ordering-procedure (set-tree set)))
+    ;;> set? : any -> boolean
+    ;;> returns #t if the object is a set, #f otherwise
+    (define-record-type <set>
+                        (%make-set tree)
+                        set?
+                        (tree set-tree ))
 
-  (define (make-set <)
-    (%make-set (make-bbtree <)))
+    ;;> set-ordering-procedure : set -> (any any -> boolean)
+    ;;> returns the ordering procedure used internally by the set.
+    (define (set-ordering-procedure set)
+      (bbtree-ordering-procedure (set-tree set)))
 
-  ;; provide a (make-equal-set) function?
+    ;;> make-set : (any any -> boolean) -> set
+    ;;> returns a new empty set ordered by the < procedure
+    (define (make-set <)
+      (%make-set (make-bbtree <)))
 
-  (define (set-member? set element)
-    (bbtree-contains? (set-tree set) element))
+    ;; provide a (make-equal-set) function?
 
-  (define (set-insert set element)
-    (%make-set (bbtree-set (set-tree set) element dummy)))
+    ;;> set-member? : set any -> boolean
+    ;;> returns true if element is in the set
+    (define (set-member? set element)
+      (bbtree-contains? (set-tree set) element))
 
-  (define (set-remove set element)
-    (%make-set (bbtree-delete (set-tree set) element)))
+    ;;> set-insert : set any -> set
+    ;;> returns a new set created by inserting element into the set argument
+    (define (set-insert set element)
+      (%make-set (bbtree-set (set-tree set) element dummy)))
 
-  (define (set-size set)
-    (bbtree-size (set-tree set)))
+    ;;> set-remove : set element -> set
+    ;;> returns a new set created by removing element from the set
+    (define (set-remove set element)
+      (%make-set (bbtree-delete (set-tree set) element)))
 
-  ;;; set equality
-  (define (set<=? set1 set2)
-    (let ((t (set-tree set2)))
-      (bbtree-traverse (lambda (k _ l r b)
-                         (and (bbtree-contains? t k)
-                              (l #t)
-                              (r #t)))
-                       #t
-                       (set-tree set1))))
+    ;;> set-size : set -> non-negative integer
+    ;;> returns the number of elements in the set
+    (define (set-size set)
+      (bbtree-size (set-tree set)))
 
-  (define (set<? set1 set2)
-    (and (< (set-size set1)
-            (set-size set2))
-         (set<=? set1 set2)))
+    ;;; set equality
 
-  (define (set>=? set1 set2)
-    (set<=? set2 set1))
+    ;;> set<=? : set set -> boolean
+    ;;> returns #t if set1 is a subset of set2, #f otherwise, i.e. if all
+    ;;> elements of set1 are in set2.
+    (define (set<=? set1 set2)
+      (let ((t (set-tree set2)))
+        (bbtree-traverse (lambda (k _ l r b)
+                           (and (bbtree-contains? t k)
+                                (l #t)
+                                (r #t)))
+                         #t
+                         (set-tree set1))))
 
-  (define (set>? set1 set2)
-    (set<? set2 set1))
+    ;;> set<? : set set -> boolean
+    ;;> returns #t if set1 is a proper subset of set2, #f otherwise. That
+    ;;> is, if all elements of set1 are in set2, and there is at least one
+    ;;> element of set2 not in set1.
+    (define (set<? set1 set2)
+      (and (< (set-size set1)
+              (set-size set2))
+           (set<=? set1 set2)))
 
-  (define (set=? set1 set2)
-    (and (set<=? set1 set2)
-         (set>=? set1 set2)))
+    ;;> set>=? : set set -> boolean
+    ;;> returns #t if set2 is a subset of set1, #f otherwise.
+    (define (set>=? set1 set2)
+      (set<=? set2 set1))
 
-  (define subset? set<=?)
+    ;;> set>? : set set -> boolean
+    ;;> returns #t if set2 is a proper subset of set1, #f otherwise.
+    (define (set>? set1 set2)
+      (set<? set2 set1))
 
-  (define proper-subset? set<?)
+    ;;> set=? : set set -> boolean
+    ;;> returns #t if every element of set1 is in set2, and vice versa, #f
+    ;;> otherwise.
+    (define (set=? set1 set2)
+      (and (set<=? set1 set2)
+           (set>=? set1 set2)))
 
-  ;;; iterators
-  (define (set-map proc set)
-    ;; currently restricted to returning a set with the same ordering, I
-    ;; could weaken this to, say, comparing with < on the object-hash,
-    ;; or I make it take a < argument for the result set.
-    (let ((tree (set-tree set)))
-      (%make-set
-        (bbtree-fold (lambda (key _ tree)
-                       (bbtree-set tree (proc key) dummy))
-                     (make-bbtree (bbtree-ordering-procedure tree))
-                     tree))))
+    ;;> subset? : set set -> boolean
+    ;;> same as set<=?
+    (define subset? set<=?)
 
-  (define (set-fold proc base set)
-    (bbtree-fold (lambda (key value base)
-                   (proc key base))
-                 base
-                 (set-tree set)))
+    ;;> proper-subset? : set set -> boolean
+    ;;> same as set<?
+    (define proper-subset? set<?)
 
-  ;;; conversion
-  (define (list->set list <)
-    (fold-left set-insert 
-               (make-set <)
-               list))
+    ;;; iterators
 
-  (define (set->list set)
-    (set-fold cons '() set))
+    ;;> set-map : (any -> any) set -> set
+    ;;> returns the new set created by applying proc to each element of the set
+    (define (set-map proc set)
+      ;; currently restricted to returning a set with the same ordering, I
+      ;; could weaken this to, say, comparing with < on the object-hash,
+      ;; or I make it take a < argument for the result set.
+      (let ((tree (set-tree set)))
+        (%make-set
+          (bbtree-fold (lambda (key _ tree)
+                         (bbtree-set tree (proc key) dummy))
+                       (make-bbtree (bbtree-ordering-procedure tree))
+                       tree))))
 
-  ;;; set operations
-  (define (set-union set1 set2)
-    (%make-set (bbtree-union (set-tree set1) (set-tree set2))))
+    ;;> set-fold : (any any -> any) any set -> any
+    ;;> returns the value obtained by iterating the procedure over each
+    ;;> element of the set and an accumulator value. The value of the
+    ;;> accumulator is initially base, and the return value of proc is used
+    ;;> as the accumulator for the next iteration.
+    (define (set-fold proc base set)
+      (bbtree-fold (lambda (key value base)
+                     (proc key base))
+                   base
+                   (set-tree set)))
 
-  (define (set-intersection set1 set2)
-    (%make-set (bbtree-intersection (set-tree set1) (set-tree set2))))
+    ;;; conversion
 
-  (define (set-difference set1 set2)
-    (%make-set (bbtree-difference (set-tree set1) (set-tree set2))))
+    ;;> list->set : Listof(any) (any any -> any) -> set
+    ;;> returns the set containing all the elements of the list, ordered by <.
+    (define (list->set list <)
+      (fold-left set-insert 
+                 (make-set <)
+                 list))
 
-  ))
+    ;;> set->list : set -> Listof(any)
+    ;;> returns all the elements of the set as a list
+    (define (set->list set)
+      (set-fold cons '() set))
+
+    ;;; set operations
+
+    ;;> set-union : set set -> set
+    ;;> returns the union of set1 and set2, i.e. contains all elements of
+    ;;> set1 and set2.
+    (define (set-union set1 set2)
+      (%make-set (bbtree-union (set-tree set1) (set-tree set2))))
+
+    ;;> set-intersection : set set -> set
+    ;;> returns the intersection of set1 and set2, i.e. the set of all
+    ;;> items that are in both set1 and set2.
+    (define (set-intersection set1 set2)
+      (%make-set (bbtree-intersection (set-tree set1) (set-tree set2))))
+
+    ;;> set-difference : set set -> set
+    ;;> returns the difference of set1 and set2, i.e. the set of all items
+    ;;> in set1 that are not in set2.
+    (define (set-difference set1 set2)
+      (%make-set (bbtree-difference (set-tree set1) (set-tree set2))))
+
+    ))
 

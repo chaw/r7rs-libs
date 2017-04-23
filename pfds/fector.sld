@@ -11,44 +11,8 @@
 ;; program. If not, see <http://www.debian.org/misc/bsd.license>.
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
+;; -- documentation in Scribble format
 
-;;; Documentation
-;;
-;; make-fector :: Int [ Object ] -> Fector
-;; Returns a fector of a specified size. If the fill parameter is
-;; given, the locations of the fector are initialised to that object,
-;; otherwise their initial values are unspecified.
-;;
-;; fector :: [Object ...] -> Fector
-;; Returns a fector whose initial values are given as arguments.
-;;
-;; fector? :: Object -> Boolean
-;; Returns #t if a given object is a fector, #f otherwise.
-;;
-;; fector-length :: Fector -> Int
-;; Returns the number of elements that are stored in the fector.
-;;
-;; build-fector :: Int (Int -> Object) -> Fector
-;; returns a new fector of a given length, where each element is
-;; initialised to the value of the given function applied to its index.
-;;
-;; fector-ref :: Fector Int -> Object
-;; Returns the value associated with a given index into the fector. If
-;; the index is outwith the range 0 <= index < length, then an
-;; &assertion is raised.
-;;
-;; fector-set :: Fector Int Object -> Fector
-;; Returns a new fector equivalent to the previous one except the
-;; given index is now associated with a given object. If the index is
-;; outwith the range 0 <= index < length, then an &assertion is
-;; raised.
-;;
-;; list->fector ;; Listof(Object) -> Fector
-;; Returns a fector initialised with the contents of the given list.
-;;
-;; fector->list :: Fector -> Listof(Object)
-;; Returns a list containing the objects in a given fector.
-;;
 (define-library 
   (pfds fector)
   (export make-fector
@@ -83,6 +47,9 @@
                         fector?
                         (value fector-value fector-value-set!))
 
+    ;;> fector? :: Object -> Boolean
+    ;;> Returns #t if a given object is a fector, #f otherwise.
+
     (define-record-type <diff>
                         (make-diff index value parent)
                         diff?
@@ -90,22 +57,36 @@
                         (value diff-value)
                         (parent diff-parent))
 
+    ;;> make-fector :: Int [ Object ] -> Fector
+    ;;> Returns a fector of a specified size. If the fill parameter is
+    ;;> given, the locations of the fector are initialised to that object,
+    ;;> otherwise their initial values are unspecified.
     (define make-fector
       (case-lambda
         ((n) (%make-fector (make-vector n)))
         ((n fill) (%make-fector (make-vector n fill)))))
 
+    ;;> fector :: [Object ...] -> Fector
+    ;;> Returns a fector whose initial values are given as arguments.
     (define (fector . values)
       (%make-fector (apply vector values)))
 
+    ;;> build-fector :: Int (Int -> Object) -> Fector
+    ;;> returns a new fector of a given length, where each element is
+    ;;> initialised to the value of the given function applied to its index.
     (define (build-fector n f)
       (%make-fector (build-vector n f)))
 
-
+    ;;> fector-length :: Fector -> Int
+    ;;> Returns the number of elements that are stored in the fector.
     (define (fector-length fector)
       (reroot! fector)
       (vector-length (fector-value fector)))
 
+    ;;> fector-ref :: Fector Int -> Object
+    ;;> Returns the value associated with a given index into the fector. If
+    ;;> the index is outwith the range 0 <= index < length, then an
+    ;;> &assertion is raised.
     (define (fector-ref fector index)
       (reroot! fector)
       (let ((vector (fector-value fector)))
@@ -114,6 +95,11 @@
           (error "Invalid value of index in fector-ref"))
         (vector-ref vector index)))
 
+    ;;> fector-set :: Fector Int Object -> Fector
+    ;;> Returns a new fector equivalent to the previous one except the
+    ;;> given index is now associated with a given object. If the index is
+    ;;> outwith the range 0 <= index < length, then an &assertion is
+    ;;> raised.
     (define (fector-set fector index object)
       (reroot! fector)
       (let ((v (fector-value fector)))
@@ -141,9 +127,13 @@
           fector)
         fector))
 
+    ;;> list->fector ;; Listof(Object) -> Fector
+    ;;> Returns a fector initialised with the contents of the given list.
     (define (list->fector l)
       (%make-fector (list->vector l)))
 
+    ;;> fector->list :: Fector -> Listof(Object)
+    ;;> Returns a list containing the objects in a given fector.
     (define (fector->list fector)
       (reroot! fector)
       (vector->list (fector-value fector)))

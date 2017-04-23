@@ -34,39 +34,39 @@
 (define-library
   (slib xml-parse)
   (export 
-          attlist-add
-          attlist-remove-top
-          ssax:assert-current-char
-          ssax:assert-token
-          ssax:complete-start-tag
-          ssax:handle-parsed-entity
-          ssax:init-buffer
-          ssax:make-elem-parser
-          ssax:make-parser
-          ssax:make-pi-parser
-          ssax:next-token
-          ssax:next-token-of
-          ssax:Prefix-XML
-          ssax:read-NCName
-          ssax:read-QName
-          ssax:read-attributes
-          ssax:read-cdata-body
-          ssax:read-char-data
-          ssax:read-char-ref
-          ssax:read-external-id
-          ssax:read-markup-token
-          ssax:read-pi-body-as-string
-          ssax:read-string
-          ssax:resolve-name
-          ssax:reverse-collect-str-drop-ws
-          ssax:scan-misc
-          ssax:skip-S
-          ssax:skip-internal-dtd
-          ssax:skip-pi
-          ssax:skip-while
-          ssax:xml->sxml
+    attlist-add
+    attlist-remove-top
+    ssax:assert-current-char
+    ssax:assert-token
+    ssax:complete-start-tag
+    ssax:handle-parsed-entity
+    ssax:init-buffer
+    ssax:make-elem-parser
+    ssax:make-parser
+    ssax:make-pi-parser
+    ssax:next-token
+    ssax:next-token-of
+    ssax:Prefix-XML
+    ssax:read-NCName
+    ssax:read-QName
+    ssax:read-attributes
+    ssax:read-cdata-body
+    ssax:read-char-data
+    ssax:read-char-ref
+    ssax:read-external-id
+    ssax:read-markup-token
+    ssax:read-pi-body-as-string
+    ssax:read-string
+    ssax:resolve-name
+    ssax:reverse-collect-str-drop-ws
+    ssax:scan-misc
+    ssax:skip-S
+    ssax:skip-internal-dtd
+    ssax:skip-pi
+    ssax:skip-while
+    ssax:xml->sxml
     ssax:reverse-collect-str
-          )
+    )
   (import (scheme base)
           (scheme char)
           (scheme cxr)  
@@ -227,10 +227,10 @@
       (let ((c (read-char port)))
         (if (memv c expected-chars) c
           (error port "Wrong character " c
-                      " (0x" (if (eof-object? c)
-                               "*eof*"
-                               (number->string (char->integer c) 16)) ") "
-                      comment ". " expected-chars " expected"))))
+                 " (0x" (if (eof-object? c)
+                          "*eof*"
+                          (number->string (char->integer c) 16)) ") "
+                 comment ". " expected-chars " expected"))))
 
     ;;@args char-list port
     ;;
@@ -829,7 +829,7 @@
       (slib:warn port "Internal DTD subset is not currently handled ")
       (if (not (find-string-from-port? "]>" port))
         (error port
-                    "Failed to find ]> terminating the internal DTD subset")))
+               "Failed to find ]> terminating the internal DTD subset")))
 
     ;;@args port str-handler seed
     ;;
@@ -1260,7 +1260,7 @@
                         ((pair? content-type)
                          (or (member (cdr attr) content-type)
                              (error port "[enum] broken for " attr-name "="
-                                         (cdr attr))))
+                                    (cdr attr))))
                         (else
                           (slib:warn port "declared content type " content-type
                                      " not verified yet")))
@@ -1343,7 +1343,7 @@
                                  (cons (ssax:resolve-name port (car name-value) namespaces #f)
                                        (cdr name-value)))
                     (error port "[uniqattspec] after NS expansion broken for "
-                                name-value)))
+                           name-value)))
                 (make-empty-attlist)
                 proper-attrs)
               namespaces
@@ -1395,7 +1395,7 @@
                systemid))
             (else
               (error port "XML [75], " discriminator
-                          " rather than SYSTEM or PUBLIC"))))))
+                     " rather than SYSTEM or PUBLIC"))))))
 
 
     ;;@subsection Mid-Level Parsers and Scanners
@@ -1432,8 +1432,8 @@
                 ((PI DECL START) token)
                 (else
                   (error port "XML [22], unexpected token of kind "
-                              (xml-token-kind token)
-                              ))))))))
+                         (xml-token-kind token)
+                         ))))))))
 
     ;;@args port expect-eof? str-handler iseed
     ;;
@@ -1684,8 +1684,8 @@
                                   start-tag-head
                                   (lambda (token exp-kind exp-head)
                                     (error port "[elementvalid] broken for " token
-                                                " while expecting "
-                                                exp-kind exp-head)))
+                                           " while expecting "
+                                           exp-kind exp-head)))
                (my-finish-element
                  elem-gi attributes namespaces parent-seed seed))
               (else				; reading the content...
@@ -1707,8 +1707,8 @@
                            (ssax:assert-token term-token 'END  start-tag-head
                                               (lambda (token exp-kind exp-head)
                                                 (error port "[GIMatch] broken for "
-                                                            term-token " while expecting "
-                                                            exp-kind exp-head)))
+                                                       term-token " while expecting "
+                                                       exp-kind exp-head)))
                            (my-finish-element
                              elem-gi attributes namespaces parent-seed seed))
                           ((PI)
@@ -1729,9 +1729,9 @@
                           ((START)		; Start of a child element
                            (if (eq? expected-content 'PCDATA)
                              (error port "[elementvalid] broken for "
-                                         elem-gi
-                                         " with char content only; unexpected token "
-                                         term-token))
+                                    elem-gi
+                                    " with char content only; unexpected token "
+                                    term-token))
                            ;; Do other validation of the element content
                            (let ((seed
                                    (handle-start-tag
@@ -1741,7 +1741,7 @@
                              (loop port entities expect-eof? seed)))
                           (else
                             (error port "XML [43] broken for "
-                                        term-token))))))))
+                                   term-token))))))))
               )))
         ))
 
@@ -1764,7 +1764,7 @@
         (define (handle-decl port token-head seed)
           (or (eq? (string->symbol "DOCTYPE") token-head)
               (error port "XML [22], expected DOCTYPE declaration, found "
-                          token-head))
+                     token-head))
           (ssax:assert-current-char ssax:S-chars "XML [28], space after DOCTYPE" port)
           (ssax:skip-S port)
           (let*-values
@@ -1803,7 +1803,7 @@
                    (element-parser (xml-token-head token) port elems
                                    entities namespaces #f seed)))
                 (else (error port "XML [22], unexpected markup "
-                                  token))))))
+                             token))))))
         ;; Scan PIs after the doctype declaration, till we encounter
         ;; the start tag of the root element.  After that we exit
         ;; to the element parser
@@ -1822,7 +1822,7 @@
                                  entities namespaces #f
                                  (*handler-DECL-ROOT (xml-token-head token) seed)))
                 (else (error port "XML [22], unexpected markup "
-                                  token))))))
+                             token))))))
         ;; A procedure start-tag-head port elems entities namespaces
         ;;		 preserve-ws? seed
         (define element-parser
@@ -1959,7 +1959,7 @@
           (define count 0)
           (if (odd? (length proplist))
             (error 'ssax:make-parser "takes even number of arguments"
-                        proplist))
+                   proplist))
           (let ((posititional-args
                   (map (lambda (spec)
                          (define ptail (member (car spec) proplist))

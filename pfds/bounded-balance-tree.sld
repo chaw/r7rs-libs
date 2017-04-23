@@ -16,119 +16,9 @@
 
 ;; Documentation:
 ;;
-;; Note: For all procedures which take a key as an argument, the key
-;; must be comparable with the ordering procedure of the bbtree.
-;;
-;; make-bbtree : (any -> any -> boolean) -> bbtree
-;; returns an empty bbtree. bbtrees derived from this one will use the
-;; procedure argument for ordering keys.
-;;
-;; bbtree? : any -> bool
-;; returns #t if the argument is a bbtree, #f otherwise
-;;
-;; bbtree-size : bbtree -> non-negative integer
-;; returns the number of elements in a bbtree
-;;
-;; bbtree-ref : bbtree any [any] -> any
-;; returns the value associated with the key in the bbtree.  If the
-;; value is not in the tree, then, if the optional third argument is
-;; passed, it is returned, otherwise an error is raised.
-;;
-;; bbtree-set : bbtree any any -> bbtree
-;; returns a new bbtree with the key associated with the value. If the
-;; key is already in the bbtree, its associated value is replaced with
-;; the new value in the returned bbtree.
-;;
-;; bbtree-update : bbtree any (any -> any) any -> bbtree
-;; returns a new bbtree with the value associated with the key updated
-;; according to the update procedure. If the key was not already in
-;; the bbtree, the update procedure is called on the default value,
-;; and the association is added to the bbtree.
-;;
-;; bbtree-delete : bbtree any -> bbtree
-;; returns a new bbtree with the key and its associated value
-;; removed. If the key is not in the bbtree, the returned bbtree is a
-;; copy of the original
-;;
-;; bbtree-contains? : bbtree any -> boolean
-;; returns #t if there is association for key in the bbtree, false
-;; otherwise
-;;
-;; bbtree-traverse : (any any (any -> any) (any -> any) any) any bbtree -> any
-;; A general tree traversal procedure. Returns the value of applying
-;; the traverser procedure to the current node's key, value, a
-;; procedure to traverse the left subtree, a procedure to traverse the
-;; right subtree, and a base value. The subtree traversal procedures
-;; both take a base argument, and call bbtree-traverse recursively on
-;; the appropriate subtree. It is mostly useful for implementing
-;; other, more specific tree traversal procedures. For example,
-;;   (define (l-to-r-pre-order cons base bbtree)
-;;     (bbtree-traverse (lambda (key value left right base)
-;;                        (right (left (cons key value base))))
-;;                      base
-;;                      bbtree))
-;; implements a left-to-right pre-order traversal variant of bbtree-fold
-;;
-;; bbtree-fold : (any any any -> any) any bbtree -> any
-;; returns the value obtained by the iterating the combine procedure
-;; over each node in the tree. The combine procedure takes three
-;; arguments, the key and value of the current node, and an
-;; accumulator value, and its return value is used as the accumulator
-;; value for the next node. The initial accumulator value is provided
-;; by the base argument. bbtree-fold performs an left-to-right
-;; in-order traversal or "minimum key to maximum key".
-;;
-;; bbtree-fold-right : (any any any -> any) any bbtree -> any
-;; like bbtree-fold, but it performs a right-to-left in-order
-;; traversal instead (i.e. maximum to minimum).
-;;
-;; bbtree-map : (any -> any) bbtree -> bbtree
-;; returns the tree obtained by updating the value of each node with
-;; the result of applying the procedure to its value.
-;;
-;; bbtree->alist : bbtree -> Listof(Pairs)
-;; returns the key value associations of the bbtree as a list of
-;; pairs. The list returned is in sorted order according to the
-;; ordering procedure of the bbtree. A consequence of this is that one
-;; could write a sort procedure for lists of pairs as
-;;   (define (alist-sort alist <)
-;;     (bbtree->alist (alist->bbtree alist <)))
-;;
-;; alist->bbtree : Listof(Pairs) -> (any any -> boolean) -> bbtree
-;; returns the bbtree containing each of the key value pairs in the
-;; alist, using the < argument as the ordering procedure.
-;;
-;; bbtree-keys : bbtree -> Listof(any)
-;; returns a list containing all the keys of the bbtree. The keys are
-;; sorted according to the bbtree's ordering procedure.
-;;
-;; bbtree-union : bbtree bbtree -> bbtree
-;; returns a bbtree containing the union of the associations in
-;; bbtree1 and bbtree2. Where the same key occurs in both, the value
-;; in bbtree1 is preferred.
-;; 
-;; bbtree-difference : bbtree bbtree -> bbtree
-;; returns a bbtree containing the all the associations in bbtree1,
-;; which do not occur in bbtree2.
-;;
-;; bbtree-intersection : bbtree bbtree -> bbtree
-;; returns a bbtree containing all the associations which appear in
-;; both bbtree1 and bbtree2. The value in bbtree1 are preferred over
-;; those in bbtree2.
-;;
-;; bbtree-index bbtree any -> non-negative integer
-;; returns the index of the key in the bbtree. Index is an integer
-;; between 0 and size - 1, with the a key having a lower index than
-;; another if first-key < second-key, according to the bbtree ordering
-;; procedure.
-;;
-;; bbtree-ref/index bbtree non-negative-integer -> any any
-;; returns the key and value of the association in the bbtree at the
-;; given index.
-;;
-;; bbtree-ordering-procedure : bbtree -> (any any -> bool)
-;; returns the ordering procedure used internally to order the
-;; bbtree.
+;;> Note: For all procedures which take a key as an argument, the key
+;;> must be comparable with the ordering procedure of the bbtree.
+;;>
 (define-library 
   (pfds bounded-balance-tree)
   (export make-bbtree
@@ -169,6 +59,12 @@
                         bbtree?
                         (tree bbtree-tree )
                         (ordering-procedure bbtree-ordering-procedure ))
+    ;;> bbtree? : any -> bool
+    ;;> returns #t if the argument is a bbtree, #f otherwise
+
+    ;;> bbtree-ordering-procedure : bbtree -> (any any -> bool)
+    ;;> returns the ordering procedure used internally to order the
+    ;;> bbtree.
 
     (define (update-tree bbtree new-tree)
       (%make-bbtree new-tree (bbtree-ordering-procedure bbtree)))
@@ -548,14 +444,23 @@
 
     ;;; External procedures
 
+    ;;> make-bbtree : (any -> any -> boolean) -> bbtree
+    ;;> returns an empty bbtree. bbtrees derived from this one will use the
+    ;;> procedure argument for ordering keys.
     (define (make-bbtree <)
       (unless (procedure? <) (error "make-bbtree requires a procedure"))
       (%make-bbtree (make-empty) <))
 
+    ;;> bbtree-size : bbtree -> non-negative integer
+    ;;> returns the number of elements in a bbtree
     (define (bbtree-size bbtree)
       (unless (bbtree? bbtree) (error "bbtree-size requires a bbtree"))
       (size (bbtree-tree bbtree)))
 
+    ;;> bbtree-ref : bbtree any [any] -> any
+    ;;> returns the value associated with the key in the bbtree.  If the
+    ;;> value is not in the tree, then, if the optional third argument is
+    ;;> passed, it is returned, otherwise an error is raised.
     (define bbtree-ref
       (let ((ref (lambda (bbtree key failure)
                    (unless (bbtree? bbtree) (error "expected a bbtree"))
@@ -572,6 +477,10 @@
           ((bbtree key ret)
            (ref bbtree key (lambda () ret))))))
 
+    ;;> bbtree-set : bbtree any any -> bbtree
+    ;;> returns a new bbtree with the key associated with the value. If the
+    ;;> key is already in the bbtree, its associated value is replaced with
+    ;;> the new value in the returned bbtree.
     (define (bbtree-set bbtree key value)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (update-tree bbtree
@@ -580,6 +489,11 @@
                         value
                         (bbtree-ordering-procedure bbtree))))
 
+    ;;> bbtree-update : bbtree any (any -> any) any -> bbtree
+    ;;> returns a new bbtree with the value associated with the key updated
+    ;;> according to the update procedure. If the key was not already in
+    ;;> the bbtree, the update procedure is called on the default value,
+    ;;> and the association is added to the bbtree.
     (define (bbtree-update bbtree key proc default)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (update-tree bbtree
@@ -589,6 +503,10 @@
                            default
                            (bbtree-ordering-procedure bbtree))))
 
+    ;;> bbtree-delete : bbtree any -> bbtree
+    ;;> returns a new bbtree with the key and its associated value
+    ;;> removed. If the key is not in the bbtree, the returned bbtree is a
+    ;;> copy of the original
     (define (bbtree-delete bbtree key)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (update-tree bbtree
@@ -596,6 +514,9 @@
                            key
                            (bbtree-ordering-procedure bbtree))))
 
+    ;;> bbtree-contains? : bbtree any -> boolean
+    ;;> returns #t if there is association for key in the bbtree, false
+    ;;> otherwise
     (define (bbtree-contains? bbtree key)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (lookup (bbtree-tree bbtree)
@@ -619,10 +540,32 @@
                    right
                    base)))
 
+    ;;> bbtree-traverse : (any any (any -> any) (any -> any) any) any bbtree -> any
+    ;;> A general tree traversal procedure. Returns the value of applying
+    ;;> the traverser procedure to the current node's key, value, a
+    ;;> procedure to traverse the left subtree, a procedure to traverse the
+    ;;> right subtree, and a base value. The subtree traversal procedures
+    ;;> both take a base argument, and call bbtree-traverse recursively on
+    ;;> the appropriate subtree. It is mostly useful for implementing
+    ;;> other, more specific tree traversal procedures. For example,
+    ;;>   (define (l-to-r-pre-order cons base bbtree)
+    ;;>     (bbtree-traverse (lambda (key value left right base)
+    ;;>                        (right (left (cons key value base))))
+    ;;>                      base
+    ;;>                      bbtree))
+    ;;> implements a left-to-right pre-order traversal variant of bbtree-fold
     (define (bbtree-traverse traverser base bbtree)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (traverse traverser base (bbtree-tree bbtree)))
 
+    ;;> bbtree-fold : (any any any -> any) any bbtree -> any
+    ;;> returns the value obtained by the iterating the combine procedure
+    ;;> over each node in the tree. The combine procedure takes three
+    ;;> arguments, the key and value of the current node, and an
+    ;;> accumulator value, and its return value is used as the accumulator
+    ;;> value for the next node. The initial accumulator value is provided
+    ;;> by the base argument. bbtree-fold performs an left-to-right
+    ;;> in-order traversal or "minimum key to maximum key".
     (define (bbtree-fold combine base bbtree)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (traverse (lambda (k v l r n)
@@ -630,6 +573,9 @@
                 base
                 (bbtree-tree bbtree)))
 
+    ;;> bbtree-fold-right : (any any any -> any) any bbtree -> any
+    ;;> like bbtree-fold, but it performs a right-to-left in-order
+    ;;> traversal instead (i.e. maximum to minimum).
     (define (bbtree-fold-right combine base bbtree)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (traverse (lambda (k v l r n)
@@ -637,8 +583,11 @@
                 base
                 (bbtree-tree bbtree)))
 
-    ;; I could do this more efficiently, but is it worth it?
+    ;;> bbtree-map : (any -> any) bbtree -> bbtree
+    ;;> returns the tree obtained by updating the value of each node with
+    ;;> the result of applying the procedure to its value.
     (define (bbtree-map mapper bbtree)
+      ;; I could do this more efficiently, but is it worth it?
       (bbtree-fold (lambda (key value tree)
                      (bbtree-set tree key (mapper value)))
                    (make-bbtree (bbtree-ordering-procedure bbtree))
@@ -647,39 +596,68 @@
     (define (alist-cons a b c)
       (cons (cons a b) c))
 
+    ;;> bbtree->alist : bbtree -> Listof(Pairs)
+    ;;> returns the key value associations of the bbtree as a list of
+    ;;> pairs. The list returned is in sorted order according to the
+    ;;> ordering procedure of the bbtree. A consequence of this is that one
+    ;;> could write a sort procedure for lists of pairs as
+    ;;>   (define (alist-sort alist <)
+    ;;>     (bbtree->alist (alist->bbtree alist <))) 
     (define (bbtree->alist bbtree)
       (bbtree-fold-right alist-cons '() bbtree))
 
+    ;;> alist->bbtree : Listof(Pairs) -> (any any -> boolean) -> bbtree
+    ;;> returns the bbtree containing each of the key value pairs in the
+    ;;> alist, using the < argument as the ordering procedure.
     (define (alist->bbtree lst <)
       (fold-left (lambda (tree kv-pair) 
                    (bbtree-set tree (car kv-pair) (cdr kv-pair)))
                  (make-bbtree <)
                  lst))
 
+    ;;> bbtree-keys : bbtree -> Listof(any)
+    ;;> returns a list containing all the keys of the bbtree. The keys are
+    ;;> sorted according to the bbtree's ordering procedure.
     (define (bbtree-keys bbtree)
       (bbtree-fold-right (lambda (key value base)
                            (cons key base))
                          '()
                          bbtree))
 
+    ;;> bbtree-union : bbtree bbtree -> bbtree
+    ;;> returns a bbtree containing the union of the associations in
+    ;;> bbtree1 and bbtree2. Where the same key occurs in both, the value
+    ;;> in bbtree1 is preferred.
     (define (bbtree-union bbtree1 bbtree2)
       (update-tree bbtree1
                    (hedge-union (bbtree-tree bbtree1)
                                 (bbtree-tree bbtree2)
                                 (bbtree-ordering-procedure bbtree1))))
 
+    ;;> bbtree-difference : bbtree bbtree -> bbtree
+    ;;> returns a bbtree containing the all the associations in bbtree1,
+    ;;> which do not occur in bbtree2.
     (define (bbtree-difference bbtree1 bbtree2)
       (update-tree bbtree1
                    (difference (bbtree-tree bbtree1)
                                (bbtree-tree bbtree2)
                                (bbtree-ordering-procedure bbtree1))))
 
+    ;;> bbtree-intersection : bbtree bbtree -> bbtree
+    ;;> returns a bbtree containing all the associations which appear in
+    ;;> both bbtree1 and bbtree2. The value in bbtree1 are preferred over
+    ;;> those in bbtree2.
     (define (bbtree-intersection bbtree1 bbtree2)
       (update-tree bbtree1
                    (intersection (bbtree-tree bbtree1)
                                  (bbtree-tree bbtree2)
                                  (bbtree-ordering-procedure bbtree1))))
 
+    ;;> bbtree-index bbtree any -> non-negative integer
+    ;;> returns the index of the key in the bbtree. Index is an integer
+    ;;> between 0 and size - 1, with the a key having a lower index than
+    ;;> another if first-key < second-key, according to the bbtree ordering
+    ;;> procedure.
     (define (bbtree-index bbtree key)
       ;; maybe this should return #f instead of throwing an exception?
       (unless (bbtree? bbtree) (error "expected a bbtree"))
@@ -687,6 +665,9 @@
             key
             (bbtree-ordering-procedure bbtree)))
 
+    ;;> bbtree-ref/index bbtree non-negative-integer -> any any
+    ;;> returns the key and value of the association in the bbtree at the
+    ;;> given index.
     (define (bbtree-ref/index bbtree idx)
       (unless (bbtree? bbtree) (error "expected a bbtree"))
       (let ((tree (bbtree-tree bbtree)))

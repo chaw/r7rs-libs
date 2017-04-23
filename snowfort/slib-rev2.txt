@@ -1,0 +1,12 @@
+= Documentation for Rev2 Procedures
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Rev2-Procedures.html#Rev2-Procedures[]
+
+To use: +(import (slib rev2-procedures))+
+
+Note: +append!+ is in +(srfi 1)+, so not included here.  
+Neither are "1+" and "-1+".
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

@@ -68,78 +68,25 @@
 ;; (FWIW the Haskell Data.Fingertree package uses odd name of Measured
 ;; (which are expected to be instances of Monoid))
 ;;
-;; fingertree? : any -> bool
-;; returns #t if argument is a fingertree, #f otherwise.
 ;;
-;; fingertree-empty? : fingertree -> bool
-;; returns #t if there are no items in the fingertree, #f otherwise.
+
 ;;
-;; make-fingertree : id combine measure -> fingertree
-;; returns a new fingertree, parameterised by the given monoid.
 ;;
-;; fingertree-cons : any fingertree -> fingertree
-;; returns the new fingertree created by adding the element to the front
-;; of the argument fingertree.
 ;;
-;; fingertree-snoc : fingertree any -> fingertree
-;; returns the new fingertree created by adding the element to the end of
-;; the fingertree.
 ;;
-;; fingertree-uncons : fingertree -> any + fingertree
-;; returns two values: the element at the front of the fingertree, and a
-;; new fingertree containing all but the front element. If the fingertree
-;; is empty, an error is raised.
 ;;
-;; fingertree-unsnoc : fingertree -> fingertree + any
-;; returns two values: a new fingertree containing all but the rear
-;; element of the argument fingertree, and the rear element itself. If
-;; the fingertree is empty, an error is raised.
 ;;
-;; fingertree-append : fingertree fingertree -> fingertree
-;; returns a new fingertree which contains all of the elements of the
-;; first fingertree argument, followed by all the elements of the
-;; second. The argument fingertrees are assumed to be parameterised by
-;; the same monoid.
+
 ;;
-;; list->fingertree : (list->fingertree l id append convert)
-;; returns a fingertree containing all of the elements of the argument
-;; list, in the same order.
 ;;
-;; fingertree->list : fingertree -> Listof(Any)
-;; returns a list of all the elements in the fingertree, in the order
-;; they would be unconsed.
 ;;
-;; fingertree-measure : fingertree -> any
-;; returns the measure of the fingertree, as defined by the fingertree's
-;; monoid.
 ;;
-;; fingertree-split : (any -> bool) fingertree -> fingertree + fingertree
-;; returns two values: the first is the largest prefix of the fingertree for
-;; which applying the predicate to it's accumulated measure returns
-;; #f. The second values is a fingertree containing all those elements
-;; not in the first fingertree.
 ;;
-;; fingertree-split3: (any -> bool) fingertree -> fingertree + value + fingertree
-;; similar to fingertree-split, however, instead of returning the
-;; remainder as the second argument, it returns the head of the remainder
-;; as the second argument, and tail of the remainder as the third
-;; argument.
 ;; TODO: what error should I give if the remainder was empty?
 ;;
-;; fingertree-fold : (any -> any -> any) any fingertree
-;; returns the value obtained by iterating the combiner procedure over
-;; the fingertree in left-to-right order. This procedure takes two
-;; arguments, the current value from the fingertree, and an accumulator,
-;; and it's return value is used as the accumulator for the next
-;; iteration. The initial value for the accumulator is given by the base
-;; argument.
 ;;
-;; fingertree-fold-right : (any -> any -> any) any fingertree
-;; similar to fingertree-fold, but iterates in right-to-left order.
 ;;
-;; fingertree-reverse : fingertree -> fingertree
-;; returns a new fingertree in which the elements are in the opposite
-;; order from the argument fingertree.
+
 ;;
 (define-library 
   (pfds fingertree)
@@ -559,6 +506,8 @@
                           (split-digit proc i* (cdr xs) monoid)))
                         (values (cons (car xs) l) x r))))))
 
+;;> fingertree? : any -> bool
+;;> returns #t if argument is a fingertree, #f otherwise.
     (define-record-type <fingertree>
                         (%make-fingertree tree monoid)
                         fingertree? 
@@ -569,10 +518,15 @@
       (%make-fingertree tree
                         (fingertree-monoid fingertree)))
 
+;;> make-fingertree : id combine measure -> fingertree
+;;> returns a new fingertree, parameterised by the given monoid.
     (define (make-fingertree id append convert)
       (%make-fingertree (make-empty)
                         (make-monoid* id append convert)))
 
+;;> fingertree-cons : any fingertree -> fingertree
+;;> returns the new fingertree created by adding the element to the front
+;;> of the argument fingertree.
     (define (fingertree-cons a fingertree)
       ;; TODO: should it obey normal cons interface, or have fingertree
       ;; first?
@@ -581,12 +535,19 @@
                            a
                            (fingertree-monoid fingertree))))
 
+;;> fingertree-snoc : fingertree any -> fingertree
+;;> returns the new fingertree created by adding the element to the end of
+;;> the fingertree.
     (define (fingertree-snoc fingertree a)
       (%wrap fingertree
              (insert-rear (fingertree-tree fingertree)
                           a
                           (fingertree-monoid fingertree))))
 
+;;> fingertree-uncons : fingertree -> any + fingertree
+;;> returns two values: the element at the front of the fingertree, and a
+;;> new fingertree containing all but the front element. If the fingertree
+;;> is empty, an error is raised.
     (define (fingertree-uncons fingertree)
       (call-with-values
         (lambda ()
@@ -598,6 +559,10 @@
           (values val
                   (%wrap fingertree rest)))))
 
+;;> fingertree-unsnoc : fingertree -> fingertree + any
+;;> returns two values: a new fingertree containing all but the rear
+;;> element of the argument fingertree, and the rear element itself. If
+;;> the fingertree is empty, an error is raised.
     (define (fingertree-unsnoc fingertree)
       (call-with-values
         (lambda ()
@@ -608,29 +573,49 @@
         (lambda (rest val)
           (values (%wrap fingertree rest) val))))
 
-    (define (fingertree-empty? fingertree)
+;;> fingertree-empty? : fingertree -> bool
+;;> returns #t if there are no items in the fingertree, #f otherwise.
+(define (fingertree-empty? fingertree)
       (empty? (fingertree-tree fingertree)))
 
-    (define (fingertree-append fingertree1 fingertree2)
+;;> fingertree-append : fingertree fingertree -> fingertree
+;;> returns a new fingertree which contains all of the elements of the
+;;> first fingertree argument, followed by all the elements of the
+;;> second. The argument fingertrees are assumed to be parameterised by
+;;> the same monoid.
+(define (fingertree-append fingertree1 fingertree2)
       (%wrap fingertree1
              (app3 (fingertree-tree fingertree1)
                    '()
                    (fingertree-tree fingertree2)
                    (fingertree-monoid fingertree1))))
 
-    ;; TODO: fix this
-    (define (list->fingertree l id appnd convert)
+;;> list->fingertree : (list->fingertree l id append convert)
+;;> returns a fingertree containing all of the elements of the argument
+;;> list, in the same order.
+    (define (list->fingertree l id appnd convert) ;; TODO: fix this
       (define monoid (make-monoid* id appnd convert))
       (%make-fingertree (list->tree l monoid) monoid))
 
+;;> fingertree->list : fingertree -> Listof(Any)
+;;> returns a list of all the elements in the fingertree, in the order
+;;> they would be unconsed.
     (define (fingertree->list t)
       (fingertree-fold-right cons '() t))
 
+;;> fingertree-measure : fingertree -> any
+;;> returns the measure of the fingertree, as defined by the fingertree's
+;;> monoid.
     (define (fingertree-measure fingertree)
       (measure-ftree (fingertree-tree fingertree)
                      (fingertree-monoid fingertree)))
 
 
+;;> fingertree-split : (any -> bool) fingertree -> fingertree + fingertree
+;;> returns two values: the first is the largest prefix of the fingertree for
+;;> which applying the predicate to it's accumulated measure returns
+;;> #f. The second values is a fingertree containing all those elements
+;;> not in the first fingertree.
     (define (fingertree-split p fingertree)
       (call-with-values
         (lambda ()
@@ -641,6 +626,11 @@
           (values (%wrap fingertree a)
                   (%wrap fingertree b)))))
 
+;;> fingertree-split3: (any -> bool) fingertree -> fingertree + value + fingertree
+;;> similar to fingertree-split, however, instead of returning the
+;;> remainder as the second argument, it returns the head of the remainder
+;;> as the second argument, and tail of the remainder as the third
+;;> argument.
     (define (fingertree-split3 p fingertree)
       (call-with-values
         (lambda ()
@@ -654,13 +644,25 @@
                   b
                   (%wrap fingertree c)))))
 
+;;> fingertree-fold : (any -> any -> any) any fingertree
+;;> returns the value obtained by iterating the combiner procedure over
+;;> the fingertree in left-to-right order. This procedure takes two
+;;> arguments, the current value from the fingertree, and an accumulator,
+;;> and it's return value is used as the accumulator for the next
+;;> iteration. The initial value for the accumulator is given by the base
+;;> argument.
     (define (fingertree-fold f b fingertree)
       (ftree-fold-left f b (fingertree-tree fingertree)))
 
+;;> fingertree-fold-right : (any -> any -> any) any fingertree
+;;> similar to fingertree-fold, but iterates in right-to-left order.
     (define (fingertree-fold-right f b fingertree)
       (ftree-fold-right f b (fingertree-tree fingertree)))
 
-    (define (fingertree-reverse fingertree)
+;;> fingertree-reverse : fingertree -> fingertree
+;;> returns a new fingertree in which the elements are in the opposite
+;;> order from the argument fingertree.
+(define (fingertree-reverse fingertree)
       (%wrap fingertree
              (reverse-tree (fingertree-tree fingertree)
                            (fingertree-monoid fingertree))))

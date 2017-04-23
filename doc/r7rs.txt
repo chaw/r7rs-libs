@@ -112,6 +112,8 @@ include::text.txt[]
 
 include::slib.txt[]
 
+include::slib-common.txt[]
+
 include::repackaged.txt[]
 
 [appendix]

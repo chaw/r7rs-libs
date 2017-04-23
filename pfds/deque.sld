@@ -14,46 +14,6 @@
 
 ;; -------------------------------------------------------------------
 
-;; Documentation:
-;;
-;; make-deque : () -> deque
-;; returns a deque containing to items
-;;
-;; deque? : any -> boolean
-;; tests if an object is a deque
-;;
-;; deque-length : deque -> non-negative integer
-;; returns the number of items in the deque
-;;
-;; deque-empty? : deque -> boolean
-;; returns true if there are no items in the deque, false otherwise
-;;
-;; enqueue-front : deque any -> deque
-;; returns a new deque with the inserted item at the front
-;;
-;; enqueue-rear : deque any -> deque
-;; returns a new deque with the inserted item at the rear
-;;
-;; dequeue-front : deque -> any queue
-;; returns two values, the item at the front of the deque, and a new
-;; deque containing all the other items
-;; raises an error if the deque is empty
-;;
-;; dequeue-rear : deque -> any queue
-;; returns two values, the item at the rear of the deque, and a new
-;; deque containing all the other items
-;; raises an error if the deque is empty
-;;
-;; deque->list : deque -> listof(any)
-;; returns a list containing all the elements of the deque. The order
-;; of the elements in the list is the same as the order they would be
-;; dequeued from the front of the deque.
-;;
-;; list->deque : listof(any) -> deque
-;; returns a deque containing all of the elements in the list. The
-;; order of the elements in the deque is the same as the order of the
-;; elements in the list.
-;;
 (define-library 
   (pfds deque)
   (export make-deque
@@ -89,6 +49,13 @@
                      (drop c r)
                      (append* (rev (take c r)) a)))))
 
+    ;;> deque? : any -> boolean
+    ;;> tests if an object is a deque
+
+    ;;>
+    ;;> deque-length : deque -> non-negative integer
+    ;;> returns the number of items in the deque
+
     (define-record-type <deque>
                         (%make-deque length lenL lenR l r l^ r^)
                         deque?
@@ -100,12 +67,18 @@
                         (l^ deque-l^)
                         (r^ deque-r^))
 
+    ;;> make-deque : () -> deque
+    ;;> returns a deque containing no items
     (define (make-deque)
       (%make-deque 0 0 0 '() '() '() '()))
 
+    ;;> deque-empty? : deque -> boolean
+    ;;> returns true if there are no items in the deque, false otherwise
     (define (deque-empty? deque)
       (zero? (deque-length deque)))
 
+    ;;> enqueue-front : deque any -> deque
+    ;;> returns a new deque with the inserted item at the front
     (define (enqueue-front deque item)
       (let ((len (deque-length deque))
             (l (deque-l deque))
@@ -116,6 +89,8 @@
             (r^ (deque-r^ deque)))
         (makedq (+ 1 len) (+ 1 lenL) lenR (cons* item l) r (tail l^) (tail r^))))
 
+    ;;> enqueue-rear : deque any -> deque
+    ;;> returns a new deque with the inserted item at the rear
     (define (enqueue-rear deque item)
       (let ((len (deque-length deque))
             (l (deque-l deque))
@@ -126,6 +101,10 @@
             (r^ (deque-r^ deque)))
         (makedq (+ 1 len) lenL (+ 1 lenR) l (cons* item r) (tail l^) (tail r^))))
 
+    ;;> dequeue-front : deque -> any queue
+    ;;> returns two values, the item at the front of the deque, and a new
+    ;;> deque containing all the other items
+    ;;> raises an error if the deque is empty
     (define (dequeue-front deque)
       (when (deque-empty? deque)
         (error "Deque is empty"))
@@ -147,6 +126,10 @@
                           (tail (tail l^))
                           (tail (tail r^)))))))
 
+    ;;> dequeue-rear : deque -> any queue
+    ;;> returns two values, the item at the rear of the deque, and a new
+    ;;> deque containing all the other items
+    ;;> raises an error if the deque is empty
     (define (dequeue-rear deque)
       (when (deque-empty? deque)
         (error "Deque is empty"))
@@ -184,9 +167,17 @@
             (else
               (%make-deque len lenL lenR l r l^ r^))))
 
+    ;;> list->deque : listof(any) -> deque
+    ;;> returns a deque containing all of the elements in the list. The
+    ;;> order of the elements in the deque is the same as the order of the
+    ;;> elements in the list.
     (define (list->deque l)
       (fold-left enqueue-rear (make-deque) l))
 
+    ;;> deque->list : deque -> listof(any)
+    ;;> returns a list containing all the elements of the deque. The order
+    ;;> of the elements in the list is the same as the order they would be
+    ;;> dequeued from the front of the deque.
     (define (deque->list deq)
       (define (recur deq l)
         (if (deque-empty? deq)

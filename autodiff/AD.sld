@@ -54,18 +54,17 @@
 	 (rename dpositive? positive?)
 	 (rename dnegative? negative?)
 	 (rename dreal? real?)
-	 write-real
-	 forward-mode
 	 derivative-F
+	 derivative-R
 	 directional-derivative-list-F
 	 directional-derivative-vector-F
+	 f-gradient-vector-vector-R
 	 gradient-list-F
-	 gradient-vector-F
-	 reverse-mode
-	 derivative-R
 	 gradient-list-R
+	 gradient-vector-F
 	 gradient-vector-R
-	 f-gradient-vector-vector-R)
+	 write-real
+         )
  (import (scheme base)
          (scheme inexact)
          (scheme write))

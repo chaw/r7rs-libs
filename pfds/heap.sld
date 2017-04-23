@@ -12,67 +12,6 @@
 
 ;; ----------------------------------------------------------------------
 
-;; Documentation:
-;;
-;; make-heap : (any any -> bool) -> heap
-;; returns a new empty heap which uses the ordering procedure.
-;;
-;; heap : (any any -> bool) any ... -> heap
-;; return a new heap, ordered by the procedure argument, that contains
-;; all the other arguments as elements.
-;;
-;; heap? : any -> bool
-;; returns #t if the argument is a heap, #f otherwise.
-;;
-;; heap-size : heap -> non-negative integer
-;; returns the number of elements in the heap.
-;;
-;; heap-empty? : heap -> bool
-;; returns #t if the heap contains no elements, #f otherwise.
-;;
-;; heap-min : heap -> any
-;; returns the minimum element in the heap, according the heap's
-;; ordering procedure. If there are no elements, an error is raised.
-;;
-;; heap-delete-min : heap -> heap
-;; returns a new heap containing all the elements of the heap
-;; argument, except for the minimum argument, as determined by the
-;; heap's ordering procedure. If there are no elements, an error is 
-;; raised.
-;;
-;; heap-pop : any + heap
-;; returns two values: the the minimum value, and a heap obtained by
-;; removing the minimum value from the original heap. If the heap is
-;; empty, an error is raised.
-;;
-;; heap-insert : heap any -> heap
-;; returns the new heap obtained by adding the element to those in the
-;; argument heap.
-;;
-;; heap->list : heap -> Listof(any)
-;; returns the heap containing all the elements of the heap. The
-;; elements of the list are ordered according to the heap's ordering
-;; procedure.
-;;
-;; list->heap : Listof(any) (any any -> boolean) -> heap
-;; returns the heap containing all the elements of the list, and using
-;; the procedure argument to order the elements.
-;;
-;; heap-merge : heap heap -> heap
-;; returns the heap containing all the elements of the argument
-;; heaps. The argument heaps are assumed to be using the same ordering
-;; procedure.
-;;
-;; heap-sort : (any any -> bool) list -> list
-;; returns a new list that is a permutation of the argument list, such
-;; that all the elements are ordered by the given procedure.
-;;
-;; heap-ordering-procedure : heap -> (any any -> boolean)
-;; returns the ordering procedure used internally by the heap.
-;;
-;; heap-empty-condition? : any -> bool
-;; returns #t if argument is a &heap-empty condition, #f otherwise.
-;;
 (define-library 
   (pfds heap)
   (export make-heap
@@ -155,6 +94,8 @@
                                       tree2
                                       prio<?)))))
 
+    ;;> heap? : any -> bool
+    ;;> returns #t if the argument is a heap, #f otherwise.
 
     ;; outside interface
     (define-record-type <heap>
@@ -163,29 +104,50 @@
                         (tree heap-tree)
                         (ordering-predicate heap-ordering-predicate))
 
+    ;;> make-heap : (any any -> bool) -> heap
+    ;;> returns a new empty heap which uses the ordering procedure.
     (define (make-heap priority<?)
       (%make-heap (make-leaf) priority<?))
 
+    ;;> heap : (any any -> bool) any ... -> heap
+    ;;> return a new heap, ordered by the procedure argument, that contains
+    ;;> all the other arguments as elements.
     (define (heap < . vals)
       (list->heap vals <))
 
+    ;;> heap-size : heap -> non-negative integer
+    ;;> returns the number of elements in the heap.
     (define (heap-size heap)
       (size (heap-tree heap)))
 
+    ;;> heap-empty? : heap -> bool
+    ;;> returns #t if the heap contains no elements, #f otherwise.
     (define (heap-empty? heap)
       (leaf? (heap-tree heap)))
 
+    ;;> heap-min : heap -> any
+    ;;> returns the minimum element in the heap, according the heap's
+    ;;> ordering procedure. If there are no elements, an error is raised.
     (define (heap-min heap)
       (when (heap-empty? heap)
         (error "Empty heap")) 
       (node-value (heap-tree heap)))
 
+    ;;> heap-delete-min : heap -> heap
+    ;;> returns a new heap containing all the elements of the heap
+    ;;> argument, except for the minimum argument, as determined by the
+    ;;> heap's ordering procedure. If there are no elements, an error is 
+    ;;> raised.
     (define (heap-delete-min heap)
       (when (heap-empty? heap)
         (error "Empty heap"))
       (let ((< (heap-ordering-predicate heap)))
         (%make-heap (delete-min (heap-tree heap) <) <)))
 
+    ;;> heap-pop : any + heap
+    ;;> returns two values: the the minimum value, and a heap obtained by
+    ;;> removing the minimum value from the original heap. If the heap is
+    ;;> empty, an error is raised.
     (define (heap-pop heap)
       (when (heap-empty? heap)
         (error "Empty heap"))
@@ -196,11 +158,18 @@
         (values top
                 (%make-heap rest <))))
 
+    ;;> heap-insert : heap any -> heap
+    ;;> returns the new heap obtained by adding the element to those in the
+    ;;> argument heap.
     (define (heap-insert heap value)
       (unless (heap? heap) (error "Requires a heap object"))
       (let ((< (heap-ordering-predicate heap)))
         (%make-heap (insert (heap-tree heap) value <) <)))
 
+    ;;> heap->list : heap -> Listof(any)
+    ;;> returns the heap containing all the elements of the heap. The
+    ;;> elements of the list are ordered according to the heap's ordering
+    ;;> procedure.
     (define (heap->list heap)
       (unless (heap? heap) (error "Requires a heap object"))
       (let ((< (heap-ordering-predicate heap)))
@@ -210,6 +179,9 @@
             (loop (delete-min tree <)
                   (cons (node-value tree) list))))))
 
+    ;;> list->heap : Listof(any) (any any -> boolean) -> heap
+    ;;> returns the heap containing all the elements of the list, and using
+    ;;> the procedure argument to order the elements.
     (define (list->heap list <)
       (%make-heap
         (fold-left (lambda (h item)
@@ -218,6 +190,10 @@
                    list)
         <))
 
+    ;;> heap-merge : heap heap -> heap
+    ;;> returns the heap containing all the elements of the argument
+    ;;> heaps. The argument heaps are assumed to be using the same ordering
+    ;;> procedure.
     (define (heap-merge heap1 heap2)
       (define < (heap-ordering-predicate heap1))
       (%make-heap
@@ -226,9 +202,14 @@
                      <)
         <))
 
+    ;;> heap-sort : (any any -> bool) list -> list
+    ;;> returns a new list that is a permutation of the argument list, such
+    ;;> that all the elements are ordered by the given procedure.
     (define (heap-sort < list)
       (heap->list (list->heap list <)))
 
+    ;;> heap-ordering-procedure : heap -> (any any -> boolean)
+    ;;> returns the ordering procedure used internally by the heap.
     (define heap-ordering-procedure heap-ordering-predicate) ; for export
 
     ))
