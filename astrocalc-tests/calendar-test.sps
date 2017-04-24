@@ -1,5 +1,5 @@
 
-(import (scheme base)   
+(import (scheme base)
         (astrocalc calendar)
         (srfi 64)
         (robin srfi64-utils))
@@ -26,5 +26,23 @@
 (test-assert (not (leap-year? 1900)))
 (test-assert (leap-year? 2012))
 (test-assert (not (leap-year? 2013)))
+
+(test-assert (and (= 31 (date-day (easter-day 1991)))
+                  (= 3 (date-month (easter-day 1991)))))
+
+(test-assert (and (= 19 (date-day (easter-day 1992)))
+                  (= 4 (date-month (easter-day 1992)))))
+
+(test-assert (and (= 11 (date-day (easter-day 1993)))
+                  (= 4 (date-month (easter-day 1993)))))
+
+(test-assert (and (= 18 (date-day (easter-day 1954)))
+                  (= 4 (date-month (easter-day 1954)))))
+
+(test-assert (and (= 23 (date-day (easter-day 2000)))
+                  (= 4 (date-month (easter-day 2000)))))
+
+(test-assert (and (= 22 (date-day (easter-day 1818)))
+                  (= 3 (date-month (easter-day 1818)))))
 
 (test-end)

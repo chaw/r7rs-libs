@@ -8,7 +8,7 @@
     dsin
     dasin
     dcos
-    mod
+    neg
     )
   (import (scheme base)
           (scheme inexact)
@@ -20,6 +20,9 @@
     (define (divisible? n p)
       (zero? (modulo n p)))
 
+    ;; Return negative of given number
+    (define (neg n)
+      (* -1 n))
 
     ;; Return radians equivalent of given angle in degrees
     (define (deg-to-rad d)

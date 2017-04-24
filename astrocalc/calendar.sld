@@ -1,6 +1,8 @@
 ;; Calculation of calendar data
 ;; from Meeus, Astronomical Algorithms
 
+;; Peter Lane, 2017
+
 (define-library
   (astrocalc calendar)
   (export 
@@ -13,12 +15,15 @@
     day-of-week
     day-of-week-as-fixnum
     day-of-year
+    easter-day
     gregorian-date?
     julian-date?
     julian-day
     julian-ephemeris-day
     leap-year?
     make-date
+    month-name
+    weekdays
     )
   (import (scheme base)
           (astrocalc utility)
@@ -30,9 +35,15 @@
     (define *week-days*
       '("Sunday" "Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday"))
 
+    (define (weekdays) *week-days*)
+
     (define *month-names* 
       '("January" "February" "March" "April" "May" "June" 
         "July" "August" "September" "October" "November" "December"))
+
+    ;; Return month name for m a month number in [1, 12]
+    (define (month-name m)
+      (list-ref *month-names* (- m 1)))
     
     ;; Record for date
     (define-record-type <date>
@@ -120,5 +131,20 @@
       (or (and (divisible? year 4)
                (not (divisible? year 100)))
           (divisible? year 400)))
+
+    ;; Return date of Easter for given year
+    ;; -- year must be in Gregorian calendar
+    (define (easter-day year)
+      (let*-values (((t a) (floor/ year 19))
+                    ((b c) (floor/ year 100))
+                    ((d e) (floor/ b 4))
+                    ((f u) (floor/ (+ 8 b) 25))
+                    ((g v) (floor/ (+ b (neg f) 1) 3))
+                    ((w h) (floor/ (+ (* 19 a) b (neg d) (neg g) 15) 30))
+                    ((i k) (floor/ c 4))
+                    ((x l) (floor/ (+ 32 (* 2 e) (* 2 i) (neg h) (neg k)) 7))
+                    ((m y) (floor/ (+ a (* 11 h) (* 22 l)) 451))
+                    ((n p) (floor/ (+ h l (* -7 m) 114) 31)))
+                   (make-date (+ 1 p) n year)))
 
     ))

@@ -3,6 +3,8 @@
 ;;; following Meeus pp. 297-299
 ;;;
 
+;; Peter Lane, 2017
+
 (define-library
   (astrocalc jupiter)
   (export
@@ -11,12 +13,15 @@
   (import (scheme base)
           (scheme inexact)
           (astrocalc calendar)
-          (astrocalc utility))
+          (astrocalc earth)
+          (astrocalc utility)
+          (robin statistics))
 
   (begin
 
     ;; Return the longitudes of central meridian for 
     ;; Jupiter System I and II as values
+    ;; -- values out by around 0.2 of true value
     (define (jupiter-central-meridian-low-accuracy date)
       (let* ((jde (julian-ephemeris-day date))
              (d (- jde 2451545))
@@ -46,12 +51,8 @@
              (w2 (floor-remainder
                    (+ 18723/100 (* 8701869088/10000000 (- d (/ delta 173))) psi (* -1 B))
                    360))
-             (corr (* 573/10 (dsin (/ psi 2)) (dsin (/ psi 2))))
+             (lo (earth-longitude-latitude-radius date))
              (l (+ 3435/100 (* 83091/1000000 d) (* 329/1000 (dsin V)) B))
-             (Ds (* 312/100 (dsin (+ l 428/10))))
-             (De (- Ds 
-                    (* 222/100 sin-psi (dcos (+ l 22))) 
-                    (* 13/10 (/ (- rj delta) delta) (dsin (- l 1005/10)))))
              )
         (values w1 w2)))
 
