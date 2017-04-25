@@ -1,0 +1,9 @@
+= Documentation for Factor
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+SLIB Documentation: http://people.csail.mit.edu/jaffer/slib/Prime-Numbers.html#Prime-Numbers[]
+
+include::../doc/slib-factor.txt[]
+

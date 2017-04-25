@@ -1,0 +1,9 @@
+= Documentation for Modular
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Modular-Arithmetic.html#Modular-Arithmetic[]
+
+To use: +(import (slib modular))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

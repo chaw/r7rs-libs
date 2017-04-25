@@ -3,12 +3,16 @@
 
 ;; Peter Lane, 2017
 
+;; TODO: Support getting time as well as date from julian-day->date
+
 (define-library
-  (astrocalc calendar)
+  (astronomy calendar)
   (export 
     all-dates
+    date->decimal
     date->string
     date-day
+    date-equal?
     date-month
     date-year
     date?
@@ -19,14 +23,16 @@
     gregorian-date?
     julian-date?
     julian-day
+    julian-day->date
     julian-ephemeris-day
     leap-year?
     make-date
     month-name
-    weekdays
+    month-names
+    week-days
     )
   (import (scheme base)
-          (astrocalc utility)
+          (astronomy utility)
           (slib format)
           (srfi 1))
 
@@ -35,11 +41,13 @@
     (define *week-days*
       '("Sunday" "Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday"))
 
-    (define (weekdays) *week-days*)
+    (define (week-days) *week-days*)
 
     (define *month-names* 
       '("January" "February" "March" "April" "May" "June" 
         "July" "August" "September" "October" "November" "December"))
+
+    (define (month-names) *month-names*)
 
     ;; Return month name for m a month number in [1, 12]
     (define (month-name m)
@@ -67,6 +75,14 @@
               (list-ref *month-names* (- (date-month date) 1))
               (date-year date)))
 
+    ;; Convert the given date as a decimal, e.g. March 31st is year.25
+    (define (date->decimal date)
+      (+ (date-year date)
+         (/ (day-of-year date)
+            (if (leap-year? (date-year date))
+              366
+              365))))
+
     ;; Return the Julian Day (JD) for given date
     (define (julian-day date)
       (let ((m (date-month date))
@@ -84,6 +100,25 @@
              b
              -15245/10))))
 
+    ;; Return the date for a given Julian Day
+    (define (julian-day->date jd)
+      (let* ((adj-jd (+ jd 0.5))
+             (Z (floor adj-jd))
+             (F (- adj-jd Z))
+             (A (if (< Z 2299161)
+                  Z
+                  (let ((alpha (floor (/ (- Z 186721625/100) 3652425/100))))
+                    (+ Z 1 alpha (neg (floor (/ alpha 4)))))))
+             (B (+ A 1524))
+             (C (floor (/ (- B 1221/10) 36525/100)))
+             (D (floor (* 36525/100 C)))
+             (E (floor (/ (- B D) 306001/10000)))
+
+             (d (+ B (neg D) (neg (floor (* 306001/10000 E))) F))
+             (m (if (< E 14) (- E 1) (- E 13)))
+             (y (if (> m 2) (- C 4716) (- C 4715))))
+        (make-date (exact (round d)) (exact (round m)) (exact (round y)))))
+
     ;; Return the Julian Ephemeris Day (JDE) for given date
     (define (julian-ephemeris-day date)
       (+ (julian-day date)
@@ -99,7 +134,7 @@
 
     ;; Return the day of week of given date as a fixnum
     (define (day-of-week-as-fixnum date)
-      (floor (modulo (+ 3/2 (julian-day date)) 7)))
+      (modulo (exact (floor (+ 3/2 (julian-day date)))) 7))
 
     ;; Return the day of week of given date
     (define (day-of-week date)

@@ -1,13 +1,13 @@
 
 (define-library
-  (astrocalc earth)
+  (astronomy earth)
   (export
     earth-longitude-latitude-radius
     )
   (import (scheme base)
           (scheme cxr)
           (scheme inexact)
-          (astrocalc calendar)
+          (astronomy calendar)
           (srfi 1))
 
   (begin

@@ -1,14 +1,16 @@
 
 (define-library
-  (astrocalc utility)
+  (astronomy utility)
   (export
     divisible?
+    deg-in-range
     deg-to-rad
     rad-to-deg
     dsin
     dasin
     dcos
     neg
+    group-by
     )
   (import (scheme base)
           (scheme inexact)
@@ -23,6 +25,10 @@
     ;; Return negative of given number
     (define (neg n)
       (* -1 n))
+
+    ;; Ensures a given degree is in the range [0,360)
+    (define (deg-in-range d)
+      (floor-remainder d 360))
 
     ;; Return radians equivalent of given angle in degrees
     (define (deg-to-rad d)
@@ -43,6 +49,27 @@
     ;; Compute cos of an angle given in degrees
     (define (dcos deg)
       (cos (deg-to-rad deg)))
+
+    ;; Rearrange items in lst into lists of size n, padding last list with #f
+    (define (group-by lst n)
+      (let loop ((rem lst)
+                 (result '())
+                 (row '()))
+        (cond ((null? rem) ; finished
+               (if (null? row)
+                 (reverse result)
+                 (reverse 
+                   (cons 
+                     (append (reverse row) (make-list (- n (length row)) #f))
+                     result))))
+              ((= n (length row)) ; finished row
+               (loop rem
+                     (cons (reverse row) result)
+                     '()))
+              (else ; add item to row
+                (loop (cdr rem)
+                      result 
+                      (cons (car rem) row))))))
 
     ))
 

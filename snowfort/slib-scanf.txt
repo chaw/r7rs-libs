@@ -1,0 +1,33 @@
+= Documentation for Scanf
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Standard-Formatted-Input.html#Standard-Formatted-Input[]
+
+To use: +(import (slib scanf))+
+
+Note: this library only exports two functions.
+
++scanf-read-list+ accepts a format string and an optional port or string to 
+read from (else the +current-input-port+ is used for input).  The output 
+is a list of the tokens successfully read:
+
+[source,scheme]
+----
+> (scanf-read-list "%d %d %d" "1 23 456")
+(1 23 456)
+----
+
++scanf-read-values+ accepts a format string and an optional port or string to 
+read from (else the +current-input-port+ is used for input).  The output 
+is a set of values for the total number of tokens, and then the individual 
+token values successfully read:
+
+[source,scheme]
+----
+(let-values (((n x y z) (scanf-read-values "%d %d %d" "2 3 4")))
+  ; n = 3, x = 2, y = 3, z = 4 
+  )
+----
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

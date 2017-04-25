@@ -6,15 +6,15 @@
 ;; Peter Lane, 2017
 
 (define-library
-  (astrocalc jupiter)
+  (astronomy jupiter)
   (export
     jupiter-central-meridian-low-accuracy
     )
   (import (scheme base)
           (scheme inexact)
-          (astrocalc calendar)
-          (astrocalc earth)
-          (astrocalc utility)
+          (astronomy calendar)
+          (astronomy earth)
+          (astronomy utility)
           (robin statistics))
 
   (begin

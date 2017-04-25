@@ -11,7 +11,7 @@
   (slib topological-sort)
   (export topological-sort)
   (import (scheme base)
-          (srfi 69))  ;; TODO: update to SRFI 125?
+          (srfi 69)) 
 
   (begin
 

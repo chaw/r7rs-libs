@@ -1,10 +1,10 @@
 
 (import (scheme base)
-        (astrocalc calendar)
+        (astronomy calendar)
         (srfi 64)
         (robin srfi64-utils))
 
-(test-begin "astrocalc-calendar")
+(test-begin "astronomy-calendar")
 
 (test-equal 2 (day-of-year (make-date 2 1 2013)))
 (test-equal 32 (day-of-year (make-date 1 2 2013)))
@@ -21,6 +21,13 @@
 (test-assert (not (gregorian-date? (make-date 1 1 1752))))
 (test-assert (not (julian-date? (make-date 1 1 1751))))
 (test-assert (julian-date? (make-date 1 1 1752)))
+
+(test-equal 1 (date-day (julian-day->date 2451544.5)))
+(test-equal 1 (date-month (julian-day->date 2451544.5)))
+(test-equal 2000 (date-year (julian-day->date 2451544.5)))
+(test-equal 4 (date-day (julian-day->date 2436115.5)))
+(test-equal 10 (date-month (julian-day->date 2436115.5)))
+(test-equal 1957 (date-year (julian-day->date 2436115.5)))
 
 (test-assert (leap-year? 2000))
 (test-assert (not (leap-year? 1900)))

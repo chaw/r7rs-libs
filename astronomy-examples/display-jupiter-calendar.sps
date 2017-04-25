@@ -2,8 +2,8 @@
 ;; of Jupiter's Central Meridian in System I and II
 
 (import (scheme base)
-        (astrocalc calendar)
-        (astrocalc jupiter)
+        (astronomy calendar)
+        (astronomy jupiter)
         (slib format))
 
 ;; Display calendar for given year, s = I or II

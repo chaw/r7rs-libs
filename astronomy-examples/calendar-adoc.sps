@@ -8,31 +8,8 @@
         (scheme read)
         (slib format)
         (slib scanf)
-        (astrocalc calendar)
+        (astronomy calendar)
         (srfi 1))
-
-;; -- General utility function
-
-;; Rearrange items in lst into lists of size n, padding last list with #f
-(define (group-by lst n)
-  (let loop ((rem lst)
-             (result '())
-             (row '()))
-    (cond ((null? rem) ; finished
-           (if (null? row)
-             (reverse result)
-             (reverse 
-               (cons 
-                 (append (reverse row) (make-list (- n (length row)) #f))
-                 result))))
-          ((= n (length row)) ; finished row
-           (loop rem
-                 (cons (reverse row) result)
-                 '()))
-          (else ; add item to row
-            (loop (cdr rem)
-                  result 
-                  (cons (car rem) row))))))
 
 ;; -- utilities to write asciidoc 
 
@@ -87,7 +64,7 @@
                                month-dates)))
     (write-table 
       ; table for month with week names as first row, to form heading
-      (cons (weekdays)
+      (cons (week-days)
             (group-by (map date-information spaced-dates)
                       7))
       ; title for table
