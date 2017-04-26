@@ -9,7 +9,6 @@
     dsin
     dasin
     dcos
-    neg
     group-by
     )
   (import (scheme base)
@@ -21,10 +20,6 @@
     ;; Return #t if p divides exactly into n
     (define (divisible? n p)
       (zero? (modulo n p)))
-
-    ;; Return negative of given number
-    (define (neg n)
-      (* -1 n))
 
     ;; Ensures a given degree is in the range [0,360)
     (define (deg-in-range d)

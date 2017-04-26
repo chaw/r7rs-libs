@@ -25,35 +25,26 @@
     (define (jupiter-central-meridian-low-accuracy date)
       (let* ((jde (julian-ephemeris-day date))
              (d (- jde 2451545))
-             (V (floor-remainder
-                  (+ 17274/100 (* 111588/100000000 d))
-                  360))
-             (M (floor-remainder 
-                  (+ 357529/1000 (* 9856003/10000000 d))
-                  360))
-             (N (floor-remainder
-                  (+ 2002/100 (* 830853/10000000 d) (* 329/1000 (dsin V)))
-                  360))
-             (J (floor-remainder
-                  (+ 66115/1000 (* 9025179/10000000 d) (* -1 329/1000 (dsin V)))
-                  360))
-             (A (+ (* 1915/1000 (dsin M)) (* 20/1000 (dsin (* 2 M)))))
-             (B (+ (* 5555/1000 (dsin N)) (* 168/1000 (dsin (* 2 N)))))
+             (V (deg-in-range
+                  (+ 172.74 (* 0.00111588 d))))
+             (M (deg-in-range 
+                  (+ 357.529 (* 0.9856003 d))))
+             (N (deg-in-range
+                  (+ 20.02 (* 0.0830853 d) (* 0.329 (dsin V)))))
+             (J (deg-in-range
+                  (+ 66.115 (* 0.9025179 d) (* -1 0.329 (dsin V)))))
+             (A (+ (* 1.915 (dsin M)) (* 0.020 (dsin (* 2 M)))))
+             (B (+ (* 5.555 (dsin N)) (* 0.168 (dsin (* 2 N)))))
              (K (- (+ J A) B))
-             (Re (- 100014/100000 (* 1671/100000 (dcos M)) (* 14/100000 (dcos (* 2 M)))))
-             (rj (- 520872/100000 (* 25208/100000 (dcos N)) (* 611/100000 (dcos (* 2 N)))))
-             (delta (sqrt (- (+ (* Re Re) (* rj rj)) (* 2 Re rj (dcos K)))))
+             (Re (+ 1.00014 (* -0.01671 (dcos M)) (* -0.00014 (dcos (* 2 M)))))
+             (rj (+ 5.20872 (* -0.25208 (dcos N)) (* -0.00611 (dcos (* 2 N)))))
+             (delta (sqrt (+ (* Re Re) (* rj rj) (* -2 Re rj (dcos K)))))
              (sin-psi (* (/ Re delta) (dsin K)))
              (psi (dasin sin-psi))
-             (w1 (floor-remainder
-                   (+ 21098/100 (* 8778169088/10000000 (- d (/ delta 173))) psi (* -1 B))
-                   360))
-             (w2 (floor-remainder
-                   (+ 18723/100 (* 8701869088/10000000 (- d (/ delta 173))) psi (* -1 B))
-                   360))
-             (lo (earth-longitude-latitude-radius date))
-             (l (+ 3435/100 (* 83091/1000000 d) (* 329/1000 (dsin V)) B))
-             )
+             (w1 (deg-in-range
+                   (+ 210.98 (* 877.8169088 (- d (/ delta 173))) psi (- B))))
+             (w2 (deg-in-range
+                   (+ 187.23 (* 870.1869088 (- d (/ delta 173))) psi (- B)))))
         (values w1 w2)))
 
     ))

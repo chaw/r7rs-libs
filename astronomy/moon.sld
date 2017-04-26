@@ -1,8 +1,6 @@
 ;; Calculations about the Moon
 ;; Peter Lane, 2017
 
-;; TODO: Still has some errors
-
 (define-library
   (astronomy moon)
   (export lunar-phase)
@@ -16,11 +14,9 @@
     ;; Returns the JDE for that phase
     (define (lunar-phase date phase)
       (define new-moon-constants
-        (map (lambda (n) (/ n 100000))
-             '(-40720 17241 1608 1039 739 -514 208)))
+             '(-0.40720 0.17241 0.01608 0.01039 0.00739 -0.00514 0.00208))
       (define full-moon-constants
-        (map (lambda (n) (/ n 100000))
-             '(-40614 17302 1614 1043 734 -515 209)))
+             '(-0.40614 0.17302 0.01614 0.01043 0.00734 -0.00515 0.00209))
       (define (adjust-whole JDE E M MM F T constants)
         (+ JDE
            (* (list-ref constants 0) (dsin MM))
@@ -30,154 +26,154 @@
            (* (list-ref constants 4) E (dsin (- MM M)))
            (* (list-ref constants 5) E (dsin (+ MM M)))
            (* (list-ref constants 6) E E (dsin (* 2 M)))
-           (* -111/100000 (dsin (- MM (* 2 F))))
-           (* -57/100000 (dsin (+ MM (* 2 F))))
-           (* 56/100000 E (dsin (+ (* 2 MM) M)))
-           (* -42/100000 (dsin (* 3 MM)))
-           (* 42/100000 E (dsin (+ M (* 2 F))))
-           (* 38/100000 E (dsin (- M (* 2 F))))
-           (* -24/100000 E (dsin (- (* 2 MM) M)))
-           (* -17/100000 (dsin T))
-           (* -7/100000 (dsin (+ MM (* 2 M))))
-           (* 4/100000 (dsin (- (* 2 MM) (* 2 F))))
-           (* 4/100000 (dsin (* 3 M)))
-           (* 3/100000 (dsin (+ MM M (neg (* 2 F)))))
-           (* 3/100000 (dsin (+ (* 2 MM) (* 2 F))))
-           (* 3/100000 (dsin (+ MM M (* 2 F))))
-           (* 3/100000 (dsin (+ MM (neg M) (* 2 F))))
-           (* 2/100000 (dsin (+ MM (neg M) (neg (* 2 F)))))
-           (* 2/100000 (dsin (+ (* 3 MM) M)))
-           (* 2/100000 (dsin (* 4 MM)))))
+           (* -0.00111 (dsin (- MM (* 2 F))))
+           (* -0.00057 (dsin (+ MM (* 2 F))))
+           (* 0.00056 E (dsin (+ (* 2 MM) M)))
+           (* -0.00042 (dsin (* 3 MM)))
+           (* 0.00042 E (dsin (+ M (* 2 F))))
+           (* 0.00038 E (dsin (- M (* 2 F))))
+           (* -0.00024 E (dsin (- (* 2 MM) M)))
+           (* -0.00017 (dsin T))
+           (* -0.00007 (dsin (+ MM (* 2 M))))
+           (* 0.00004 (dsin (- (* 2 MM) (* 2 F))))
+           (* 0.00004 (dsin (* 3 M)))
+           (* 0.00003 (dsin (+ MM M (- (* 2 F)))))
+           (* 0.00003 (dsin (+ (* 2 MM) (* 2 F))))
+           (* -0.00003 (dsin (+ MM M (* 2 F))))
+           (* 0.00003 (dsin (+ MM (- M) (* 2 F))))
+           (* -0.00002 (dsin (+ MM (- M) (- (* 2 F)))))
+           (* -0.00002 (dsin (+ (* 3 MM) M)))
+           (* 0.00002 (dsin (* 4 MM)))))
       (define (adjust-quarter JDE E M MM F T)
         (+ JDE
-           (* -62801/100000 (dsin MM))
-           (* 17172/100000 E (dsin M))
-           (* 1183/100000 E (dsin (+ MM M)))
-           (* 862/100000 (dsin (* 2 MM)))
-           (* 804/100000 (dsin (* 2 F)))
-           (* 454/100000 E (dsin (- MM M)))
-           (* 204/100000 E E (dsin (* 2 M)))
-           (* -180/100000 (dsin (- MM (* 2 F))))
-           (* -70/100000 (dsin (+ MM (* 2 F))))
-           (* -40/100000 (dsin (* 3 MM)))
-           (* -34/100000 E (dsin (- (* 2 MM) M)))
-           (* 32/100000 E (dsin (+ M (* 2 F))))
-           (* 32/100000 E (dsin (- M (* 2 F))))
-           (* -28/100000 E E (dsin (+ MM (* 2 M))))
-           (* 27/100000 E (dsin (+ (* 2 MM) M)))
-           (* -17/100000 (dsin T))
-           (* -5/100000 (dsin (+ MM (neg M) (neg (* 2 F)))))
-           (* 4/100000 (dsin (+ (* 2 MM) (* 2 F))))
-           (* -4/100000 (dsin (+ MM M (* 2 F))))
-           (* 4/100000 (dsin (- MM (* 2 M))))
-           (* 3/100000 (dsin (+ MM M (neg (* 2 F)))))
-           (* 3/100000 (dsin (* 3 M)))
-           (* 2/100000 (dsin (- (* 2 MM) (* 2 F))))
-           (* 2/100000 (dsin (+ MM (neg M) (* 2 F))))
-           (* -2/100000 (dsin (+ (* 3 MM) M)))))
+           (* -0.62801 (dsin MM))
+           (* 0.17172 E (dsin M))
+           (* -0.01183 E (dsin (+ MM M)))
+           (* 0.00862 (dsin (* 2 MM)))
+           (* 0.00804 (dsin (* 2 F)))
+           (* 0.00454 E (dsin (- MM M)))
+           (* 0.00204 E E (dsin (* 2 M)))
+           (* -0.00180 (dsin (- MM (* 2 F))))
+           (* -0.00070 (dsin (+ MM (* 2 F))))
+           (* -0.00040 (dsin (* 3 MM)))
+           (* -0.00034 E (dsin (- (* 2 MM) M)))
+           (* 0.00032 E (dsin (+ M (* 2 F))))
+           (* 0.00032 E (dsin (- M (* 2 F))))
+           (* -0.00028 E E (dsin (+ MM (* 2 M))))
+           (* 0.00027 E (dsin (+ (* 2 MM) M)))
+           (* -0.00017 (dsin T))
+           (* -0.00005 (dsin (+ MM (- M) (- (* 2 F)))))
+           (* 0.00004 (dsin (+ (* 2 MM) (* 2 F))))
+           (* -0.00004 (dsin (+ MM M (* 2 F))))
+           (* 0.00004 (dsin (- MM (* 2 M))))
+           (* 0.00003 (dsin (+ MM M (- (* 2 F)))))
+           (* 0.00003 (dsin (* 3 M)))
+           (* 0.00002 (dsin (- (* 2 MM) (* 2 F))))
+           (* 0.00002 (dsin (+ MM (- M) (* 2 F))))
+           (* -0.00002 (dsin (+ (* 3 MM) M)))))
       (define (adjust-all JDE k T)
         (let ((A1 (deg-in-range
-                    (+ 29977/100 
-                       (* k 107408/1000000)
-                       (neg (* T T 9173/1000000)))))
+                    (+ 299.77 
+                       (* k 0.107408)
+                       (* T T -0.009173))))
               (A2 (deg-in-range
-                    (+ 25188/100
-                       (* k 16321/1000000))))
+                    (+ 251.88
+                       (* k 0.016321))))
               (A3 (deg-in-range
-                    (+ 25183/100
-                       (* k 26651886/1000000))))
+                    (+ 251.83
+                       (* k 26.651886))))
               (A4 (deg-in-range
-                    (+ 34942/100 
-                       (* k 36412478/1000000))))
+                    (+ 349.42 
+                       (* k 36.412478))))
               (A5 (deg-in-range
-                    (+ 8466/100
-                       (* k 18206239/1000000))))
+                    (+ 84.66
+                       (* k 18.206239))))
               (A6 (deg-in-range
-                    (+ 14174/100
-                       (* k 53303771/1000000))))
+                    (+ 141.74
+                       (* k 53.303771))))
               (A7 (deg-in-range
-                    (+ 20714/100
-                       (* k 2453732/1000000))))
+                    (+ 207.14
+                       (* k 2.453732))))
               (A8 (deg-in-range
-                    (+ 15484/100
-                       (* k 730686/100000))))
+                    (+ 154.84
+                       (* k 7.30686))))
               (A9 (deg-in-range
-                    (+ 3452/100
-                       (* k 27261239/1000000))))
+                    (+ 34.52
+                       (* k 27.261239))))
               (A10 (deg-in-range 
-                     (+ 20719/100
-                        (* k 121824/1000000))))
+                     (+ 207.19
+                        (* k 0.121824))))
               (A11 (deg-in-range
-                     (+ 29134/100 
-                        (* k 1844379/1000000))))
+                     (+ 291.34 
+                        (* k 1.844379))))
               (A12 (deg-in-range
-                     (+ 16172/100
-                        (* k 24198154/1000000))))
+                     (+ 161.72
+                        (* k 24.198154))))
               (A13 (deg-in-range
-                     (+ 23956/100
-                        (* k 25513099/1000000))))
+                     (+ 239.56
+                        (* k 25.513099))))
               (A14 (deg-in-range
-                     (+ 33155/100
-                        (* k 3592518/1000000)))))
+                     (+ 331.55
+                        (* k 3.592518)))))
           (+ JDE 
-             (* 325/1000000 (dsin A1))
-             (* 165/1000000 (dsin A2))
-             (* 164/1000000 (dsin A3))
-             (* 126/1000000 (dsin A4))
-             (* 110/1000000 (dsin A5))
-             (* 62/1000000 (dsin A6))
-             (* 60/1000000 (dsin A7))
-             (* 56/1000000 (dsin A8))
-             (* 47/1000000 (dsin A9))
-             (* 42/1000000 (dsin A10))
-             (* 40/1000000 (dsin A11))
-             (* 37/1000000 (dsin A12))
-             (* 35/1000000 (dsin A13))
-             (* 23/1000000 (dsin A14)))))
+             (* 0.000325 (dsin A1))
+             (* 0.000165 (dsin A2))
+             (* 0.000164 (dsin A3))
+             (* 0.000126 (dsin A4))
+             (* 0.000110 (dsin A5))
+             (* 0.000062 (dsin A6))
+             (* 0.000060 (dsin A7))
+             (* 0.000056 (dsin A8))
+             (* 0.000047 (dsin A9))
+             (* 0.000042 (dsin A10))
+             (* 0.000040 (dsin A11))
+             (* 0.000037 (dsin A12))
+             (* 0.000035 (dsin A13))
+             (* 0.000023 (dsin A14)))))
       ;
       (let* ((k (+ (floor (* (- (date->decimal date) 2000)
-                             123685/10000))
+                             12.3685))
                    (case phase
                      ((new-moon) 0.0)
                      ((first-quarter) 0.25)
                      ((full-moon) 0.5)
                      ((last-quarter) 0.75)
                      (else (error "Unknown phase in lunar-phase")))))
-             (T (/ k 123685/100))
-             (JDE (+ 245155009766/100000
-                     (* k 29530588861/1000000000)
-                     (* T T 15437/100000000)
-                     (neg (* T T T 15/100000000))
-                     (* T T T T 73/100000000000)))
-             (E (+ 1 (neg (* T 2516/1000000)) (neg (* T T 74/10000000))))
+             (T (/ k 1236.85))
+             (JDE (+ 2451550.09766
+                     (* k 29.530588861)
+                     (* T T 0.00015437)
+                     (* T T T -0.00000015)
+                     (* T T T T 0.00000000073)))
+             (E (+ 1 (* T -0.002516) (* T T -0.0000074)))
              (sun-anomaly (deg-in-range
-                            (+ 25534/10000
-                               (* k 291053567/10000000)
-                               (neg (* T T 14/10000000))
-                               (neg (* T T T 11/100000000)))))
+                            (+ 2.5534
+                               (* k 29.1053567)
+                               (* T T -0.0000014)
+                               (* T T T -0.00000011))))
              (moon-anomaly (deg-in-range
-                             (+ 2015643/10000
-                                (* k 38581693528/100000000)
-                                (* T T 107582/10000000)
-                                (* T T T 1238/100000000)
-                                (neg (* T T T T 58/1000000000)))))
+                             (+ 201.5643
+                                (* k 385.81693528)
+                                (* T T 0.0107582)
+                                (* T T T 0.00001238)
+                                (* T T T T -0.000000058))))
              (moon-arg-lat (deg-in-range
-                             (+ 1607108/10000
-                                (* k 39067050284/100000000)
-                                (neg (* T T 16118/10000000))
-                                (neg (* T T T 227/100000000))
-                                (* T T T T 11/1000000000))))
+                             (+ 160.7108
+                                (* k 390.67050284)
+                                (* T T -0.0016118)
+                                (* T T T -0.00000227)
+                                (* T T T T 0.000000011))))
              (moon-asc-long (deg-in-range
-                              (+ 1247746/10000
-                                 (neg (* k 156375588/100000000))
-                                 (* T T 20672/10000000)
-                                 (* T T T 215/100000000))))
-             (W (+ 306/100000
-                   (neg (* 38/100000 E (dcos sun-anomaly)))
-                   (* 26/100000 (dcos moon-anomaly))
-                   (neg (* 2/100000 (dcos (- moon-anomaly sun-anomaly))))
-                   (* 2/100000 (dcos (+ moon-anomaly sun-anomaly)))
-                   (* 2/10000 (dcos (* 2 moon-asc-long)))))
+                              (+ 124.7746
+                                 (* k -1.56375588)
+                                 (* T T 0.0020672)
+                                 (* T T T 0.00000215))))
+             (W (+ 0.00306
+                   (* -0.00038 E (dcos sun-anomaly))
+                   (* 0.00026 (dcos moon-anomaly))
+                   (* -0.00002 (dcos (- moon-anomaly sun-anomaly)))
+                   (* 0.00002 (dcos (+ moon-anomaly sun-anomaly)))
+                   (* 0.00002 (dcos (* 2 moon-asc-long)))))
              (phase-adj-JDE 
                (case phase ; adjust JDE according to phase
                  ((new-moon)
@@ -188,8 +184,10 @@
                   (+ W
                      (adjust-quarter JDE E sun-anomaly moon-anomaly moon-arg-lat moon-asc-long)))
                  ((last-quarter)
-                  (+ (neg W)
-                     (adjust-quarter JDE E sun-anomaly moon-anomaly moon-arg-lat moon-asc-long))))))
+                  (+ (- W)
+                     (adjust-quarter JDE E sun-anomaly moon-anomaly moon-arg-lat moon-asc-long)))
+                 (else
+                   (error "Unknown phase in lunar-phase")))))
         (adjust-all phase-adj-JDE k T)))
 
     ))

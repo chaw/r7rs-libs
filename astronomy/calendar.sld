@@ -3,8 +3,6 @@
 
 ;; Peter Lane, 2017
 
-;; TODO: Support getting time as well as date from julian-day->date
-
 (define-library
   (astronomy calendar)
   (export 
@@ -24,11 +22,17 @@
     julian-date?
     julian-day
     julian-day->date
+    julian-day->date+time
     julian-ephemeris-day
     leap-year?
     make-date
     month-name
     month-names
+    time->string
+    time?
+    time-hour
+    time-minute
+    time-second
     week-days
     )
   (import (scheme base)
@@ -61,6 +65,14 @@
                         (month date-month)
                         (year date-year))
 
+    ;; Record for time
+    (define-record-type <time>
+                        (make-time hour minute second)
+                        time?
+                        (hour time-hour)
+                        (minute time-minute)
+                        (second time-second))
+
     ;; Return #t if two dates represent identical dates
     (define (date-equal? date1 date2)
       (and (= (date-day date1) (date-day date2))
@@ -74,6 +86,13 @@
               (date-day date)
               (list-ref *month-names* (- (date-month date) 1))
               (date-year date)))
+
+    ;; Return the given time in a string format
+    (define (time->string time)
+      (format #f "~dh ~dm ~ds"
+              (time-hour time)
+              (time-minute time)
+              (time-second time)))
 
     ;; Convert the given date as a decimal, e.g. March 31st is year.25
     (define (date->decimal date)
@@ -94,8 +113,8 @@
                (b (if (gregorian-date? date)
                     0
                     (+ 2 (* -1 a) (floor (/ a 4))))))
-          (+ (floor (* 36525/100 (+ y 4716)))
-             (floor (* 306001/10000 (+ 1 m)))
+          (+ (floor (* 365.25 (+ y 4716)))
+             (floor (* 30.6001 (+ 1 m)))
              (date-day date)
              b
              -15245/10))))
@@ -107,22 +126,31 @@
              (F (- adj-jd Z))
              (A (if (< Z 2299161)
                   Z
-                  (let ((alpha (floor (/ (- Z 186721625/100) 3652425/100))))
-                    (+ Z 1 alpha (neg (floor (/ alpha 4)))))))
+                  (let ((alpha (floor (/ (- Z 1867216.25) 36524.25))))
+                    (+ Z 1 alpha (- (floor (/ alpha 4)))))))
              (B (+ A 1524))
-             (C (floor (/ (- B 1221/10) 36525/100)))
-             (D (floor (* 36525/100 C)))
-             (E (floor (/ (- B D) 306001/10000)))
+             (C (floor (/ (- B 122.1) 365.25)))
+             (D (floor (* 365.25 C)))
+             (E (floor (/ (- B D) 30.6001)))
 
-             (d (+ B (neg D) (neg (floor (* 306001/10000 E))) F))
+             (d (+ B (- D) (- (floor (* 30.6001 E))) F))
              (m (if (< E 14) (- E 1) (- E 13)))
              (y (if (> m 2) (- C 4716) (- C 4715))))
-        (make-date (exact (round d)) (exact (round m)) (exact (round y)))))
+        (make-date (exact (floor d)) (exact (floor m)) (exact (floor y)))))
+
+    ;; Return the date and time for a given Julian Day as values
+    (define (julian-day->date+time jd)
+      (let* ((date (julian-day->date jd))
+             (rem-secs (exact (floor (* 86400 (- jd (julian-day date))))))
+             (h (exact (floor (/ rem-secs 3600))))
+             (m (exact (floor (/ (- rem-secs (* 3600 h)) 60))))
+             (s (- rem-secs (* 3600 h) (* 60 m))))
+        (values date (make-time h m s))))
 
     ;; Return the Julian Ephemeris Day (JDE) for given date
     (define (julian-ephemeris-day date)
       (+ (julian-day date)
-         67/100000)) ; delta-T for 2013
+         0.00067)) ; delta-T for 2013
 
     ;; Return the day of year of given date
     (define (day-of-year date)
@@ -174,10 +202,10 @@
                     ((b c) (floor/ year 100))
                     ((d e) (floor/ b 4))
                     ((f u) (floor/ (+ 8 b) 25))
-                    ((g v) (floor/ (+ b (neg f) 1) 3))
-                    ((w h) (floor/ (+ (* 19 a) b (neg d) (neg g) 15) 30))
+                    ((g v) (floor/ (+ b (- f) 1) 3))
+                    ((w h) (floor/ (+ (* 19 a) b (- d) (- g) 15) 30))
                     ((i k) (floor/ c 4))
-                    ((x l) (floor/ (+ 32 (* 2 e) (* 2 i) (neg h) (neg k)) 7))
+                    ((x l) (floor/ (+ 32 (* 2 e) (* 2 i) (- h) (- k)) 7))
                     ((m y) (floor/ (+ a (* 11 h) (* 22 l)) 451))
                     ((n p) (floor/ (+ h l (* -7 m) 114) 31)))
                    (make-date (+ 1 p) n year)))
