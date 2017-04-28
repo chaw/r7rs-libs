@@ -19,8 +19,6 @@
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 ;;
-;; Changes to original:
-;; 1. Relies on srfi-60 from host scheme
 
 (define-library
   (slib math-integer)
@@ -31,8 +29,7 @@
           (rename remainder-ei remainder)
           (rename modulo-ei modulo)
           round-quotient)
-  (import (scheme base)
-          (srfi 60))
+  (import (scheme base))
 
   (begin
 
@@ -111,6 +108,7 @@
                  (not (zero? n2)))
           (proc n1 n2)
           (error name n1 n2))))
+
     ;;@args n1 n2
     ;;@defunx remainder n1 n2
     ;;@defunx modulo n1 n2

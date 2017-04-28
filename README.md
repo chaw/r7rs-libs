@@ -14,6 +14,9 @@ Tested against:
 * Larceny 0.99: http://www.larcenists.org/
 * Sagittarius 0.8.2: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
+## Astronomy
+
+Some algorithms from Jean Meeus, Astronomical Algorithms, 2009 (second edition with corrections).
 
 ## AutoDiff
 

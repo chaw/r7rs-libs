@@ -1,0 +1,9 @@
+= Documentation for Queue
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Queues.html#Queues[]
+
+To use: +(import (slib queue))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

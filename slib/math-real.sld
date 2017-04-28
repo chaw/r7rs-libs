@@ -19,11 +19,6 @@
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 ;;
-;; Changes to original:
-;; 1. Assumes complex and real numbers supported
-;; 2. renamed abs to real-abs to be consistent with other functions, 
-;;    and avoid a clash with (scheme base)
-
 (define-library
   (slib math-real)
   (export real-exp

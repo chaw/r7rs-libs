@@ -29,10 +29,12 @@
     month-name
     month-names
     time->string
-    time?
     time-hour
+    time-in-julian-centuries
+    time-in-julian-millennia
     time-minute
     time-second
+    time?
     week-days
     )
   (import (scheme base)
@@ -151,6 +153,15 @@
     (define (julian-ephemeris-day date)
       (+ (julian-day date)
          0.00067)) ; delta-T for 2013
+
+    ;; Returns the date as time measured in Julian millennia from the epoch J2000.0
+    (define (time-in-julian-millennia date)
+      (/ (- (julian-ephemeris-day date) 2451545.0)
+         365250))
+
+    ;; Returns the date as time measured in Julian centuries from the epoch J2000.0
+    (define (time-in-julian-centuries date)
+      (* 10 (time-in-julian-millennia date)))
 
     ;; Return the day of year of given date
     (define (day-of-year date)
