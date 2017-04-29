@@ -8,14 +8,14 @@ The R7RS Libraries referred to here are a collection of libraries written for
 or, mostly, repackaged for R7RS Scheme.  The library implementations 
 are available from https://github.com/petercrlane/r7rs-libs[].
 
-The collection has been tested on Chibi, Kawa, Larceny and Sagittarius
-implementations.  Any incompatibilities or test failures are noted on the
-github page.  In most cases, the collection will work on other R7RS
-implementations.  However, there are some dependencies.  For example, +(slib
-directory)+ requires some interaction with the operating system, which is
-platform specific.  Most of the individual libraries rely on one or more SRFIs.
-Those SRFIs not currently included with the tested implementations are
-included, as are some R6RS libraries.
+The collection has been tested on Chibi, Gauche, Kawa, Larceny and Sagittarius
+implementations (in R7RS mode, if necessary).  Any incompatibilities or test
+failures are noted in +README.md+.  In most cases, the collection will work
+on other R7RS implementations.  However, there are some dependencies.  For
+example, +(slib directory)+ requires some interaction with the operating
+system, which is platform specific.  Most of the individual libraries rely on
+one or more SRFIs.  Those SRFIs not currently included with the tested
+implementations are included in this collection, as are some R6RS libraries.
 
 See https://github.com/petercrlane/r7rs-libs/blob/master/LICENSE.md[] for license information.
 
@@ -42,6 +42,7 @@ call your implementation with SCHEME_LIBS in its library path.  e.g.
 
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
+    > gosh -r7 -I SCHEME_LIBS -I SCHEME_LIBS/srfis/gauche program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
     > sagittarius -r7 -L SCHEME_LIBS -L SCHEME_LIBS/srfis/sagittarius program.sps
 ----

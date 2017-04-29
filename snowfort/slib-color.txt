@@ -1,0 +1,10 @@
+= Documentation for Color 
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Color-Data_002dType.html[]
+and "Digital Color Spaces" at the bottom of http://people.csail.mit.edu/jaffer/slib/Color-Spaces.html[]
+
+To use: +(import (slib color))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

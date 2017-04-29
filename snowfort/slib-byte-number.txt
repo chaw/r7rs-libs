@@ -1,0 +1,12 @@
+= Documentation for Byte/Number Conversions
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Byte_002fNumber-Conversions.html#Byte_002fNumber-Conversions[]
+
+To use: +(import (slib byte-number))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+Note: Some implementations fail conversions of some of the extreme values, 
+for example representations of infinity or smallest possible numbers in range.
+

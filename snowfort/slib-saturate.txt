@@ -1,6 +1,7 @@
-= Documentation for Math Real
+= Documentation for Saturated Colour System 
 
 For more information including compatibility, examples and test cases, 
 see https://github.com/petercrlane/r7rs-libs[]
 
-include::../doc/slib-math-real.txt[]
+include::../doc/slib-saturate.txt[]
+

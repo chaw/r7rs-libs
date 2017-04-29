@@ -1,0 +1,33 @@
+=== NBS/ISCC Colour System: +(import (slib nbs-iscc))+
+
+indexterm:[nbs-iscc]
+This library provides a mapping of colour names to colour values (as defined in +(slib color)+) 
+based on the NBS/ISCC colour system.  For more information see http://tx4.us/nbs-iscc.htm[]
+
+Two functions are provided:
+
+. indexterm2:[+nbs-iscc-names+] returns a list of all the names
+. indexterm2:[+nbs-iscc+] returns the named colour
+
+[source,scheme]
+----
+sash[r7rs]> (length (nbs-iscc-names))
+267
+sash[r7rs]> (list-ref (nbs-iscc-names) 0)
+"vivid yellowish green"
+sash[r7rs]> (list-ref (nbs-iscc-names) 100)
+"vivid purplish red"
+sash[r7rs]> (nbs-iscc "vivid yellowish green")
+#<<color> 0x2f629a0>
+sash[r7rs]> (color->string (nbs-iscc "vivid yellowish green"))    ; <1>
+"sRGB:39/166/76"
+sash[r7rs]> (nbs-iscc (list-ref (nbs-iscc-names) 100))
+#<<color> 0x226a900>
+sash[r7rs]> (color->string (nbs-iscc (list-ref (nbs-iscc-names) 100)))
+"sRGB:206/70/118"
+sash[r7rs]> (nbs-iscc "rnd")                                      ; <2>
+#f
+----
+<1> +color->string+ is available from the +(slib color)+ library
+<2> +nbs-iscc+ returns +#f+ if the name is not recognised
+

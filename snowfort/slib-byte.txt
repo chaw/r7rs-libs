@@ -1,0 +1,9 @@
+= Documentation for Byte
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Byte.html[]
+
+To use: +(import (slib byte))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

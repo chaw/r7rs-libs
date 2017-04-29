@@ -1,0 +1,10 @@
+= Documentation for TZfile
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+(The documentation for the slib time packages is combined in the following, 
+as the libraries are interconnected.)
+
+include::../doc/slib-time.txt[]
+

@@ -28,7 +28,9 @@
 
     ;; Ensures a given degree is in the range [0,360)
     (define (deg-in-range d)
-      (floor-remainder d 360))
+      (cond ((< d 0) (deg-in-range (+ d 360)))
+            ((>= d 360) (deg-in-range (- d 360)))
+            (else d)))
 
     ;; Return radians equivalent of given angle in degrees
     (define (deg-to-rad d)

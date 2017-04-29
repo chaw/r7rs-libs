@@ -19,6 +19,8 @@
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 ;;
+;; Note: make-rectangular and make-polar already require real arguments
+;;
 (define-library
   (slib math-real)
   (export real-exp
@@ -38,10 +40,9 @@
           mod
           ln
           (rename real-abs abs)
-          real-abs
-          make-rectangular
-          make-polar)
+          real-abs)
   (import (scheme base)
+          (scheme complex)
           (scheme inexact)
           (slib common))
 
@@ -85,13 +86,6 @@
              (if (and (real? x1) (real? x2))
                (proc x1 x2)
                (error name x1 x2)))))
-    ;@
-    (define make-rectangular
-      (must-be-real2 'make-rectangular 
-                     (and (provided? complex) make-rectangular)))
-    (define make-polar
-      (must-be-real2 'make-polar 
-                     (and (provided? complex) make-polar)))
 
     ;@
     (define real-log
@@ -111,7 +105,7 @@
 
     ;@
     (define real-atan
-      (and (provided? real)
+      (and (provided? 'real)
            (lambda (y . x)
              (if (and (real? y)
                       (or (null? x)

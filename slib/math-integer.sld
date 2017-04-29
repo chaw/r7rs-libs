@@ -29,7 +29,8 @@
           (rename remainder-ei remainder)
           (rename modulo-ei modulo)
           round-quotient)
-  (import (scheme base))
+  (import (scheme base)
+          (srfi 60))
 
   (begin
 
@@ -48,6 +49,7 @@
     (define (integer-expt n1 n2)
       (cond ((and (exact? n1) (integer? n1)
                   (exact? n2) (integer? n2)
+                  (not (negative? n2))
                   (not (and (not (<= -1 n1 1)) (negative? n2))))
              (expt n1 n2))
             (else (error 'integer-expt n1 n2))))

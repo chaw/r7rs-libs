@@ -53,10 +53,6 @@
 (define-library
   (slib time-zone)
   (export read-tzfile
-          string->transition-day-time
-          string->transition-time
-          string->time-offset
-          string->time-zone
           time-zone)
   (import (scheme base)
           (scheme char)
