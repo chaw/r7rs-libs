@@ -1,4 +1,4 @@
-=== +(slib rationalize)+
+=== Rationalize: +(import (slib rationalize))+
 
 indexterm:[rationalize]
 R7RS includes the function +rationalize+ which takes

@@ -1,0 +1,15 @@
+== SLIB Mathematics Libraries
+
+SLIB provides a lot of valuable support for various mathematical tasks; Aubrey Jaffer, 
+the main implementor and maintainer of SLIB, is himself a mathematician.
+
+include::slib-factor.txt[]
+
+include::slib-math-integer.txt[]
+
+include::slib-math-real.txt[]
+
+include::slib-random-inexact.txt[]
+
+include::slib-rationalize.txt[]
+

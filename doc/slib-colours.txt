@@ -1,0 +1,24 @@
+== SLIB Colour Libraries
+
+SLIB includes a number of libraries for defining, storing and manipulating colours.
+
+* +color+: defines a datatype for colours
+* +color-name+: a framework to store/retrieve colour names in SLIB's database implementation
+* +color-space+: conversions in colour spaces
+* +daylight+: models the sun and sky colours
+* +nbs-iscc+: mapping of colour names to colours
+* +resene+: mapping of colour names to colours
+* +saturate+: mapping of colour names to colours
+
+The following are good references for:
+
+* an overview of these libraries: http://people.csail.mit.edu/jaffer/Color/Color-Scheme[]
+* more about colours and their names: http://people.csail.mit.edu/jaffer/Color/[]
+
+include::slib-nbs-iscc.txt[]
+
+include::slib-resene.txt[]
+
+include::slib-saturate.txt[]
+
+

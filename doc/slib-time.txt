@@ -1,4 +1,4 @@
-=== Time/Date 
+== SLIB Time/Date Libraries
 
 The R7RS standard has a library +(scheme time)+ which contains three functions:
 +current-second+, to obtain the current time in seconds since 1/1/1970;
@@ -34,7 +34,7 @@ currently does not appear to support Windows.)
 
 None of these libraries handles leap seconds.
 
-==== +(slib common-lisp-time)+
+=== +(slib common-lisp-time)+
 
 indexterm:[common-lisp-time]
 These functions are based on those in Common Lisp to convert between 
@@ -90,7 +90,7 @@ format, and returns a Universal Time representation.
 3698862608.0
 ----
 
-==== +(slib time-core)+
+=== +(slib time-core)+
 
 indexterm:[time-core]
 A collection of functions to help in time conversions based around TM Time.  
@@ -134,7 +134,7 @@ assuming the location is GMT:
 
 Note that +time:gmtime+ calls indexterm2:[+time:split+]: +(time:gmtime tm)+ = +(time:split tm 0 0 "GMT")+
 
-==== +(slib posix-time)+
+=== +(slib posix-time)+
 
 indexterm:[posix-time] This library provides data structures and functions similar to those 
 in C's "time.h".
@@ -193,7 +193,7 @@ indexterm2:[+mktime+] converts the _TM Time_ to Calendar time:
 
 indexterm2:[+gmktime+] is the same as +mktime+, except it assumes a GMT time zone.
 
-==== +(slib time-zone)+
+=== +(slib time-zone)+
 
 indexterm:[time-zone]
 indexterm2:[+read-tzfile+] takes a path or, if given +#f+, uses a known path to a time-zone file.
@@ -228,7 +228,7 @@ indexterm2:[+time-zone+] will either:
 #(tz:rule "CST6CDT,M3.2.0/2:00:00,M11.1.0/2:00:00" "CST" "CDT" 21600 18000 (3 2 0 7200) (11 1 0 7200))
 ----
 
-==== +(slib tzfile)+
+=== +(slib tzfile)+
 
 indexterm:[tzfile]
 There is only one exported function: indexterm2:[+tzfile:read+].  This function reads time-zone 

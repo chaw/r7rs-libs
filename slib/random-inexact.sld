@@ -18,6 +18,8 @@
 ;each case.
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
+;;
+;; Rewritten to use SRFI 27 and random-real 
 
 ;;; Sphere and normal functions corrections from: Harald Hanche-Olsen
 
@@ -38,29 +40,14 @@
     ;;@code{(require 'random-inexact)}
     ;;@ftindex random-inexact
 
-    ;;; Generate an inexact real between 0 and 1.
-    (define random:uniform1		    ; how many chunks fill an inexact?
-      (do ((random:chunks/float 0 (+ 1 random:chunks/float))
-           (smidgen 1.0 (/ smidgen 256.0)))
-        ((or (= 1 (+ 1 smidgen)) (= 4 random:chunks/float))
-         (lambda (rnd)
-           (do ((cnt random:chunks/float (+ -1 cnt))
-                (uni (/ (rnd 256) 256.0)
-                     (/ (+ uni (rnd 256)) 256.0)))
-             ((= 1 cnt) uni))))))
-
-    ;;; use default source or set default to given seed
-    (define (get-generator args)
-      (unless (null? args)
-        (random-source-state-set! default-random-source (car args)))
-      default-random-source)
-
     ;;@args
     ;;@args state
     ;;Returns an uniformly distributed inexact real random number in the
     ;;range between 0 and 1.
     (define (random:uniform . args)
-      (random:uniform1 (get-generator args)))
+      (unless (null? args)
+        (random-source-state-set! default-random-source (car args)))
+      (random-real))
 
     ;;@args
     ;;@args state
@@ -68,7 +55,9 @@
     ;;an exponential distribution with mean @var{u} use
     ;;@w{@code{(* @var{u} (random:exp))}}.
     (define (random:exp . args)
-      (- (log (random:uniform1 (get-generator args)))))
+      (unless (null? args)
+        (random-source-state-set! default-random-source (car args)))
+      (- (log (random-real))))
 
 
     ;;@args
@@ -96,15 +85,16 @@
     (define random:normal-vector!
       (let ((*2pi (* 8 (atan 1))))
         (lambda (vect . args)
-          (let ((state (get-generator args))
-                (sum2 0))
+          (unless (null? args)
+            (random-source-state-set! default-random-source (car args)))
+          (let ((sum2 0))
             (let ((do! (lambda (k x)
                          (vector-set! vect k x)
                          (set! sum2 (+ sum2 (* x x))))))
               (do ((n (- (vector-length vect) 1) (- n 2)))
                 ((negative? n) sum2)
-                (let ((t (* *2pi (random:uniform1 state)))
-                      (r (sqrt (* -2 (log (random:uniform1 state))))))
+                (let ((t (* *2pi (random-real)))
+                      (r (sqrt (* -2 (log (random-real))))))
                   (do! n (* r (cos t)))
                   (if (positive? n) (do! (- n 1) (* r (sin t)))))))))))
 
@@ -138,8 +128,10 @@
     ;;coordinates are uniformly distributed within the unit @var{n}-shere.
     ;;The sum of the squares of the numbers is returned.
     (define (random:solid-sphere! vect . args)
+      (unless (null? args)
+        (random-source-state-set! default-random-source (car args)))
       (apply random:hollow-sphere! vect args)
-      (let ((r (expt (random:uniform1 (get-generator args))
+      (let ((r (expt (random-real)
                      (/ (vector-length vect)))))
         (do ((n (- (vector-length vect) 1) (- n 1)))
           ((negative? n) r)

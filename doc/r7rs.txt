@@ -115,6 +115,14 @@ include::slib.txt[]
 
 include::slib-common.txt[]
 
+include::slib-arrays.txt[]
+
+include::slib-colours.txt[]
+
+include::slib-maths.txt[]
+
+include::slib-time.txt[]
+
 include::repackaged.txt[]
 
 [appendix]

@@ -1,0 +1,19 @@
+== SLIB Array Libraries
+
+SLIB provides a number of libraries for defining and working with arrays.  
+The array type used is SRFI 63, which was originally a package in SLIB.
+SRFI 63 provides functions to create, modify and examine arrays.
+
+The collection includes:
+
+* +array-for-each+: Functions for applying functions to arrays.
+* +array-interpolate+: Functions to reduce/resample arrays.
+* +byte+: A library for arrays of small integers (although R7RS includes +bytevector+,
+  several libraries in SLIB make use of byte).
+* +determinant+: A number of standard matrix-algebra functions.
+* +subarray+: Functions to reduce or access sub-arrays.
+
+include::slib-array-for-each.txt[]
+
+include::slib-determinant.txt[]
+

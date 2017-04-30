@@ -1,0 +1,9 @@
+= Documentation for Random Inexact
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+SLIB Documentation: http://people.csail.mit.edu/jaffer/slib/Inexact-Random-Numbers.html[]
+
+include::../doc/slib-random-inexact.txt[]
+
