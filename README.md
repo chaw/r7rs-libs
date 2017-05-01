@@ -10,7 +10,7 @@ Tested against:
 * Gauche 0.9.5: http://practical-scheme.net/gauche/
   * ensure the environment variable GAUCHE_KEYWORD_IS_SYMBOL is set so that 
     keywords are treated as symbols
-* Kawa 2.3: https://www.gnu.org/software/kawa/
+* Kawa 2.4: https://www.gnu.org/software/kawa/
 * Larceny 0.99: http://www.larcenists.org/
 * Sagittarius 0.8.3: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
@@ -312,9 +312,9 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * arcfour
 * bitstream
 * blowfish
-  * Tests pass with Chibi and Larceny, not Kawa
+  * Tests fail on Kawa, pass on rest
 * bytevector
-* (des - tests fail in Kawa / overflow Larceny / fail Sagittarius)
+* (des - tests fail in Kawa / problems in shift/segfault for rest -- too large constant for ash)
 * dh
 * elliptic-curve
 * entropy
@@ -323,9 +323,12 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * maths
 * md5
 * sha-1
-* sha-2 (1 failure on Kawa / tests fail to run in Sagittarius)
+* sha-2 
 * sliding-buffer
 * strings
+
+(Chibi and Larceny run particularly slow when testing these libraries: 
+ perhaps need to use some built-in functions in place of the general-purpose srfi 60.)
 
 The net packages are not converted, due to lack of portable libraries.
 

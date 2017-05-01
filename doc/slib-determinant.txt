@@ -1,8 +1,8 @@
-=== Determinant +(import (slib determinant))+
+=== Determinant: +(import (slib determinant))+
 
 indexterm:[determinant]
 This library is a little misnamed.  Apart from determinants, it also provides a range of 
-functions on single and pairs of matrices.
+functions on single and pairs of arrays, here treating the arrays as matrices.
 
 All the functions take either a SRFI-63 array or a list of lists as the matrix definition.
 

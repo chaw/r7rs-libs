@@ -1,4 +1,4 @@
-(import (scheme base)
+(import (except (scheme base) equal?)
         (slib array-for-each)
         (slib determinant)
         (srfi 63)

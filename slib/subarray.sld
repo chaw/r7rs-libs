@@ -25,7 +25,6 @@
           array-trim)
   (import (except (scheme base) equal?)
           (scheme cxr)
-          (slib common)
           (srfi 63))
 
   (begin

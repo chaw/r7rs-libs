@@ -33,7 +33,8 @@ interested in using the libraries (but are a good source of examples to learn fr
 
 In most cases, installation is straightforward:
 
-Some of the libraries are available from http://snow-fort.org/pkg[]
+Many of the libraries are available from http://snow-fort.org/pkg[] and 
+can be downloaded directly using +snow-chibi+ or a similar client.
 
 Alternatively, download the entire collection as a zip file and unpack, or
 clone the repository, using the 'Clone or Download' button on the github
@@ -50,6 +51,8 @@ call your implementation with SCHEME_LIBS in its library path.  e.g.
 Note that Larceny has all required SRFIs to support the complete collection.
 For Chibi and Sagittarius, you also need to reference the implementation-specific SRFIs, 
 in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
+
+(Your implementation may support alternative ways to define the location of libraries.)
 
 .Kawa
 
@@ -76,15 +79,17 @@ referring to the library names.
 
 === Documentation
 
-Most of this document describes the libraries under the +robin+ subcollection.  These 
-libraries cover a range of functionality, including a logger, statistics library, 
-an implementation of Lisp's Series package, and a range of functions for working with 
-text.  Each library is covered in a separate chapter.
+This document begins with the libraries under the +robin+ subcollection, as
+these are written by myself.  These libraries cover a range of functionality,
+including a logger, statistics library, an implementation of Lisp's Series
+package, and a range of functions for working with text.  Each library is
+covered in a separate chapter.
 
 The remaining chapters cover collections repackaged from other sources.  These include
 SLIB and a range of smaller collections.  Most of these have their own documentation, 
 which is linked to.  Some examples and descriptions are provided for libraries that 
-particularly interest me, or which lack alternative information.
+particularly interest me, or which lack alternative information.  SLIB's libraries 
+cover a range of topics, and important topics are covered in separate chapters.
 
 .Help Wanted
 ****
@@ -141,6 +146,33 @@ equivalent functions from other libraries.)
 These tables are automatically generated from the individual library source files.
 
 include::alldata.txt[]
+
+[appendix]
+== Open Works License
+
+This is version 0.9.4 of the Open Works License
+
+*Terms*
+
+Permission is hereby granted by the holder(s) of copyright or other legal
+privileges, author(s) or assembler(s), and contributor(s) of this work, to any
+person who obtains a copy of this work in any form, to reproduce, modify,
+distribute, publish, sell, sublicense, use, and/or otherwise deal in the
+licensed material without restriction, provided the following conditions are
+met:
+
+Redistributions, modified or unmodified, in whole or in part, must retain
+applicable copyright and other legal privilege notices, the above license
+notice, these conditions, and the following disclaimer.
+
+NO WARRANTY OF ANY KIND IS IMPLIED BY, OR SHOULD BE INFERRED FROM, THIS LICENSE
+OR THE ACT OF DISTRIBUTION UNDER THE TERMS OF THIS LICENSE, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+AND NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS, ASSEMBLERS, OR HOLDERS OF
+COPYRIGHT OR OTHER LEGAL PRIVILEGE BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT, OR OTHERWISE ARISING FROM, OUT
+OF, OR IN CONNECTION WITH THE WORK OR THE USE OF OR OTHER DEALINGS IN THE WORK.
+
 
 //////////
 [index]
