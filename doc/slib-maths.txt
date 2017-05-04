@@ -11,6 +11,8 @@ include::slib-math-integer.txt[]
 
 include::slib-math-real.txt[]
 
+include::slib-minimize.txt[]
+
 include::slib-random-inexact.txt[]
 
 include::slib-rationalize.txt[]

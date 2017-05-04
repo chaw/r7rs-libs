@@ -26,20 +26,18 @@ include::subdata.txt[]
 
 === Getting Started
 
-The collection can be obtained by downloading or cloning from the github link
-above.  The directories are named according to each group of libraries.  Those
-directories ending "-examples" or "-tests" are not needed if you are only
-interested in using the libraries (but are a good source of examples to learn from).
-
-In most cases, installation is straightforward:
-
 Many of the libraries are available from http://snow-fort.org/pkg[] and 
 can be downloaded directly using +snow-chibi+ or a similar client.
 
-Alternatively, download the entire collection as a zip file and unpack, or
-clone the repository, using the 'Clone or Download' button on the github
-repository.  If the directory containing the files is SCHEME_LIBS, you must
-call your implementation with SCHEME_LIBS in its library path.  e.g.
+The collection can be obtained directly and in full by downloading or cloning
+from the github link above.  The directories are named according to each group
+of libraries.  Those directories ending "-examples" or "-tests" are not needed
+if you are only interested in using the libraries (but are a good source of
+examples to learn from).
+
+In most cases, using the libraries from your implementation is straightforward.
+If the directory containing the files is SCHEME_LIBS, you must call your
+implementation with SCHEME_LIBS in its library path.  e.g.
 
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
@@ -49,7 +47,7 @@ call your implementation with SCHEME_LIBS in its library path.  e.g.
 ----
 
 Note that Larceny has all required SRFIs to support the complete collection.
-For Chibi and Sagittarius, you also need to reference the implementation-specific SRFIs, 
+For the others, you also need to reference the implementation-specific SRFIs,
 in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
 
 (Your implementation may support alternative ways to define the location of libraries.)
@@ -58,7 +56,8 @@ in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
 
 For use in Kawa I recommend precompiling the collection into class files.  The
 script +build-kawa+, for bash or msdos, compiles the complete collection and packs
-it into a single jar file: +r7rs-libs.jar+
+it into a single jar file: +r7rs-libs.jar+; the compiler produces some warnings, 
+mostly of unused functions, which can be ignored.
 
 Either:
 

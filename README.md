@@ -84,7 +84,7 @@ sources:
 * cl-pdf-utils
 * json-parser - Takashi Kato's libraries for working with JSON
 * json-select
-  * Gauche does not currently load json-parser/select - syntax error
+  * The above two libraries do not load into Gauche 0.9.5 (fixed in master)
 * json-tools
 * packrat - Tony Garnock-Jones' Packrat Parser Library
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme
@@ -299,7 +299,7 @@ some implementations and support the above libraries.  Provided SRFIs:
 * srfi 42  simply the reference implementation (not needed)
 * srfi 60  for Chibi
 * srfi 63  SLIB's array.scm implemented as a srfi library
-* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for running tests with Chibi
+* srfi 64  for Gauche and Chibi - a partial implementation wrapping (chibi test) for Chibi
 * srfi 95  for Sagittarius: a partial wrapper around (srfi 132)
 
 The SRFIs are organised in the 'srfis' folder, by implementation.

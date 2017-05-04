@@ -6,6 +6,14 @@
 ;; Schelog: An embedding of Prolog in Scheme
 ;; Dorai Sitaram, 1989, revised Feb. 1993, Mar. 1997
 
+;Copyright (c) 1993-2001, Dorai Sitaram.
+;All rights reserved.
+;
+;Permission to distribute and use this work for any
+;purpose is hereby granted provided this copyright
+;notice is included in the copy.  This work is provided
+;as is, with no warranty of any kind.
+
 (define-library
   (rebottled schelog)
   (export 

@@ -30,7 +30,7 @@
 ;;; http://en.wikipedia.org/wiki/Discrete_Fourier_transform
 
 (define-library
-  (slib dft)
+  (slib fourier-transform)
   (export sft
           sft-1
           fft

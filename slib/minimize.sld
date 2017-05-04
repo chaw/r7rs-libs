@@ -56,7 +56,7 @@
   (export golden-section-search)
   (import (scheme base)
           (scheme inexact)
-          (slib common))
+          (only (slib common) slib:warn))
 
   (begin
 
@@ -92,9 +92,9 @@
                        (count 1))
               (define finish
                 (lambda (x fx)
-                  (if (> fx fmin) (slib:warn gss fx 'not 'min (list '> fmin)))
+                  (if (> fx fmin) (slib:warn gss fx 'not 'minimum (list '> fmin)))
                   (if (and (> count 9) (or (eqv? x0 left) (eqv? x1 right)))
-                    (slib:warn gss 'min 'not 'found))
+                    (slib:warn gss 'minimum 'not 'found))
                   (cons x fx)))
               (case count
                 ((1)

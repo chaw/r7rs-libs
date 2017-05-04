@@ -5,7 +5,7 @@ Minor adjustments may be needed to make them work completely on other implementa
 
 In most cases, installation is straightforward:
 
-Some of the libraries are available from http://snow-fort.org/pkg
+Many of the libraries are available from http://snow-fort.org/pkg
 
 Alternatively, download the entire collection as a zip file and unpack, or
 clone the repository, using the 'Clone or Download' button above.  If the
@@ -18,9 +18,8 @@ implementation with SCHEME_LIBS in its library path.  e.g.
     > sagittarius -L SCHEME_LIBS -L SCHEME_LIBS/srfis/sagittarius program.sps
 
 Note that Larceny has all required SRFIs to support the complete collection.
-For Chibi, Gauche and Sagittarius, you also need to reference the
-implementation-specific SRFIs, in the directory
-SCHEME_LIBS/srfis/IMPLEMENTATION.
+For the rest you also need to reference the implementation-specific SRFIs, 
+in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
 
 The -examples and -tests directories are not needed if you are only using the
 libraries in your programs.
@@ -29,7 +28,8 @@ libraries in your programs.
 
 For use in Kawa I recommend precompiling the libraries into class files.  The
 script 'build-kawa', for bash or msdos, compiles all the libraries and packs
-them into a single jar file: r7rs-libs.jar
+them into a single jar file: r7rs-libs.jar; the small number of warnings can 
+be ignored.
 
 Add this jar file to your CLASSPATH for use within Kawa.
 
