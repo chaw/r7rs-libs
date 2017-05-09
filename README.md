@@ -62,7 +62,6 @@ R6RS Scheme: https://github.com/ijp/pfds
 And, to support implementation:
 
 * alist
-* bitwise
 * lazy-list
 * list-helpers
 * vector
@@ -250,7 +249,7 @@ moved, as required, into `(slib common)`.
 * common-list-functions: use (srfi 1)
 * tree
 * chapter-order
-* sort: use (srfi 132) or (srfi 95)
+* sort: use (srfi 132) 
 * topological-sort
 * hash-table: use (srfi 125) or (srfi 69)
 * hash: or use (srfi 128)
@@ -288,7 +287,7 @@ Some of the libraries require the following SRFIs (in place of related SLIB file
 * srfi 60  Integers as Bits
 * srfi 63  Arrays
 * srfi 69  Hash Tables 
-* srfi 95  Sorting
+* srfi 132 Sorting
 
 ## SRFIs
 
@@ -296,13 +295,23 @@ A few SRFIs are implemented here.  These fill gaps in those SRFIs provided by
 some implementations and support the above libraries.  Provided SRFIs:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
-* srfi 42  simply the reference implementation (not needed)
-* srfi 60  for Chibi
+* srfi 60  for Chibi (still used in SLIB)
 * srfi 63  SLIB's array.scm implemented as a srfi library
-* srfi 64  for Gauche and Chibi - a partial implementation wrapping (chibi test) for Chibi
-* srfi 95  for Sagittarius: a partial wrapper around (srfi 132)
+* srfi 64  for Gauche and Chibi 
+* srfi 132 for Chibi, Gauche and Kawa
 
-The SRFIs are organised in the 'srfis' folder, by implementation.
+The implementation-specific SRFIs are organised in the 'srfis' folder, by implementation.
+
+The 'srfi' folder contains SRFIs for all implementations:
+
+* srfi 42  Eager Comprehensions (lightly modified reference implementation)
+* srfi 151 Bitwise Operations (reference implementation tailored to R7RS implementations) - anticipating its acceptance in place of srfi 142
+
+For compatibility with the Red Edition http://trac.sacrideo.us/wg/wiki/RedEdition
+it is planned to rewrite:
+
+* srfi 69 -> srfi 125 (scheme hash-table)
+
 
 ## Weinholt (partial)
 
@@ -314,7 +323,7 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * blowfish
   * Tests fail on Kawa, pass on rest
 * bytevector
-* (des - tests fail in Kawa / problems in shift/segfault for rest -- too large constant for ash)
+* des 
 * dh
 * elliptic-curve
 * entropy
@@ -327,8 +336,7 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * sliding-buffer
 * strings
 
-(Chibi and Larceny run particularly slow when testing these libraries: 
- perhaps need to use some built-in functions in place of the general-purpose srfi 60.)
+(Chibi and Larceny run particularly slow when testing these libraries.)
 
 The net packages are not converted, due to lack of portable libraries.
 

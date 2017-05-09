@@ -39,10 +39,9 @@
           hmac-sha-1)
   (import (except (scheme base) bytevector-copy!)
           (scheme case-lambda)
-          (pfds bitwise)
           (r6rs bytevectors)
           (r6rs fixnums)
-          (srfi 60))
+          (only (srfi 151) arithmetic-shift bitwise-and bitwise-ior bitwise-not bitwise-xor))
 
   (begin
 
@@ -50,7 +49,7 @@
 
     (define (rol32 n count)
       (let ((field1 (bitwise-and #xffffffff (arithmetic-shift n count)))
-            (field2 (bitwise-arithmetic-shift-right n (- 32 count))))
+            (field2 (arithmetic-shift n (- count 32))))
         (bitwise-ior field1 field2)))
 
     (define-record-type <sha1state>

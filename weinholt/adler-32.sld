@@ -43,7 +43,7 @@
   (import (scheme base)
           (scheme case-lambda)
           (r6rs fixnums)
-          (srfi 60))
+          (only (srfi 151) arithmetic-shift bit-field))
 
   (begin
 

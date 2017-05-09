@@ -7,7 +7,7 @@
         (srfi 64)
         (robin srfi64-utils)
         (only (srfi 69) string-hash)
-        (srfi 95))
+        (srfi 132))
  
 (define (make-string-hamt)
   (make-hamt string-hash string=?))
@@ -15,8 +15,8 @@
 (define (compare-string-alist l1 l2)
   (lambda (l1 l2)
     (define (compare x y) (string<? (car x) (car y)))
-    (equal? (sort compare l1)
-            (sort compare l2))))
+    (equal? (list-sort compare l1)
+            (list-sort compare l2))))
 
 (define (bad-hash x) 0)
 

@@ -4,8 +4,7 @@
 (import (scheme base)
         (pfds sequence)
         (robin srfi64-utils)
-        (srfi 64)
-        (srfi 95))
+        (srfi 64))
 
 (test-begin "pfds-sequence")
 

@@ -30,7 +30,7 @@
           (rename modulo-ei modulo)
           round-quotient)
   (import (scheme base)
-          (srfi 60))
+          (only (srfi 60) arithmetic-shift integer-length)) ;; TODO: Replace with SRFI 151
 
   (begin
 
@@ -92,8 +92,8 @@
           (define (isqrt n)
             (if (> n 24)
               (let* ((len/4 (quotient (- (integer-length n) 1) 4))
-                     (top (isqrt (ash n (* -2 len/4))))
-                     (init (ash top len/4))
+                     (top (isqrt (arithmetic-shift n (* -2 len/4))))
+                     (init (arithmetic-shift top len/4))
                      (q (quotient n init))
                      (iter (quotient (+ init q) 2)))
                 (cond ((odd? q) iter)

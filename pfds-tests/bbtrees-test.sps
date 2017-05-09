@@ -5,7 +5,7 @@
         (pfds bounded-balance-tree)
         (srfi 64)
         (robin srfi64-utils)
-        (srfi 95))
+        (srfi 132))
 
 (test-begin "pfds-bounded-balance-tree")
 
@@ -88,7 +88,7 @@
                            (alist->bbtree (map (lambda (x) (cons x 'dummy))
                                                l)
                                           <))))))
-  (test-equal (sort l <) (tree-sort < l)))
+  (test-equal (list-sort < l) (tree-sort < l)))
 
 ;; bbtree-union
 (let ((empty (make-bbtree char<?))

@@ -21,8 +21,8 @@
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 
 (import (weinholt dh)
-        (srfi 60)
         (srfi 64)
+        (only (srfi 151) integer-length)
         (scheme base))
 
 (define (check-dh g p)

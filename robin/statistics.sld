@@ -64,9 +64,9 @@
           (scheme inexact)       
           (srfi 1)
           (srfi 27)
-          (srfi 60)
           (srfi 69)
-          (srfi 95))
+          (srfi 132)
+          (only (srfi 151) bitwise-and))
 
   (begin
 
@@ -121,8 +121,8 @@
                       ((= val mode-count) ; store multiple modes
                        (set! modes (cons key modes))))))
             (hash-table-keys count-table))
-          (cond ((every number? modes) (set! modes (sort modes <)))
-                ((every string? modes) (set! modes (sort modes string<?)))
+          (cond ((every number? modes) (set! modes (list-sort < modes)))
+                ((every string? modes) (set! modes (list-sort string<? modes)))
                 )
           (values modes mode-count))))
 
@@ -133,7 +133,7 @@
             ((null? lst)
              (error "Percentile: List must not be null"))
             (else
-              (let* ((sorted-vec (apply vector (sort lst <)))
+              (let* ((sorted-vec (apply vector (list-sort < lst)))
                      (n (vector-length sorted-vec))
                      (k (* n (/ percent 100)))
                      (floor-k (floor k)))
@@ -316,7 +316,8 @@
               ((>= m n) items)
               (else
                 (let* ((keys (map (lambda (w) (expt (random-real) (/ 1 w))) weights))
-                       (sorted-items (sort (zip keys items) (lambda (x y) (> (car x) (car y))))))
+                       (sorted-items (list-sort (lambda (x y) (> (car x) (car y)))
+                                                (zip keys items))))
                   (map cadr (take sorted-items m)))))))
 
     ;; jaccard-index:

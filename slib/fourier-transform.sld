@@ -41,7 +41,7 @@
           (scheme inexact)
           (slib subarray)
           (srfi 1)
-          (srfi 60)
+          (only (srfi 60) integer-length reverse-bit-field) ;; TODO: Replace with SRFI 151
           (srfi 63))
 
   (begin

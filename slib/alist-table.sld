@@ -35,7 +35,7 @@
           (slib common-list-functions)
           (slib relational-database)
           (only (srfi 1) delete every filter)
-          (srfi 95))
+          (only (srfi 132) list-sort!))
 
   (begin
 
@@ -284,10 +284,10 @@
                   ((key-< (car x) (car y)) #t)
                   ((key-< (car y) (car x)) #f)
                   (else (key-< (cdr x) (cdr y)))))
-          (map cdr (sort! (map (lambda (p)
-                                 (cons (key->sortable (car p)) p))
-                               alist)
-                          car-key-<)))
+          (map cdr (list-sort! car-key-< 
+                               (map (lambda (p)
+                                      (cons (key->sortable (car p)) p))
+                                    alist))))
 
         (define (present? handle ckey)
           (assoc* ckey (handle->alist handle)))

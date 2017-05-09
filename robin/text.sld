@@ -53,7 +53,7 @@
           (slib soundex)                                              
           (srfi 1)
           (srfi 69)
-          (srfi 95))
+          (srfi 132))
 
   (cond-expand
     ((library (srfi 13))
@@ -137,7 +137,8 @@
     ;; Table from: http://www.jewishgen.org/InfoFiles/soundex.html
     (define daitch-mokotoff-soundex
       (let ((table 
-              (sort
+              (list-sort
+                (lambda (a b) (> (string-length (car a)) (string-length (car b))))
                 '(("AI" "0" "1" "-") ; (letter(s) -> at-start  before-vowel  elsewhere)
                   ("AJ" "0" "1" "-")
                   ("AY" "0" "1" "-")
@@ -259,8 +260,7 @@
                   ("ZS" "4" "4" "4")
                   ("ZSCH" "4" "4" "4")
                   ("ZSH" "4" "4" "4")
-                  ("Z" "4" "4" "4"))
-                (lambda (a b) (> (string-length (car a)) (string-length (car b)))))))
+                  ("Z" "4" "4" "4")))))
         (define (longest-match str) 
           (let loop ((words table))
             (cond ((null? words)
@@ -282,7 +282,7 @@
         (define (valid-match? codes word posn next-posn)
           (let ((m (match-result codes word posn next-posn)))
             (or (list? m)
-                 (not (string=? "-" m)))))
+                (not (string=? "-" m)))))
         (define (generate-results result) ; some of the terms may be lists, so make multiple terms for these
           (let ((first-list (list-index list? result)))
             (if (number? first-list)
@@ -327,7 +327,7 @@
                                  result)))))))))
 
     (define russell-soundex soundex) ; from (slib soundex)
- 
+
     ; metaphone: there is no consistent description of this algorithm
     ; these rules are applied from the description at http://aspell.net/metaphone/metaphone-kuhn.txt
     (define (metaphone word)
@@ -506,9 +506,9 @@
            (if (= (seq-length seq-1) (seq-length seq-2))
              (let ((count 0))
                (seq-for-each (lambda (c1 c2)
-                                  (unless (equal-test? c1 c2) (set! count (+ 1 count))))
-                                seq-1
-                                seq-2)
+                               (unless (equal-test? c1 c2) (set! count (+ 1 count))))
+                             seq-1
+                             seq-2)
                count)
              (error "Hamming: Sequences are of different sizes")))
          (define (hamming-byte-distance vec-1 vec-2)

@@ -38,7 +38,7 @@
           (scheme inexact)
           (slib byte)
           (slib common)
-          (srfi 60))
+          (only (srfi 60) any-bits-set? arithmetic-shift bit-set? bitwise-and bitwise-if bitwise-xor)) ;; TODO: Replace with SRFI 151
 
   (begin
 
@@ -115,16 +115,16 @@
       (define zero (or (string->number "0.0") 0))
       (define one  (or (string->number "1.0") 1))
       (define len (bytes-length bytes))
-      (define S (logbit? 7 (byte-ref bytes 0)))
-      (define E (+ (ash (logand #x7F (byte-ref bytes 0)) 1)
-                   (ash (logand #x80 (byte-ref bytes 1)) -7)))
+      (define S (bit-set? 7 (byte-ref bytes 0)))
+      (define E (+ (arithmetic-shift (bitwise-and #x7F (byte-ref bytes 0)) 1)
+                   (arithmetic-shift (bitwise-and #x80 (byte-ref bytes 1)) -7)))
       (if (not (eqv? 4 len))
         (error 'bytes->ieee-float 'wrong 'length len))
       (do ((F (byte-ref bytes (+ -1 len))
               (+ (byte-ref bytes idx) (/ F 256)))
            (idx (+ -2 len) (+ -1 idx)))
         ((<= idx 1)
-         (set! F (/ (+ (logand #x7F (byte-ref bytes 1)) (/ F 256)) 128))
+         (set! F (/ (+ (bitwise-and #x7F (byte-ref bytes 1)) (/ F 256)) 128))
          (cond ((< 0 E 255) (* (if S (- one) one) (expt 2 (- E 127)) (+ 1 F)))
                ((zero? E)
                 (if (zero? F)
@@ -162,16 +162,16 @@
       (define zero (or (string->number "0.0") 0))
       (define one  (or (string->number "1.0") 1))
       (define len (bytes-length bytes))
-      (define S (logbit? 7 (byte-ref bytes 0)))
-      (define E (+ (ash (logand #x7F (byte-ref bytes 0)) 4)
-                   (ash (logand #xF0 (byte-ref bytes 1)) -4)))
+      (define S (bit-set? 7 (byte-ref bytes 0)))
+      (define E (+ (arithmetic-shift (bitwise-and #x7F (byte-ref bytes 0)) 4)
+                   (arithmetic-shift (bitwise-and #xF0 (byte-ref bytes 1)) -4)))
       (if (not (eqv? 8 len))
         (error 'bytes->ieee-double 'wrong 'length len))
       (do ((F (byte-ref bytes (+ -1 len))
               (+ (byte-ref bytes idx) (/ F 256)))
            (idx (+ -2 len) (+ -1 idx)))
         ((<= idx 1)
-         (set! F (/ (+ (logand #x0F (byte-ref bytes 1)) (/ F 256)) 16))
+         (set! F (/ (+ (bitwise-and #x0F (byte-ref bytes 1)) (/ F 256)) 16))
          (cond ((< 0 E 2047) (* (if S (- one) one) (expt 2 (- E 1023)) (+ 1 F)))
                ((zero? E)
                 (if (zero? F)
@@ -230,8 +230,8 @@
                       (exactify (floor (* 256 (- flt val)))))
                  (idx 1 (+ 1 idx)))
               ((> idx 3)
-               (byte-set! byts 1 (bitwise-if #x80 (ash scl 7) (byte-ref byts 1)))
-               (byte-set! byts 0 (+ (if S 128 0) (ash scl -1)))
+               (byte-set! byts 1 (bitwise-if #x80 (arithmetic-shift scl 7) (byte-ref byts 1)))
+               (byte-set! byts 0 (+ (if S 128 0) (arithmetic-shift scl -1)))
                byts)
               (byte-set! byts idx val)))
           (let ((mflt (magnitude flt)))
@@ -288,8 +288,8 @@
                       (exactify (floor (* 256 (- flt val)))))
                  (idx 1 (+ 1 idx)))
               ((> idx 7)
-               (byte-set! byts 1 (bitwise-if #xF0 (ash scl 4) (byte-ref byts 1)))
-               (byte-set! byts 0 (+ (if S 128 0) (ash scl -4)))
+               (byte-set! byts 1 (bitwise-if #xF0 (arithmetic-shift scl 4) (byte-ref byts 1)))
+               (byte-set! byts 0 (+ (if S 128 0) (arithmetic-shift scl -4)))
                byts)
               (byte-set! byts idx val)))
           (set! flt (magnitude flt))
@@ -337,7 +337,7 @@
     ;;two's-complement byte-vectors matches numerical order.  @0 returns
     ;;@1 and is its own functional inverse.
     (define (integer-byte-collate! byte-vector)
-      (byte-set! byte-vector 0 (logxor #x80 (byte-ref byte-vector 0)))
+      (byte-set! byte-vector 0 (bitwise-xor #x80 (byte-ref byte-vector 0)))
       byte-vector)
 
     ;;@body
@@ -351,25 +351,25 @@
     ;;Modifies @1 so that @code{string<?} ordering of IEEE floating-point
     ;;byte-vectors matches numerical order.  @0 returns @1.
     (define (ieee-byte-collate! byte-vector)
-      (cond ((logtest #x80 (byte-ref byte-vector 0))
+      (cond ((any-bits-set? #x80 (byte-ref byte-vector 0))
              (do ((idx (+ -1 (bytes-length byte-vector)) (+ -1 idx)))
                ((negative? idx))
                (byte-set! byte-vector idx
-                          (logxor #xFF (byte-ref byte-vector idx)))))
+                          (bitwise-xor #xFF (byte-ref byte-vector idx)))))
             (else
-              (byte-set! byte-vector 0 (logxor #x80 (byte-ref byte-vector 0)))))
+              (byte-set! byte-vector 0 (bitwise-xor #x80 (byte-ref byte-vector 0)))))
       byte-vector)
     ;;@body
     ;;Given @1 modified by @code{ieee-byte-collate!}, reverses the @1
     ;;modifications.
     (define (ieee-byte-decollate! byte-vector)
-      (cond ((not (logtest #x80 (byte-ref byte-vector 0)))
+      (cond ((not (any-bits-set? #x80 (byte-ref byte-vector 0)))
              (do ((idx (+ -1 (bytes-length byte-vector)) (+ -1 idx)))
                ((negative? idx))
                (byte-set! byte-vector idx
-                          (logxor #xFF (byte-ref byte-vector idx)))))
+                          (bitwise-xor #xFF (byte-ref byte-vector idx)))))
             (else
-              (byte-set! byte-vector 0 (logxor #x80 (byte-ref byte-vector 0)))))
+              (byte-set! byte-vector 0 (bitwise-xor #x80 (byte-ref byte-vector 0)))))
       byte-vector)
 
     ;;@body

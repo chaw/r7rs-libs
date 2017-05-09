@@ -5,7 +5,7 @@
         (pfds heap)
         (srfi 64)
         (robin srfi64-utils)
-        (srfi 95))
+        (srfi 132))
 
 (test-begin "pfds-heap")
 
@@ -59,9 +59,9 @@
       (l2 '(72 17 220 158 164 133 20 78 96 230 25
             19 13 17 58 223 37 214 94 195 93 174)))
              (test-equal '() (heap-sort < '()))
-             (test-equal (sort l1 <)
+             (test-equal (list-sort < l1)
                          (heap-sort < l1))
-             (test-equal (sort l2 <)
+             (test-equal (list-sort < l2)
                          (heap-sort < l2)))
 
 (test-end)

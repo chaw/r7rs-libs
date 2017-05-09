@@ -32,13 +32,13 @@
         (srfi 1)
         (srfi 27)
         (srfi 64)
-        (srfi 95))
+        (srfi 132))
 
 ;;
 ;; Utilities for wt-tree
 ;;
 
-(define (sort1 lst) (sort lst <))
+(define (sort1 lst) (list-sort < lst))
 
 (define (random-alist n)
   (zip (random-list n)))

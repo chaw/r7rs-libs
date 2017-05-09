@@ -6,14 +6,14 @@ cd srfis/kawa
 :: 27 needs compiling as a Java module
 :: 63 as a Scheme module
 call kawa -d ../../bin -C srfi/27.sld
-call kawa --r7rs -d ../../bin -C srfi/42.sld
 call kawa --r7rs -d ../../bin -C srfi/63.sld
+call kawa -d ../../bin -C srfi/132.sld
 cd ../..
 
 :: only one file from autodiff 
 call kawa -d bin --r7rs -C autodiff/AD.sld
 
-for %%d in (nltk pfds r6rs rebottled robin slib weinholt) do (
+for %%d in (srfi astronomy nltk pfds r6rs rebottled robin slib weinholt) do (
   for %%f in (%%d/*.sld) do (
     echo %%d/%%f
     call kawa -d bin --r7rs -C "%%d/%%~nf.sld"

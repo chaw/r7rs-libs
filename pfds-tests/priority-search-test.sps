@@ -6,7 +6,7 @@
         (only (srfi 1) fold filter)
         (srfi 64)
         (robin srfi64-utils)
-        (srfi 95))
+        (srfi 132))
 
 (define (alist->psq alist key<? priority<?)
   (fold (lambda (kv psq)
@@ -107,8 +107,9 @@
 (let* ((alist '((#\f . 24) (#\u . 42) (#\p . 16) (#\s . 34) (#\e . 17)
                            (#\x . 45) (#\l . 14) (#\z . 5) (#\t . 45) (#\r . 41)
                            (#\k . 32) (#\w . 14) (#\d . 12) (#\c . 16) (#\m . 20) (#\j . 25)))
-       (alist-sorted (sort alist (lambda (x y)
-                             (char<? (car x) (car y)))))
+       (alist-sorted (list-sort (lambda (x y)
+                                  (char<? (car x) (car y))) 
+                                alist))
        (psq  (alist->psq alist char<? <)))
   (test-equal alist-sorted
               (psq-at-most psq +inf.0))

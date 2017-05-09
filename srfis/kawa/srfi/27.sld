@@ -23,8 +23,7 @@
                  BigInteger)
           (class java.util
                  Random)
-          (srfi 60)
-          (only (kawa base) as))
+          (only (kawa base) as logxor))
 
   (begin
 

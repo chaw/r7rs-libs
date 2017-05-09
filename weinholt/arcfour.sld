@@ -27,10 +27,9 @@
   (export expand-arcfour-key arcfour!
           arcfour-discard!
           clear-arcfour-keystream!)
-  (import (except (scheme base) bytevector-copy! error)
-          (r6rs base)
-          (r6rs bytevectors)
+  (import (scheme base)
           (r6rs fixnums)
+          (only (weinholt bytevector) bytevector-fill!)
           (only (srfi 1) iota))
 
   (begin
@@ -46,7 +45,7 @@
         (error 'expand-arcfour-key
                "The key must be more than zero and less than 256 bytes long"
                (bytevector-length key)))
-      (let ((S (u8-list->bytevector (iota 256)))
+      (let ((S (apply bytevector (iota 256)))
             (len (bytevector-length key)))
         (let lp ((i 0) (j 0))
           (if (fx=? i 256)
@@ -65,7 +64,7 @@
     (define (arcfour! source source-start target target-start len key)
       (let ((S (vector-ref key 0))
             (se (+ source-start len)))
-        (assert (bytevector? S))
+        (unless (bytevector? S) (error "arcfour! expected a bytevector"))
         (let lp ((i (vector-ref key 1))
                  (j (vector-ref key 2))
                  (ss source-start)
@@ -88,7 +87,7 @@
     ;; discards 1536 bytes (RFC4345).
     (define (arcfour-discard! key n)
       (let ((S (vector-ref key 0)))
-        (assert (bytevector? S))
+        (unless (bytevector? S) (error "arcfour-discard! expected a bytevector"))
         (let lp ((i (vector-ref key 1))
                  (j (vector-ref key 2))
                  (n n))

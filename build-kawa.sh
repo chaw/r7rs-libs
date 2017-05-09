@@ -20,15 +20,15 @@ cd srfis/kawa
 # 27 needs compiling as a Java module
 # 63 as a Scheme module
 ${KAWA} -d ../../bin -C srfi/27.sld
-${KAWA} --r7rs -d ../../bin -C srfi/42.sld
 ${KAWA} --r7rs -d ../../bin -C srfi/63.sld
+${KAWA} -d ../../bin -C srfi/132.sld
 cd ../..
 
 # only one file from autodiff 
 ${KAWA} $OPTS -C autodiff/AD.sld
 
 # work through each directory in turn
-for dir in astronomy nltk pfds r6rs rebottled robin slib weinholt; do
+for dir in srfi astronomy nltk pfds r6rs rebottled robin slib weinholt; do
   for file in $dir/*.sld
   do
     ${KAWA} $OPTS -C $file

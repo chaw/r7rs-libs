@@ -39,25 +39,30 @@
   (import (scheme base) 
           (scheme case-lambda)     
           (pfds alist)
-          (pfds bitwise)
           (only (pfds list-helpers) fold-right)
           (pfds vector)
-          (srfi 60))
+          (only (srfi 151) arithmetic-shift bitwise-and bit-count bit-set? bitwise-ior bitwise-not))
 
   (begin
 
     ;;; Helpers
+    
+    (define (bitwise-bit-set bits i)
+      (bitwise-ior bits (arithmetic-shift 1 i)))
+
+    (define (bitwise-bit-unset bits i)
+      (bitwise-and bits (bitwise-not (arithmetic-shift 1 i))))
 
     (define cardinality 32) ; 64
 
     (define (mask key level)
-      (bitwise-arithmetic-shift-right (bitwise-and key (- (expt 2 5) 1)) level))
+      (arithmetic-shift (bitwise-and key (- (expt 2 5) 1)) (- level)))
 
     (define (level-up level)
       (+ level 5))
 
     (define (ctpop key index)
-      (bit-count (bitwise-arithmetic-shift-right key (+ 1 index))))
+      (bit-count (arithmetic-shift key (- (+ 1 index)))))
 
     ;;; Node types
 
@@ -99,7 +104,7 @@
         (define bitmap (subtrie-bitmap node))
         (define vector (subtrie-vector node))
         (define index (mask h level))
-        (if (not (bit-set? bitmap index))
+        (if (not (bit-set? index bitmap))
           default
           (let ((node (vector-ref vector (ctpop bitmap index))))
             (cond ((leaf? node)
@@ -133,7 +138,7 @@
         (define index (mask h level))
         (define (fixup node)
           (make-subtrie bitmap (vector-set vector index node)))
-        (if (not (bit-set? bitmap index))
+        (if (not (bit-set? index bitmap))
           (make-subtrie (bitwise-bit-set bitmap index)
                         (vector-insert vector
                                        (ctpop bitmap index)
@@ -148,8 +153,8 @@
 
       (define (handle-leaf node level)
         (define lkey  (leaf-key node))
-        (define khash (bitwise-arithmetic-shift-right h level))
-        (define lhash (bitwise-arithmetic-shift-right (hash lkey) level))
+        (define khash (arithmetic-shift h (- level)))
+        (define lhash (arithmetic-shift (hash lkey) (- level)))
         (cond ((eqv? key lkey)
                (make-leaf key (update (leaf-value node))))
               ((equal? khash lhash)
@@ -160,8 +165,8 @@
                 (handle-subtrie (wrap-subtrie node lhash) (level-up level)))))
 
       (define (handle-collision node level)
-        (define khash (bitwise-arithmetic-shift-right h level))
-        (define chash (bitwise-arithmetic-shift-right (collision-hash node) level))
+        (define khash (arithmetic-shift h (- level)))
+        (define chash (arithmetic-shift (collision-hash node) (- level)))
         (if (equal? khash chash)
           (make-collision (collision-hash node)
                           (alist-update (collision-alist node) key update base eqv?))

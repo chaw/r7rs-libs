@@ -15,7 +15,7 @@
         (slib string-search)
         (only (srfi 1) fold)
         (only (srfi 13) string-null? string-pad string-trim)
-        (only (srfi 95) sort))
+        (only (srfi 132) list-sort))
 
 (define *extns* '("scm" "sld" "sls" "sps" "ss"))
 (define *files* '())
@@ -62,7 +62,7 @@
                 (display "  ") 
                 (display (string-pad (number->string (cdr file)) 5)) 
                 (newline))
-              (sort *files* (lambda (a b) (string<? (car a) (car b)))))
+              (list-sort (lambda (a b) (string<? (car a) (car b))) *files*))
     (display divider) (newline)
     (display "Total files: ") (display (length *files*)) (newline)
     (display "Total lines: ") (display (fold + 0 (map cdr *files*))) (newline)))

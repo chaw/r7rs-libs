@@ -4,7 +4,7 @@
 
 if [ "$1" = "kawa" ]; then
   export CLASSPATH=r7rs-libs.jar
-  PROG="kawa --r7rs "
+  PROG="kawa --r7rs -f "
 else if [ "$1" = "larceny" ]; then
   PROG="larceny -r7rs -program "
 else if [ "$1" = "chibi" ]; then
@@ -23,7 +23,7 @@ fi
 fi
 fi
 
-for dir in astronomy-tests autodiff-tests nltk-tests pfds-tests rebottled-tests robin-tests slib-tests; do
+for dir in astronomy-tests autodiff-tests nltk-tests pfds-tests rebottled-tests robin-tests slib-tests srfi-tests; do
   for file in $dir/*-test.sps
   do
     $PROG $file

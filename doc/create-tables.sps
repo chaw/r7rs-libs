@@ -13,7 +13,7 @@
         (only (slib common) identity)
         (slib format)
         (srfi 1)
-        (srfi 95))
+        (srfi 132))
 
 (define *search-paths* '("astronomy" "autodiff" "nltk" "pfds" "rebottled" "robin" "slib" "weinholt"))
 
@@ -53,7 +53,8 @@
             (format #f "~a" (car lib-2))))
 
 (define *dataset* 
-  (sort
+  (list-sort
+    library<?
     (collect-append 
       (map-fn process-file
               (choose-if library-path?
@@ -61,8 +62,7 @@
                            (apply append 
                                   (map (lambda (path) 
                                          (list-directory-files path #t))
-                                       *search-paths*))))))
-    library<?))
+                                       *search-paths*))))))))
 
 ;; return list of libraries which this assn imports
 (define (imports assn) 

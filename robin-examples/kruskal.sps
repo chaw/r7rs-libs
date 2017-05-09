@@ -3,11 +3,11 @@
 
 (import (scheme base)
         (scheme cxr)
-        ;        (slib format)  ; Note: Larceny does not like format!
+        ;        (slib format)  ; Note: Larceny sometimes complains about format!
         (scheme write)
         (srfi 1)
         (srfi 69)
-        (srfi 95)
+        (srfi 132)
         (robin disjoint-set))
 
 (define (kruskal graph)
@@ -22,7 +22,7 @@
                 nodes)
       ; 2. set 'links' holds all the links in graph, sorted
       (let loop ((links 
-                   (sort graph (lambda (a b) (< (caddr a) (caddr b))))))
+                   (list-sort (lambda (a b) (< (caddr a) (caddr b))) graph)))
         ; 3. if links non-empty and size > 1
         (when (and (not (null? links))
                    (> (disjoint-set:size ds) 1))                ; <3>

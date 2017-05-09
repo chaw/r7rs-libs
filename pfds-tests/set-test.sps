@@ -7,7 +7,7 @@
         (only (srfi 1) any every)
         (srfi 64)
         (robin srfi64-utils)
-        (srfi 95))
+        (srfi 132))
 
 (test-begin "pfds-set")
 
@@ -80,8 +80,8 @@
 (test-equal '() (set->list (make-set <)))
 (test-equal 0 (set-size (list->set '() <)))
 (test-equal (string->list "abcdefghijklmno")
-            (sort (set->list
-                    (list->set (string->list "abcdefghijklmno") char<?)) char<?))
+            (list-sort char<? (set->list
+                                (list->set (string->list "abcdefghijklmno") char<?))))
 (test-equal '(0) (set->list (fold-left set-insert (make-set <) '(0 0 0 0))))
 
 ;; set-iterators

@@ -74,8 +74,8 @@
           (scheme file)
           (scheme inexact)
           (scheme read)
-          (srfi 60)
-          (srfi 95))
+          (only (srfi 60) arithmetic-shift bitwise-and) ;; TODO, replace with SRFI 151
+          (srfi 132))
 
   (begin
 
@@ -133,9 +133,9 @@
     ;;; sRGB values are sometimes written as 24-bit integers 0xRRGGBB
     ;@
     (define (xRGB->sRGB xRGB)
-      (list (ash xRGB -16)
-            (logand (ash xRGB -8) 255)
-            (logand xRGB 255)))
+      (list (arithmetic-shift xRGB -16)
+            (bitwise-and (arithmetic-shift xRGB -8) 255)
+            (bitwise-and xRGB 255)))
     (define (sRGB->xRGB sRGB)
       (apply + (map * sRGB '(#x10000 #x100 #x1))))
     ;@
@@ -162,8 +162,8 @@
               (else (expt (/ (+ 0.055 x) 1.055) 2.4)))))
     ;@
     (define (CIEXYZ->e-sRGB n XYZ)
-      (define two^n-9 (ash 1 (- n 9)))
-      (define offset (* 3 (ash 1 (- n 3))))
+      (define two^n-9 (arithmetic-shift 1 (- n 9)))
+      (define offset (* 3 (arithmetic-shift 1 (- n 3))))
       (map (lambda (x)
              (+ (exact (round (* x 255 two^n-9))) offset))
            (map e-sRGB-log
@@ -172,8 +172,8 @@
                   XYZ))))
     ;@
     (define (e-sRGB->CIEXYZ n rgb)
-      (define two^n-9 (ash 1 (- n 9)))
-      (define offset (* 3 (ash 1 (- n 3))))
+      (define two^n-9 (arithmetic-shift 1 (- n 9)))
+      (define offset (* 3 (arithmetic-shift 1 (- n 3))))
       (color:linear-transform
         RGB709:from-matrix
         (map e-sRGB-exp
@@ -181,19 +181,19 @@
                   rgb))))
     ;@
     (define (sRGB->e-sRGB n sRGB)
-      (define two^n-9 (ash 1 (- n 9)))
-      (define offset (* 3 (ash 1 (- n 3))))
+      (define two^n-9 (arithmetic-shift 1 (- n 9)))
+      (define offset (* 3 (arithmetic-shift 1 (- n 3))))
       (map (lambda (x) (+ offset (* two^n-9 x))) sRGB))
     ;@
     (define (e-sRGB->sRGB n rgb)
-      (define two^n-9 (ash 1 (- n 9)))
-      (define offset (* 3 (ash 1 (- n 3))))
+      (define two^n-9 (arithmetic-shift 1 (- n 9)))
+      (define offset (* 3 (arithmetic-shift 1 (- n 3))))
       (map (lambda (x) (/ (- x offset) two^n-9)) rgb))
     ;@
     (define (e-sRGB->e-sRGB n rgb m)
       (define shft (- m n))
       (cond ((zero? shft) rgb)
-            (else (map (lambda (x) (ash x shft)) rgb))))
+            (else (map (lambda (x) (arithmetic-shift x shft)) rgb))))
 
     ;;; From http://www.cs.rit.edu/~ncs/color/t_convert.html
 
@@ -444,7 +444,7 @@
         (let ((max-Y (if (positive? n)
                        (* n (apply max Ys))
                        (let ()
-                         (apply max (nthcdr (- n) (sort Ys >=)))))))
+                         (apply max (nthcdr (- n) (list-sort >= Ys)))))))
           (map (lambda (xyY)
                  (let ((x (max 0 (car xyY)))
                        (y (max 0 (cadr xyY))))

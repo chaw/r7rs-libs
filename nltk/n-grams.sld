@@ -58,7 +58,7 @@
          (nltk sequence)
          (only (srfi 1) drop-right)
          (srfi 69)
-         (srfi 95))
+         (srfi 132))
  
  (begin
 
@@ -320,12 +320,13 @@
                                                     (error "Unknown type for comparison")))))
                                          (else
                                            (if decreasing > <)))))
-                      (sort (vector-map
-                              (lambda (key value)
-                                (vector key value))
-                              keys values)
-                            (lambda (a b)
-                              (compare (pick a) (pick b)))))))))
+                      (list-sort 
+                        (lambda (a b)
+                          (compare (pick a) (pick b)))
+                        (vector-map
+                          (lambda (key value)
+                            (vector key value))
+                          keys values)))))))
 
 
    (define frequency-profile-decreasing
@@ -370,7 +371,7 @@
                                   (let* ((rest-list (list-tail tokens index))
                                          (n-gram    (list->vector (drop-right rest-list (- (length rest-list) n) ))))
                                     (hash-table-set! ngrams n-gram
-                                                    (+ (hash-table-ref/default ngrams n-gram 0) 1))))
+                                                     (+ (hash-table-ref/default ngrams n-gram 0) 1))))
                                 (enum-list (- num-tokens (- n 1)))))))))))
           ngrams))))
 

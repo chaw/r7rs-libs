@@ -58,10 +58,9 @@
           hmac-sha-512)
   (import (except (scheme base) bytevector-copy!)
           (scheme case-lambda)
-          (pfds bitwise)
           (r6rs bytevectors)
           (r6rs fixnums)
-          (srfi 60)
+          (only (srfi 151) arithmetic-shift bitwise-and bitwise-ior bitwise-not bitwise-xor)
           (weinholt hmac))
 
   (begin
@@ -73,15 +72,14 @@
 
     (define (ror32 n count)
       (let ((field1 (bitwise-and #xffffffff (arithmetic-shift n (- 32 count))))
-            (field2 (bitwise-arithmetic-shift-right n count)))
+            (field2 (arithmetic-shift n (- count))))
         (bitwise-ior field1 field2)))
 
     (define (ror64 n count)
       (let ((field1 (bitwise-and #xffffffffffffffff
                                  (arithmetic-shift n (- 64 count))))
-            (field2 (bitwise-arithmetic-shift-right n count)))
+            (field2 (arithmetic-shift n (- count))))
         (bitwise-ior field1 field2)))
-
 
     (define-record-type <sha-state>
                         (make-sha-state H init W m pending processed)
@@ -179,12 +177,12 @@
     (define (sigma0-256 x)
       (bitwise-xor (ror32 x 7)
                    (ror32 x 18)
-                   (bitwise-arithmetic-shift-right x 3)))
+                   (arithmetic-shift x -3)))
 
     (define (sigma1-256 x)
       (bitwise-xor (ror32 x 17)
                    (ror32 x 19)
-                   (bitwise-arithmetic-shift-right x 10)))
+                   (arithmetic-shift x -10)))
 
 
     (define (Sigma0-512 x)
@@ -200,12 +198,12 @@
     (define (sigma0-512 x)
       (bitwise-xor (ror64 x 1)
                    (ror64 x 8)
-                   (bitwise-arithmetic-shift-right x 7)))
+                   (arithmetic-shift x -7)))
 
     (define (sigma1-512 x)
       (bitwise-xor (ror64 x 19)
                    (ror64 x 61)
-                   (bitwise-arithmetic-shift-right x 6)))
+                   (arithmetic-shift x -6)))
 
     (define k-256
       '#(#x428a2f98 #x71374491 #xb5c0fbcf #xe9b5dba5

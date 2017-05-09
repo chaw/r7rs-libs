@@ -31,7 +31,7 @@
           (slib databases)
           (slib relational-database)
           (only (srfi 1) any remove filter)
-          (srfi 95))
+          (srfi 132))
 
   (begin
 
@@ -127,7 +127,7 @@
             ((expression-< (car x) (car y)) #t)
             ((expression-< (car y) (car x)) #f)
             (else (expression-< (cdr x) (cdr y)))))
-    (define (expression-sort seq) (sort! seq expression-<))
+    (define (expression-sort seq) (list-sort! expression-< seq))
 
     (define is-term-op? (lambda (term op) (and (pair? term) (eq? op (car term)))))
 
