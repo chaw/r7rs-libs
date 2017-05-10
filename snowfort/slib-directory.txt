@@ -1,0 +1,12 @@
+= Documentation for Directory
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Directories.html[]
+
+To use: +(import (slib directory))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+Included is an additional function, +pathname->dirname+, which returns 
+the directory part of a given pathname.
+

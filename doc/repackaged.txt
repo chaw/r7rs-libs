@@ -75,41 +75,7 @@ indexterm:[rebottled]
 Some libraries ported from older Scheme versions or Common Lisp: these libraries are individual 
 or very few files.
 
-==== CL-PDF: +(import (rebottled cl-pdf))+
-
-indexterm:[cl-pdf]
-Originally written for Common Lisp by Marc Battyani, this library was then ported to Scheme 
-by Bruce Butterfield.
-
-The library allows us to construct and output PDF documents.  The following example 
-displays two repeated blocks of text and a title in a variety of fonts, sizes and 
-positions in the document.
-
-[source,scheme]
-----
-(define (ex1)
-  (pdf:with-document-to-file 
-    "ex1.pdf"
-    (let ((helvetica (pdf:build-font "Helvetica"))
-          (courier (pdf:build-font "Courier")))
-      (pdf:with-page
-        (pdf:in-text-mode
-          (pdf:set-font (pdf:font-name helvetica) 36)
-          (pdf:move-text 100 750)
-          (pdf:draw-text "scm-pdf: Example 1"))
-        (pdf:in-text-mode
-          (dotimes (i 25)
-            (pdf:set-font (pdf:font-name helvetica) (* i 1.5))
-            (pdf:move-text (+ i 5) (+ i 10))
-            (pdf:draw-text "Helvetica")))
-        (pdf:in-text-mode
-          (dotimes (i 25)
-            (pdf:set-font (pdf:font-name courier) (* i 1.5))
-            (pdf:move-text (+ i 5) (- 50 (+ i 10)))
-            (pdf:draw-text "Courier")))))))
-----            
-
-This library needs documentation, and some helper functions to layout larger blocks of text.
+include::rebottled-pdf.txt[]
 
 ==== JSON
 

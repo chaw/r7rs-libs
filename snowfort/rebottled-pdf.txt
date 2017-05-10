@@ -1,0 +1,6 @@
+= Documentation for CL-PDF
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+include::../doc/rebottled-pdf.txt[]

@@ -1,0 +1,9 @@
+= Documentation for URI
+
+SLIB documentation: http://people.csail.mit.edu/jaffer/slib/URI.html[]
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+include::../doc/slib-uri.txt[]
+
