@@ -14,10 +14,6 @@ Tested against:
 * Larceny 0.99: http://www.larcenists.org/
 * Sagittarius 0.8.3: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
-## Astronomy
-
-Some algorithms from Jean Meeus, Astronomical Algorithms, 2009 (second edition with corrections).
-
 ## AutoDiff
 
 A repackaging of an R6RS implementation by Jeffrey Mark Siskind for automatic differentiation: https://github.com/qobi/R6RS-AD

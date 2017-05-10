@@ -23,7 +23,7 @@ fi
 fi
 fi
 
-for dir in astronomy-tests autodiff-tests nltk-tests pfds-tests rebottled-tests robin-tests slib-tests srfi-tests; do
+for dir in autodiff-tests nltk-tests pfds-tests rebottled-tests robin-tests slib-tests srfi-tests; do
   for file in $dir/*-test.sps
   do
     $PROG $file

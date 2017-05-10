@@ -13,7 +13,7 @@ cd ../..
 :: only one file from autodiff 
 call kawa -d bin --r7rs -C autodiff/AD.sld
 
-for %%d in (srfi astronomy nltk pfds r6rs rebottled robin slib weinholt) do (
+for %%d in (srfi nltk pfds r6rs rebottled robin slib weinholt) do (
   for %%f in (%%d/*.sld) do (
     echo %%d/%%f
     call kawa -d bin --r7rs -C "%%d/%%~nf.sld"

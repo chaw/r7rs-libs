@@ -28,7 +28,7 @@ cd ../..
 ${KAWA} $OPTS -C autodiff/AD.sld
 
 # work through each directory in turn
-for dir in srfi astronomy nltk pfds r6rs rebottled robin slib weinholt; do
+for dir in srfi nltk pfds r6rs rebottled robin slib weinholt; do
   for file in $dir/*.sld
   do
     ${KAWA} $OPTS -C $file

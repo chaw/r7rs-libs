@@ -15,7 +15,7 @@
         (srfi 1)
         (srfi 132))
 
-(define *search-paths* '("astronomy" "autodiff" "nltk" "pfds" "rebottled" "robin" "slib" "weinholt"))
+(define *search-paths* '("autodiff" "nltk" "pfds" "rebottled" "robin" "slib" "weinholt"))
 
 ;; Given an sexpr, assumed to be the text of a library definition
 ;; Return a cons of the library name and its imports
