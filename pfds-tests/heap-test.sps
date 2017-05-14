@@ -4,7 +4,6 @@
 (import (scheme base)
         (pfds heap)
         (srfi 64)
-        (robin srfi64-utils)
         (srfi 132))
 
 (test-begin "pfds-heap")
@@ -49,9 +48,9 @@
   (test-equal '(7 9 11 13)
               (heap->list
                 (heap-delete-min (heap-delete-min (heap-delete-min h1)))))
-  (test-for-error (heap-pop (make-heap <)))
-  (test-for-error (heap-delete-min (make-heap <)))
-  (test-for-error (heap-min (make-heap <))))
+  (test-error (heap-pop (make-heap <)))
+  (test-error (heap-delete-min (make-heap <)))
+  (test-error (heap-min (make-heap <))))
 
 ;; sorting
 (let ((l1 '(129 109 146 175 229 48 225 239 129 41

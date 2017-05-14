@@ -32,7 +32,7 @@
 ;; Referencing non-existent key
 (test-equal #f (hamt-ref (make-string-hamt) "foo" #f))
 ;; Referencing a non-existent key (exception)
-(test-for-error (hamt-ref (make-string-hamt) "bar"))
+(test-error (hamt-ref (make-string-hamt) "bar"))
 ;; Referencing newly-added key
 (test-equal "bar" (hamt-ref (hamt-set (make-string-hamt) "foo" "bar") "foo" #f))
 (test-equal 1 (hamt-size (hamt-set (make-string-hamt) "foo" "bar")))

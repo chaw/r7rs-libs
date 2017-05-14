@@ -63,7 +63,7 @@
 ; 
 ; Change Log: 
 ; 2017-05-11 Optional argument to 'start' for input of wish/tclsh program name.
-; 2017-05-11 Converted into an R7RS library with Sagittarius support.
+; 2017-05-11 Converted into an R7RS library with Chibi, Gauche and Sagittarius support.
 ; 2008-06-22 Added Larceny Scheme support. 
 ; 2008-02-29 Added R6RS (Ikarus Scheme) support, added TTK/STYLE. 
 ; 2007-06-27 Renamed source file to pstk.scm. 
@@ -129,6 +129,78 @@
           (scheme write))
 
   (cond-expand
+    (chibi ; from https://groups.google.com/forum/#!msg/chibi-scheme/_BgU7n_7IPk/i4rFFj87ILwJ
+      (import (chibi process)
+              (chibi filesystem)
+              (chibi match))
+      (begin
+        (define (run-program program)
+          (match-let (((parent-in parent-out) (open-pipe)))
+                     (match-let (((child-in child-out) (open-pipe)))
+                                (let ((child-pid (fork)))                
+                                  (cond ((= child-pid 0)
+                                         (renumber-file-descriptor child-in 0)
+                                         (renumber-file-descriptor parent-out 1)
+                                         (duplicate-file-descriptor-to 1 2)
+                                         (execute "/bin/sh"
+                                                  (list "/bin/sh" "-c" (string-append "exec " program))))
+                                        (else
+                                          (close-file-descriptor child-in)
+                                          (close-file-descriptor parent-out)
+                                          (list (open-input-file-descriptor parent-in)
+                                                (open-output-file-descriptor child-out))))))))))
+    ;
+    (gauche
+      (import (gauche process))
+      (begin
+        (define (run-program program)
+          (let* ((proc
+                   (run-process
+                     "/bin/sh" "-c" (string-append "exec " program " 2>&1")
+                     :input :pipe
+                     :output :pipe))
+                 (in (process-output proc))
+                 (out (process-input proc)))
+            (list in out)))))
+    ; TODO: NOT WORKING
+;    (kawa ; Code from https://sourceforge.net/projects/pstk/
+;         (run-program
+;     (lambda (program)
+;       (let* ((proc (make-process
+;                      program
+;                      (gnu.expr.QuoteExp:nullExp:getValue)))
+;              (in (make <gnu.mapping.InPort>
+;                    (make <java.io.InputStreamReader>
+;                      ((primitive-virtual-method
+;                         <java.lang.Process> "getInputStream"
+;                         <java.io.InputStream> ())
+;                       proc)
+;                      "8859_1")))
+;              (out (make <gnu.mapping.OutPort>
+;                     (make <java.io.OutputStreamWriter>
+;                       (make <java.io.BufferedOutputStream>
+;                         ((primitive-virtual-method
+;                            <java.lang.Process> "getOutputStream"
+;                            <java.io.OutputStream> ())
+;                          proc))
+;                       "8859_1"))))
+;         (list in out))))
+    ; TODO: NOT WORKING
+;    (larceny ; code from https://sourceforge.net/projects/pstk/
+;      (import (primitives require)
+;              (rnrs io ports))
+;      (begin
+;        (require "Standard/unix") ; "standard/unix.sch")
+;        (define (run-program program)
+;          (let* ((in/out/pid (process
+;                               (string-append "/bin/sh -c \"exec "
+;                                              program
+;                                              " 2>&1\"")))
+;                 (in  (car  in/out/pid))
+;                 (out (cadr in/out/pid))
+;                 (utf8-transcoder (make-transcoder (utf-8-codec))))
+;            (list (transcoded-port in  utf8-transcoder)
+;                  (transcoded-port out utf8-transcoder))))))
     ;
     (sagittarius
       (import (rnrs io ports) 

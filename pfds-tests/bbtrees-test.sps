@@ -25,7 +25,7 @@
   (test-equal 'c (bbtree-ref tree3 1))
   (test-equal #f (bbtree-ref tree1 #xdeadbeef #f))
   (test-equal 'not-in (bbtree-ref tree1 #xdeadbeef 'not-in))
-  (test-for-error (bbtree-ref tree3 20)))
+  (test-error (bbtree-ref tree3 20)))
 
 ;; bbtree-update
 (let ((bb (alist->bbtree '(("foo" . 10) ("bar" . 12)) string<?))
@@ -165,14 +165,14 @@
   "tnerfgxukscjmwhaod yz"
   (test-equal '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
               (map (lambda (x) (bbtree-index bb x)) l))
-  (test-for-error (bbtree-index bb #\z))
+  (test-error (bbtree-index bb #\z))
   (test-equal l
               (map (lambda (x)
                      (let-values (((k v) (bbtree-ref/index bb x)))
                                  k))
                    '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)))
-  (test-for-error (bbtree-ref/index bb -1))
-  (test-for-error (bbtree-ref/index bb 15)))
+  (test-error (bbtree-ref/index bb -1))
+  (test-error (bbtree-ref/index bb 15)))
 
 (test-end)
 

@@ -4,8 +4,7 @@
 (import (scheme base)
         (pfds deque)
         (only (srfi 1) fold)
-        (srfi 64)
-        (robin srfi64-utils))
+        (srfi 64))
 
 (test-begin "pfds-deque")
 
@@ -62,8 +61,8 @@
                (test-equal 3 item2)
                (test-equal 3 (deque-length deque2))))
 (let ((empty (make-deque)))
-  (test-for-error (dequeue-front empty))
-  (test-for-error (dequeue-rear empty)))
+  (test-error (dequeue-front empty))
+  (test-error (dequeue-rear empty)))
 
 ;; mixed-operations
 (let ((deque (fold (lambda (pair deque)

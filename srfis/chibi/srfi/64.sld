@@ -585,7 +585,7 @@
                         (and (>= rval (- rexp error))
                              (>= ival (- iexp error))
                              (<= rval (+ rexp error))
-                             (<= ival (+ rexp error))))))
+                             (<= ival (+ iexp error))))))
 
                   (define-syntax %test-comp1body
                     (syntax-rules ()

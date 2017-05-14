@@ -5,8 +5,7 @@
         (slib string-port)
         (slib xml-parse)
         (only (srfi 1) cons*)
-        (srfi 64)
-        (robin srfi64-utils))
+        (srfi 64))
 
 (define (string-join strs sep) ;; implemented here to avoid srfi 13 / not dependency
   (if (null? strs)
@@ -28,25 +27,25 @@
 ; The result of unesc-string is a character string with all %-combinations
 ; above replaced with their character equivalents
 (define (unesc-string str)
-   (call-with-input-string str
-     (lambda (port)
-       (let loop ((frags '()))
-	 (let* ((token (ssax:next-token '() '(#\% *eof*) "unesc-string" port))
-		(cterm (read-char port))
-		(frags (cons token frags)))
-	   (if (eof-object? cterm) (string-join (reverse frags) "")
-	     (let ((cchar (read-char port)))  ; char after #\%
-	       (if (eof-object? cchar)
-		 (error "unexpected EOF after reading % in unesc-string:" str)
-		 (loop
-		   (cons
-		     (case cchar
-		       ((#\n) (string #\newline))
-		       ((#\r) (string (integer->char 13)))
-		       ((#\t) (string #\tab))
-		       ((#\%) "%")
-		       (else (error "bad %-char in unesc-string:" cchar)))
-		     frags))))))))))
+  (call-with-input-string str
+                          (lambda (port)
+                            (let loop ((frags '()))
+                              (let* ((token (ssax:next-token '() '(#\% *eof*) "unesc-string" port))
+                                     (cterm (read-char port))
+                                     (frags (cons token frags)))
+                                (if (eof-object? cterm) (string-join (reverse frags) "")
+                                  (let ((cchar (read-char port)))  ; char after #\%
+                                    (if (eof-object? cchar)
+                                      (error "unexpected EOF after reading % in unesc-string:" str)
+                                      (loop
+                                        (cons
+                                          (case cchar
+                                            ((#\n) (string #\newline))
+                                            ((#\r) (string (integer->char 13)))
+                                            ((#\t) (string #\tab))
+                                            ((#\%) "%")
+                                            (else (error "bad %-char in unesc-string:" cchar)))
+                                          frags))))))))))
 
 (test-begin "slib-xml-parse")
 
@@ -71,8 +70,8 @@
             (call-with-input-string "_a.b:d.1-ef-;" ssax:read-QName))
 (test-equal (cons (string->symbol "a") (string->symbol "b"))
             (call-with-input-string "a:b:c" ssax:read-QName))
-(test-for-error (call-with-input-string ":abc" ssax:read-NCName))
-(test-for-error (call-with-input-string "1:bc" ssax:read-NCName))
+(test-error (call-with-input-string ":abc" ssax:read-NCName))
+(test-error (call-with-input-string "1:bc" ssax:read-NCName))
 
 (test-equal "p1 content "
             (call-with-input-string "<?pi1  p1 content ?>"
@@ -108,8 +107,8 @@
   (test "%r%r%r%na]]>" '("" " NL" "" " NL" "" " NL" "a" ""))
   (test "abc&!!!]]>" '("abc" "&" "" "" "!!!" ""))
   (test "abc]]&gt;&gt&amp;]]]&gt;and]]>"
-    '("abc" "" "]]" "" "" ">" "" "&" "gt" "" "" "&" "amp" "" ";" "" "]" ""
-      "]]" "" "" ">" "and" "")))
+        '("abc" "" "]]" "" "" ">" "" "&" "gt" "" "" "&" "amp" "" ";" "" "]" ""
+          "]]" "" "" ">" "and" "")))
 
 (letrec
   ((test (lambda (str decl-entities expected-res)
@@ -141,13 +140,13 @@
         '((ent . "&lt;&ent1;T;&gt;") (ent1 . "&amp;"))
         `((,(string->symbol "Abc") . ,(unesc-string "<&>%n"))
           (,(string->symbol "Next") . "12<&T;>34")))
-  (test-for-error 
+  (test-error 
     (test "%tAbc='&lt;&amp;&gt;&#x0A;'%nNext='12&ent;34' />" 
           '((ent . "<&ent1;T;&gt;") (ent1 . "&amp;")) '()))
-  (test-for-error
+  (test-error
     (test "%tAbc='&lt;&amp;&gt;&#x0A;'%nNext='12&ent;34' />" 
           '((ent . "&lt;&ent;T;&gt;") (ent1 . "&amp;")) '()))
-  (test-for-error
+  (test-error
     (test "%tAbc='&lt;&amp;&gt;&#x0A;'%nNext='12&ent;34' />" 
           '((ent . "&lt;&ent1;T;&gt;") (ent1 . "&ent;")) '()))
   (test "html:href='http://a%tb%r%n%r%n%nc'" '()
@@ -163,9 +162,9 @@
            . "ref1")
           ((,ssax:Prefix-XML . ,(string->symbol "html"))
            . "ref2")))
-  (test-for-error (test "html:href='ref1' html:href='ref2'" '() '()))
-  (test-for-error (test "html:href='<' html:href='ref2'" '() '()))
-  (test-for-error (test "html:href='ref1' html:href='&ref2;'" '() '()))
+  (test-error (test "html:href='ref1' html:href='ref2'" '() '()))
+  (test-error (test "html:href='<' html:href='ref2'" '() '()))
+  (test-error (test "html:href='ref1' html:href='&ref2;'" '() '()))
   )
 
 (let* ((namespaces
@@ -195,7 +194,7 @@
   (test-equal `(,ssax:Prefix-XML . space)
               (ssax:resolve-name port 
                                  `(,(string->symbol "xml") . space) namespaces-def #f))
-  (test-for-error
+  (test-error
     (ssax:resolve-name port '(XXX . ABC) namespaces-def #f))
   )
 
@@ -229,136 +228,136 @@
                                ,(cons `(*DEFAULT* '"UA" . ,urn-a) namespaces) ANY)
               (test "TAG1" #f "HREF='a' xmlns='urn:a'>"))
   (test-equal `(TAG1 ((HREF . "a"))
-                ,(cons '(*DEFAULT* #f . #f) namespaces) ANY)
+                     ,(cons '(*DEFAULT* #f . #f) namespaces) ANY)
               (test "TAG1" #f "HREF='a' xmlns=''>"))
-  (test-for-error (test "UA:TAG1" #f "HREF='a' xmlns=''/>"))
-;  (test-equal `(('"UA" . TAG1) ((('"UA" . HREF) . "a"))                        ;; TODO
-;                                  ,(cons '(*DEFAULT* #f . #f) namespaces) ANY)
-;              (test "A:TAG1" #f "A:HREF='a' xmlns=''>"))
-;  (test-equal `(('"UA" . TAG1) ((('"UA" . HREF) . "a"))
-;                                  ,(cons `(*DEFAULT* ,urn-b . ,urn-b) namespaces) ANY)
-;              (test "A:TAG1" #f "A:HREF='a' xmlns='urn:b'>"))
-  (test-for-error (test "B:TAG1" #f "A:HREF='a' xmlns:b=''/>"))
- #; (test-equal `((,urn-b . TAG1) ((('"UA" . HREF) . "a"))
-                                   ,(cons `('"B" ,urn-b . ,urn-b) namespaces) ANY)
-              (test "B:TAG1" #f "A:HREF='a' xmlns:B='urn:b'>"))
- #; (test-equal `((,urn-b . TAG1) ((('"UA" . HREF) . "a")
-                                    ((,urn-b . '"SRC") . "b"))
-                                   ,(cons `('"B" ,urn-b . ,urn-b) namespaces) ANY)
-              (test "B:TAG1" #f 
-                    "B:SRC='b' A:HREF='a' xmlns:B='urn:b'>"))
- #; (test-equal `((,urn-b . TAG1) ((('"UA" . HREF) . "a")
-                                    ((,urn-b . HREF) . "b"))
-                                   ,(cons `('"B" ,urn-b . ,urn-b) namespaces) ANY)
-              (test "B:TAG1" #f 
-                    "B:HREF=\"b\" A:HREF='a' xmlns:B='urn:b'>"))
-  ; must be an error! Duplicate attr
-  (test-for-error (test "B:TAG1" #f
-                        "HREF=\"b\" HREF='a' xmlns:B='urn:a'/>"))
-  ; must be an error! Duplicate attr after ns expansion
-  (test-for-error (test "B:TAG1" #f 
-                        "B:HREF=\"b\" A:HREF='a' xmlns:B='urn:a'/>"))
- #; (test-equal `(('"UA" . TAG1) ((HREF . "a")
-                                   (('"UA" . HREF) . "b"))
-                                  ,(cons `(*DEFAULT* '"UA" . ,urn-a) namespaces) ANY)
-              (test "TAG1" #f 
-                    "A:HREF=\"b\" HREF='a' xmlns='urn:a'>"))
-  #;(test-equal `(TAG1 ((('"UHTML" . HREF) . "a")
-                         ((,urn-b . HREF) . "b"))
-                ,(append `(
-                           ('"HTML" '"UHTML" . ,urn-html)
-                           ('"B" ,urn-b . ,urn-b))
-                         namespaces) ANY)
-              (test "TAG1" #f 
-                    "B:HREF=\"b\" xmlns:B='urn:b' xmlns:HTML='http://w3c.org/html' HTML:HREF='a' >"))
+  (test-error (test "UA:TAG1" #f "HREF='a' xmlns=''/>"))
+  ;  (test-equal `(('"UA" . TAG1) ((('"UA" . HREF) . "a"))                        ;; TODO
+  ;                                  ,(cons '(*DEFAULT* #f . #f) namespaces) ANY)
+  ;              (test "A:TAG1" #f "A:HREF='a' xmlns=''>"))
+  ;  (test-equal `(('"UA" . TAG1) ((('"UA" . HREF) . "a"))
+  ;                                  ,(cons `(*DEFAULT* ,urn-b . ,urn-b) namespaces) ANY)
+  ;              (test "A:TAG1" #f "A:HREF='a' xmlns='urn:b'>"))
+  (test-error (test "B:TAG1" #f "A:HREF='a' xmlns:b=''/>"))
+  #; (test-equal `((,urn-b . TAG1) ((('"UA" . HREF) . "a"))
+  ,(cons `('"B" ,urn-b . ,urn-b) namespaces) ANY)
+(test "B:TAG1" #f "A:HREF='a' xmlns:B='urn:b'>"))
+#; (test-equal `((,urn-b . TAG1) ((('"UA" . HREF) . "a")
+((,urn-b . '"SRC") . "b"))
+,(cons `('"B" ,urn-b . ,urn-b) namespaces) ANY)
+(test "B:TAG1" #f 
+      "B:SRC='b' A:HREF='a' xmlns:B='urn:b'>"))
+#; (test-equal `((,urn-b . TAG1) ((('"UA" . HREF) . "a")
+((,urn-b . HREF) . "b"))
+,(cons `('"B" ,urn-b . ,urn-b) namespaces) ANY)
+(test "B:TAG1" #f 
+      "B:HREF=\"b\" A:HREF='a' xmlns:B='urn:b'>"))
+; must be an error! Duplicate attr
+(test-error (test "B:TAG1" #f
+                  "HREF=\"b\" HREF='a' xmlns:B='urn:a'/>"))
+; must be an error! Duplicate attr after ns expansion
+(test-error (test "B:TAG1" #f 
+                  "B:HREF=\"b\" A:HREF='a' xmlns:B='urn:a'/>"))
+#; (test-equal `(('"UA" . TAG1) ((HREF . "a")
+(('"UA" . HREF) . "b"))
+,(cons `(*DEFAULT* '"UA" . ,urn-a) namespaces) ANY)
+(test "TAG1" #f 
+      "A:HREF=\"b\" HREF='a' xmlns='urn:a'>"))
+#;(test-equal `(TAG1 ((('"UHTML" . HREF) . "a")
+((,urn-b . HREF) . "b"))
+,(append `(
+           ('"HTML" '"UHTML" . ,urn-html)
+           ('"B" ,urn-b . ,urn-b))
+         namespaces) ANY)
+(test "TAG1" #f 
+      "B:HREF=\"b\" xmlns:B='urn:b' xmlns:HTML='http://w3c.org/html' HTML:HREF='a' >"))
 
-  ; Now test the validating parsing
-  ; No decl for tag1
-  (test-for-error (test "TAG1" '((TAG2 ANY ()))
-                        "B:HREF='b' xmlns:B='urn:b'>"))
-  (test-for-error
-    (test "TAG1" '((TAG1 ANY (('"HREF1" CDATA IMPLIED #f))))
-          "B:HREF='b' xmlns:B='urn:b'>"))
- (test-equal `(TAG1 ((HREF . "b")) ,namespaces EMPTY-TAG)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f))))
-                    "HREF='b'/>"))
-  (test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f))))
-                    "HREF='b'>"))
-  ; Req'd attribute not given error
-  (test-for-error 
-    (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f))))
-          ">"))
-  ; Wrong content-type of the attribute
-  (test-for-error 
-    (test "TAG1" '((TAG1 PCDATA ((HREF ("c") REQUIRED #f))))
-          "HREF='b'>"))
-  (test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF ("c" "b") IMPLIED #f))))
-                    "HREF='b'>"))
-  (test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA IMPLIED "c"))))
-                    "HREF='b'>"))
-  ; Bad fixed attribute
-  (test-for-error 
-    (test "TAG1" '((TAG1 PCDATA ((HREF CDATA FIXED "c"))))
-          "HREF='b'>"))
-  (test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA FIXED "b"))))
-                    "HREF='b'>"))
-  (test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA FIXED "b")))) ">"))
-  (test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA IMPLIED "b")))) ">"))
-  (test-equal `(TAG1 () ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA IMPLIED #f)))) ">"))
-  ; Undeclared attr
-  (test-for-error 
-    (test "TAG1"
-          '((TAG1 PCDATA ((('"A" . HREF) CDATA IMPLIED "c"))))
-          "HREF='b'>"))
-  #;(test-equal `(TAG1 ((HREF . "b") (('"UA" . HREF) . "c"))
-                ,namespaces PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f)
-                                              (('"A" . HREF) CDATA IMPLIED "c"))))
-                    "HREF='b'>"))
-  #;(test-equal `(('"UA" . TAG1)
-                ((HREF . "b") (('"UA" . HREF) . "c"))
-                ,namespaces PCDATA)
-              (test "A:TAG1" '((('"A" . TAG1) PCDATA
-                                                 ((HREF NMTOKEN REQUIRED #f)
-                                                  (('"A" . HREF) CDATA IMPLIED "c"))))
-                    "HREF='b'>"))
-  #;(test-equal `((,urn-b . TAG1) ((HREF . "b"))
-                                   ,(cons `('"B" ,urn-b . ,urn-b) namespaces) PCDATA)
-              (test "B:TAG1" '((('"B" . TAG1) PCDATA ((HREF CDATA REQUIRED #f)
-                                                         (('"xmlns" . '"B") CDATA IMPLIED "urn:b"))))
-                    "HREF='b'>"))
-  #;(test-equal `((,urn-b . TAG1) (((,urn-b . HREF) . "b"))
-                                   ,(cons `('"B" ,urn-b . ,urn-b) namespaces) PCDATA)
-              (test "B:TAG1" '((('"B" . TAG1) PCDATA
-                                                 ((('"B" . HREF) CDATA REQUIRED #f)
-                                                  (('"xmlns" . '"B") CDATA IMPLIED "urn:b"))))
-                    "B:HREF='b'>"))
-  #;(test-equal `((,urn-b . TAG1) ((HREF . "b"))
-                                   ,(cons `(*DEFAULT* ,urn-b . ,urn-b) namespaces) PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f)
-                                              ('"xmlns" CDATA IMPLIED "urn:b"))))
-                    "HREF='b'>"))
-  ; xmlns not declared
-  #;(test-equal `((,urn-b . TAG1) ((HREF . "b"))
-                                   ,(cons `(*DEFAULT* ,urn-b . ,urn-b) namespaces) PCDATA)
-              (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f)
-                                              )))
-                    "HREF='b' xmlns='urn:b'>"))
-  ; xmlns:B not declared
-  #;(test-equal `((,urn-b . TAG1) (((,urn-b . HREF) . "b"))
-                                   ,(cons `('"B" ,urn-b . ,urn-b) namespaces) PCDATA)
-              (test "B:TAG1" '((('"B" . TAG1) PCDATA
-                                                 ((('"B" . HREF) CDATA REQUIRED #f)
-                                                  )))
-                    "B:HREF='b' xmlns:B='urn:b'>"))
-  )
+; Now test the validating parsing
+; No decl for tag1
+(test-error (test "TAG1" '((TAG2 ANY ()))
+                  "B:HREF='b' xmlns:B='urn:b'>"))
+(test-error
+  (test "TAG1" '((TAG1 ANY (('"HREF1" CDATA IMPLIED #f))))
+        "B:HREF='b' xmlns:B='urn:b'>"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces EMPTY-TAG)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f))))
+                  "HREF='b'/>"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f))))
+                  "HREF='b'>"))
+; Req'd attribute not given error
+(test-error 
+  (test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f))))
+        ">"))
+; Wrong content-type of the attribute
+(test-error 
+  (test "TAG1" '((TAG1 PCDATA ((HREF ("c") REQUIRED #f))))
+        "HREF='b'>"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF ("c" "b") IMPLIED #f))))
+                  "HREF='b'>"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA IMPLIED "c"))))
+                  "HREF='b'>"))
+; Bad fixed attribute
+(test-error 
+  (test "TAG1" '((TAG1 PCDATA ((HREF CDATA FIXED "c"))))
+        "HREF='b'>"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA FIXED "b"))))
+                  "HREF='b'>"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA FIXED "b")))) ">"))
+(test-equal `(TAG1 ((HREF . "b")) ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA IMPLIED "b")))) ">"))
+(test-equal `(TAG1 () ,namespaces PCDATA)
+            (test "TAG1" '((TAG1 PCDATA ((HREF CDATA IMPLIED #f)))) ">"))
+; Undeclared attr
+(test-error 
+  (test "TAG1"
+        '((TAG1 PCDATA ((('"A" . HREF) CDATA IMPLIED "c"))))
+        "HREF='b'>"))
+#;(test-equal `(TAG1 ((HREF . "b") (('"UA" . HREF) . "c"))
+,namespaces PCDATA)
+(test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f)
+                             (('"A" . HREF) CDATA IMPLIED "c"))))
+      "HREF='b'>"))
+#;(test-equal `(('"UA" . TAG1)
+((HREF . "b") (('"UA" . HREF) . "c"))
+,namespaces PCDATA)
+(test "A:TAG1" '((('"A" . TAG1) PCDATA
+                                ((HREF NMTOKEN REQUIRED #f)
+                                 (('"A" . HREF) CDATA IMPLIED "c"))))
+      "HREF='b'>"))
+#;(test-equal `((,urn-b . TAG1) ((HREF . "b"))
+,(cons `('"B" ,urn-b . ,urn-b) namespaces) PCDATA)
+(test "B:TAG1" '((('"B" . TAG1) PCDATA ((HREF CDATA REQUIRED #f)
+                                        (('"xmlns" . '"B") CDATA IMPLIED "urn:b"))))
+      "HREF='b'>"))
+#;(test-equal `((,urn-b . TAG1) (((,urn-b . HREF) . "b"))
+,(cons `('"B" ,urn-b . ,urn-b) namespaces) PCDATA)
+(test "B:TAG1" '((('"B" . TAG1) PCDATA
+                                ((('"B" . HREF) CDATA REQUIRED #f)
+                                 (('"xmlns" . '"B") CDATA IMPLIED "urn:b"))))
+      "B:HREF='b'>"))
+#;(test-equal `((,urn-b . TAG1) ((HREF . "b"))
+,(cons `(*DEFAULT* ,urn-b . ,urn-b) namespaces) PCDATA)
+(test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f)
+                             ('"xmlns" CDATA IMPLIED "urn:b"))))
+      "HREF='b'>"))
+; xmlns not declared
+#;(test-equal `((,urn-b . TAG1) ((HREF . "b"))
+,(cons `(*DEFAULT* ,urn-b . ,urn-b) namespaces) PCDATA)
+(test "TAG1" '((TAG1 PCDATA ((HREF CDATA REQUIRED #f)
+                             )))
+      "HREF='b' xmlns='urn:b'>"))
+; xmlns:B not declared
+#;(test-equal `((,urn-b . TAG1) (((,urn-b . HREF) . "b"))
+,(cons `('"B" ,urn-b . ,urn-b) namespaces) PCDATA)
+(test "B:TAG1" '((('"B" . TAG1) PCDATA
+                                ((('"B" . HREF) CDATA REQUIRED #f)
+                                 )))
+      "B:HREF='b' xmlns:B='urn:b'>"))
+)
 
 (letrec
   ((test (lambda (str namespace-assig expected-res)

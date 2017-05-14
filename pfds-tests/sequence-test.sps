@@ -3,7 +3,6 @@
 
 (import (scheme base)
         (pfds sequence)
-        (robin srfi64-utils)
         (srfi 64))
 
 (test-begin "pfds-sequence")
@@ -16,8 +15,8 @@
 (let ((s (sequence 'zero 'one 'two)))
   (test-equal 'zero (sequence-ref s 0))
   (test-equal 'two (sequence-ref s 2))
-  (test-for-error (sequence-ref s -1))
-  (test-for-error (sequence-ref s 3)))
+  (test-error (sequence-ref s -1))
+  (test-error (sequence-ref s 3)))
 
 (test-end)
 

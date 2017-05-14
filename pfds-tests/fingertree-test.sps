@@ -6,8 +6,7 @@
                 (make-fingertree %make-fingertree)
                 (list->fingertree %list->fingertree))
         (only (pfds list-helpers) fold-left)
-        (srfi 64)
-        (robin srfi64-utils))
+        (srfi 64))
 
 ;; Right now, I am not testing the monoidal parts of fingertrees, so
 ;; we use constructor that replaces these with arbitrary values
@@ -59,8 +58,8 @@
 (let* ((l1 '(a b c d e f))
        (f1 (list->fingertree l1))
        (f2 (make-fingertree)))
-  (test-for-error (fingertree-uncons f2))
-  (test-for-error (fingertree-unsnoc f2))
+  (test-error (fingertree-uncons f2))
+  (test-error (fingertree-unsnoc f2))
   (let-values (((head tail) (fingertree-uncons f1)))
               (test-equal (car l1) head)
               (test-equal (cdr l1) (fingertree->list tail)))

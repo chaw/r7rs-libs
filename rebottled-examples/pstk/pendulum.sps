@@ -2,10 +2,9 @@
  
 (import (scheme base)
         (scheme inexact)
-        (rebottled pstk)
-        (robin constants))
+        (rebottled pstk))
  
-(define *conv-radians* (/ PI 180))
+(define *conv-radians* (/ 3.14159265358979 180))
 (define *theta* 45.0)
 (define *d-theta* 0.0)
 (define *length* 150)

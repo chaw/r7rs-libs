@@ -102,6 +102,20 @@ indexterm:[pregexp]
 Written by Dorai Sitaram, this library is documented at:
 http://ds26gte.github.io/pregexp/index.html[]
 
+==== TK Interface: +(import (rebottled pstk))+
+
+This library has a long history in the Scheme community, and has been 
+adapted at various times to work with many different implementations.
+This version is packaged for R7RS Schemes: some implementation-specific 
+code is required to interact with the Tcl/TK program.
+
+.Note
+****
+This version currently only works with Sagittarius
+****
+
+For a general tutorial on tk, see http://www.tkdocs.com/[]
+
 ==== Quaternions: +(import (rebottled quaternions))+
 
 indexterm:[quaternions]

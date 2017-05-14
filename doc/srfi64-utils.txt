@@ -44,20 +44,6 @@ just the first item of sublists are the same:
 robin/srfi64-utils.sld:69: FAIL
 ----
 
-=== test-for-error
-
-indexterm2:[+test-for-error+] is used to confirm that a piece of code _has_ thrown an error.
-In the following example, the first line raises an +error+, and so the test passes.
-The second line does not raise an +error+, and so the test fails.
-
-[source,scheme]
-----
-#|kawa:24|# (test-for-error (if (zero? 0) (error "") #t))
-#|kawa:25|# (test-for-error (if (zero? 1) (error "") #t))
-robin/srfi64-utils.sld:55: FAIL
-----
-
-
 === test-no-error
 
 indexterm2:[+test-no-error+] is used to confirm that a piece of code has _not_ thrown an error.

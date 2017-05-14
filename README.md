@@ -84,7 +84,9 @@ sources:
 * packrat - Tony Garnock-Jones' Packrat Parser Library
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme
 * pstk - Uses 'tclsh' to create graphical interfaces/programs
-  * Currently only supports Sagittarius
+  * Currently supports Chibi, Gauche and Sagittarius
+  * Chibi and Gauche rely on calling /bin/sh, so are Linux(?) only
+  * Sagittarius tested on Linux and Windows
 * quaternion - Dorai Sitaram's quaternion numbers
 * schelog - Dorai Sitaram's logic-style programming in Scheme
   * not working on Kawa (due to call/cc)
