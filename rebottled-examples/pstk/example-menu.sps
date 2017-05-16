@@ -10,9 +10,9 @@
 (tk 'configure 'width: 300 'height: 200)
 
 (let* ((menubar (tk 'create-widget 'menu))
-       (main-menu (tk 'create-widget 'menu))
-       (second-menu (tk 'create-widget 'menu))
-       (sub-menu (tk 'create-widget 'menu)))
+       (main-menu (tk 'create-widget 'menu 'tearoff: 0 ))
+       (second-menu (tk 'create-widget 'menu 'tearoff: 0))
+       (sub-menu (tk 'create-widget 'menu 'tearoff: 0)))
   (menubar 'add 'cascade 'menu: main-menu 'label: "Main" 'underline: 0)
   (menubar 'add 'cascade 'menu: second-menu 'label: "Second" 'underline: 0)
 

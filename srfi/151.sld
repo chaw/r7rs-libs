@@ -14,9 +14,23 @@
           (scheme case-lambda))
 
   (cond-expand
+    (chibi
+      (include-shared "bit")
+      (begin
+        (define (bitwise-not i) (- -1 i))
 
-    ;(chibi (include-shared "bit")        ;; not working as yet
-    ;       (include "chibi-core.scm"))
+        (define (make-nary proc2 default)
+          (lambda args
+            (if (null? args)
+              default
+              (let lp ((i (car args)) (ls (cdr args)))
+                (if (null? ls)
+                  i
+                  (lp (proc2 i (car ls)) (cdr ls)))))))
+
+        (define bitwise-and  (make-nary bit-and  -1))
+        (define bitwise-ior  (make-nary bit-ior   0))
+        (define bitwise-xor  (make-nary bit-xor   0))))
 
     ((library (rnrs arithmetic bitwise))
      (import (only (rnrs arithmetic bitwise)
@@ -374,14 +388,14 @@
       (if (null? len)
         (do ((k k (arithmetic-shift k -1))
              (lst '() (cons (odd? k) lst)))
-          ((<= k 0) lst))
+          ((<= k 0) (reverse lst)))
         (do ((idx (+ -1 (car len)) (+ -1 idx))
              (k k (arithmetic-shift k -1))
              (lst '() (cons (odd? k) lst)))
-          ((negative? idx) lst))))
+          ((negative? idx) (reverse lst)))))
 
     (define (list->integer bools)
-      (do ((bs bools (cdr bs))
+      (do ((bs (reverse bools) (cdr bs))
            (acc 0 (+ acc acc (if (car bs) 1 0))))
         ((null? bs) acc)))
 
