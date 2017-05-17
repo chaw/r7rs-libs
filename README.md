@@ -77,7 +77,8 @@ sources:
 
 * cl-pdf - Port of a Common Lisp library for writing PDF files
 * cl-pdf-utils
-* json-parser - Takashi Kato's libraries for working with JSON
+* json - Takashi Kato's libraries for working with JSON
+* json-parser
 * json-select
   * The above two libraries do not load into Gauche 0.9.5 (fixed in master)
 * json-tools
