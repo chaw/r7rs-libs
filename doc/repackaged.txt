@@ -132,11 +132,8 @@ https://ds26gte.github.io/schelog/index.html[]
 
 === SRFI: +(import (srfi NN))+
 
-indexterm:[srfi] The +r7rs-libs+ include some SRFIs for Chibi and Kawa.  These
-are provided solely to provide support for the above libraries.  Although
-mostly complete in themselves, SRFI-64, for example, only provides those
-functions needed in the test suites to support Chibi, wrapping 
-equivalent +(chibi test)+ functions.
+indexterm:[srfi] The +r7rs-libs+ include some SRFIs required by this 
+collection for those implementations which do not otherwise provide them.  
 
 For documentation on the SRFIs, see http://srfi.schemers.org/final-srfis.html[]
 

@@ -17,8 +17,8 @@
                                        'fg: "yellow"
                                        'activebackground: "red"
                                        'activeforeground: "white"
-                                       'padx: (/ (string->number (tk/winfo 'screenwidth ".")) 3)
-                                       'pady: (/ (string->number (tk/winfo 'screenheight ".")) 3)
+                                       'padx: (/ (string->number (tk/winfo 'screenwidth tk)) 3)
+                                       'pady: (/ (string->number (tk/winfo 'screenheight tk)) 3)
                                        'command: exit)))
                            (tk/pack b)
                            (tk-event-loop tk))))

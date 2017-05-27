@@ -1,0 +1,12 @@
+= Documentation for Line-IO
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Line-I_002fO.html[]
+
+To use: +(import (slib line-io))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+****
++read-line+ is in R7RS Scheme and not provided separately in this library
+****

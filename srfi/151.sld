@@ -8,7 +8,7 @@
           bit-field bit-field-any? bit-field-every?  bit-field-clear bit-field-set
           bit-field-replace  bit-field-replace-same
           bit-field-rotate bit-field-reverse
-          integer->list list->integer integer->vector vector->integer bits
+          bits->list list->bits bits->vector vector->bits bits
           bitwise-fold bitwise-for-each bitwise-unfold make-bitwise-generator)
   (import (scheme base)
           (scheme case-lambda))
@@ -384,7 +384,7 @@
         (bitwise-ior to (arithmetic-shift 1 index))
         (bitwise-and to (bitwise-not (arithmetic-shift 1 index)))))
 
-    (define (integer->list k . len)
+    (define (bits->list k . len)
       (if (null? len)
         (do ((k k (arithmetic-shift k -1))
              (lst '() (cons (odd? k) lst)))
@@ -394,13 +394,13 @@
              (lst '() (cons (odd? k) lst)))
           ((negative? idx) (reverse lst)))))
 
-    (define (list->integer bools)
+    (define (list->bits bools)
       (do ((bs (reverse bools) (cdr bs))
            (acc 0 (+ acc acc (if (car bs) 1 0))))
         ((null? bs) acc)))
 
     (define (bits . bools)
-      (list->integer bools))
+      (list->bits bools))
 
     (define (bitwise-if mask n0 n1)
       (bitwise-ior (bitwise-and mask n0)
@@ -409,12 +409,12 @@
     ;;;; bitwise-other - functions not from SRFI 33 or SRFI 60
     ;;; Copyright John Cowan 2017
 
-    (define integer->vector
+    (define bits->vector
       (case-lambda
-        ((i) (list->vector (integer->list i)))
-        ((i len) (list->vector (integer->list i len)))))
+        ((i) (list->vector (bits->list i)))
+        ((i len) (list->vector (bits->list i len)))))
 
-    (define (vector->integer vector) (list->integer (vector->list vector)))
+    (define (vector->bits vector) (list->bits (vector->list vector)))
 
     (define (bit-swap n1 n2 i)
       (let ((n1-bit (bit-set? n1 i))

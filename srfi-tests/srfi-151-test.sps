@@ -32,13 +32,13 @@
             (test-equal "test-100" #b1011 (bit-swap 1 2 #b1101))
             (test-equal "test-101" #b1011 (bit-swap 2 1 #b1101))
             (test-equal "test-102" #b10000000101 (bit-swap 3 10 #b1101))
-            (test-equal "test-103" '(#t #f #t #f #t #t #t) (integer->list #b1110101))
-            (test-equal "test-104" '(#f #t #f #t) (integer->list #b111010 4))
-            (test-equal "test-105" '#(#t #t #t #f #t #f #t #f #f) (integer->vector #b1010111 9))
-            (test-equal "test-106" #b1110101 (list->integer '(#t #f #t #f #t #t #t)))
-            (test-equal "test-107" #b111010100 (list->integer '(#f #f #t #f #t #f #t #t #t)))
-            (test-equal "test-108" #b1110101 (vector->integer '#(#t #f #t #f #t #t #t)))
-            (test-equal "test-109" #b00011010100 (vector->integer '#(#f #f #t #f #t #f #t #t)))
+            (test-equal "test-103" '(#t #f #t #f #t #t #t) (bits->list #b1110101))
+            (test-equal "test-104" '(#f #t #f #t) (bits->list #b111010 4))
+            (test-equal "test-105" '#(#t #t #t #f #t #f #t #f #f) (bits->vector #b1010111 9))
+            (test-equal "test-106" #b1110101 (list->bits '(#t #f #t #f #t #t #t)))
+            (test-equal "test-107" #b111010100 (list->bits '(#f #f #t #f #t #f #t #t #t)))
+            (test-equal "test-108" #b1110101 (vector->bits '#(#t #f #t #f #t #t #t)))
+            (test-equal "test-109" #b00011010100 (vector->bits '#(#f #f #t #f #t #f #t #t)))
             (test-equal "test-110" #b1110101 (bits #t #f #t #f #t #t #t))
             (test-equal "test-111" #b111010100 (bits #f #f #t #f #t #f #t #t #t))
             (test-equal "test-112" '(#t #f #t #f #t #t #t) (bitwise-fold cons '() #b1010111))
@@ -144,9 +144,9 @@
             (test-equal "test-221" (bitwise-ior (arithmetic-shift -1 32) #x7FFFFFFF) 
                   (bit-field-reverse -2 0 32))
             (test-equal "test-222" 5 (bit-field-reverse #x140000000000000000000000000000000 0 129))
-            (test-equal "test-223" '(#t #t) (integer->list 3))
-            (test-equal "test-224" '(#f #t #t #f) (integer->list 6 4))
-            (test-equal "test-225" '(#f #t) (integer->list 6 2))
+            (test-equal "test-223" '(#t #t) (bits->list 3))
+            (test-equal "test-224" '(#f #t #t #f) (bits->list 6 4))
+            (test-equal "test-225" '(#f #t) (bits->list 6 2))
             (test-equal "test-226" '(#t #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
@@ -155,7 +155,7 @@
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f) 
-                  (integer->list 1 128))
+                  (bits->list 1 128))
             (test-equal "test-227" '(#t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t 
                                #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t 
                                #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t 
@@ -164,7 +164,7 @@
                                #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t 
                                #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t 
                                #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t) 
-                  (integer->list -1 128))
+                  (bits->list -1 128))
             (test-equal "test-228" '(#f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
@@ -174,12 +174,12 @@
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #t) 
-                  (integer->list #x100000000000000000000000000000000))
-            (test-equal "test-229" 6 (list->integer '(#f #t #t)))
-            (test-equal "test-230" 12 (list->integer '(#f #f #t #t)))
-            (test-equal "test-231" 6 (list->integer '(#f #t #t #f)))
-            (test-equal "test-232" 2 (list->integer '(#f #t)))
-            (test-equal "test-233" 1 (list->integer 
+                  (bits->list #x100000000000000000000000000000000))
+            (test-equal "test-229" 6 (list->bits '(#f #t #t)))
+            (test-equal "test-230" 12 (list->bits '(#f #f #t #t)))
+            (test-equal "test-231" 6 (list->bits '(#f #t #t #f)))
+            (test-equal "test-232" 2 (list->bits '(#f #t)))
+            (test-equal "test-233" 1 (list->bits 
                                  '(#t #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                    #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                    #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
@@ -189,7 +189,7 @@
                                    #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                                    #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f)))
             (test-equal "test-234" #x100000000000000000000000000000000 
-                  (list->integer 
+                  (list->bits 
                     '(#f 
                       #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                       #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
@@ -199,35 +199,35 @@
                       #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                       #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f 
                       #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #t)))
-            (test-equal "test-235" #x03FFFFFF (list->integer '(#t #t 
+            (test-equal "test-235" #x03FFFFFF (list->bits '(#t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-236" #x07FFFFFF (list->integer '(#t #t #t 
+            (test-equal "test-236" #x07FFFFFF (list->bits '(#t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-237" #x0FFFFFFF (list->integer '(#t #t #t #t 
+            (test-equal "test-237" #x0FFFFFFF (list->bits '(#t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-238" #x1FFFFFFF (list->integer '(#t #t #t #t #t 
+            (test-equal "test-238" #x1FFFFFFF (list->bits '(#t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-239" #x3FFFFFFF (list->integer '(#t #t #t #t #t #t 
+            (test-equal "test-239" #x3FFFFFFF (list->bits '(#t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-240" #x7FFFFFFF (list->integer '(#t #t #t #t #t #t #t 
+            (test-equal "test-240" #x7FFFFFFF (list->bits '(#t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-241" #xFFFFFFFF (list->integer '(#t #t #t #t #t #t #t #t 
+            (test-equal "test-241" #xFFFFFFFF (list->bits '(#t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t 
                                                          #t #t #t #t #t #t #t #t)))
-            (test-equal "test-242" #x1FFFFFFFF (list->integer '(#t 
+            (test-equal "test-242" #x1FFFFFFFF (list->bits '(#t 
                                                           #t #t #t #t #t #t #t #t 
                                                           #t #t #t #t #t #t #t #t 
                                                           #t #t #t #t #t #t #t #t 
@@ -338,7 +338,7 @@
             (test-equal "test-379" #b1 (copy-bit 0 0 #t))
             (test-equal "test-382" #b1110 (bit-swap 0 1 #b1101))
             (test-equal "test-475" 1 (bit-field-rotate #x100000000000000000000000000000000 1 0 129))
-            (test-equal "test-490" 1 (list->integer '(#t #f)))
+            (test-equal "test-490" 1 (list->bits '(#t #f)))
             (test-equal "test-501" 0 (bits))
             (test-equal "test-541" #t (bit-set? 64 #x10000000000000000))
             (test-equal "test-542" #f (bit-set? 64 1)))

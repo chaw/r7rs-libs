@@ -42,7 +42,7 @@
           make-directory
           )
   (import (scheme base)
-          (scheme case-lambda)
+          (scheme case-lambda)        (slib format)
           (slib filename))
 
   ;; functions must be defined in platform specific ways
@@ -125,15 +125,22 @@
              (define (collect-files dir) ; return list of all files, recursively, in dir
                (let-values (((subdirs files) (directory-list2 dir)))
                            (fold append (filter glob-match? files)
-                                 (map collect-files subdirs))))
+                                 (map collect-files 
+                                      (map (lambda (d) (string-append dir "/" d))
+                                          (remove (lambda (d) (member d '("." "..") string=?))
+                                                  subdirs))))))
              ;
              (collect-files (current-directory)))
             ((glob proc) ; apply proc to each result in list, returns #f
              (define glob-match? (filename:match?? glob))
-             (define (process-files dir)
+             (define (process-files dir) 
                (let-values (((subdirs files) (directory-list2 dir)))
+               (format #t "Collect ~a ~a ~a~&" dir files (filter glob-match? files))
                            (for-each proc (filter glob-match? files))
-                           (for-each collect-files subdirs)))
+                           (for-each process-files 
+                                     (map (lambda (d) (string-append dir "/" d))
+                                          (remove (lambda (d) (member d '("." "..") string=?))
+                                                  subdirs)))))
              ;
              (process-files (current-directory))
              #f)))
@@ -249,11 +256,10 @@
              (define glob-match? (filename:match?? glob))
              (define (collect-files dir) ; return list of all files, recursively, in dir
                (cond ((is-directory? dir)
-                      (let ((current (current-directory))
-                            (res (fold append '()
-                                       (map collect-files (map (lambda (p) (string-append dir "/" p)) (list-directory dir))))))
-                        (change-directory current)
-                        res))
+                      (fold append '()
+                            (map collect-files 
+                                 (map (lambda (p) (string-append dir "/" p))
+                                      (list-directory dir)))))
                      ((glob-match? dir)
                       (list dir))
                      (else ; ignore file
@@ -262,12 +268,11 @@
              (collect-files (current-directory)))
             ((glob proc)
              (define glob-match? (filename:match?? glob))
-             (define (process-files dir) ; return list of all files, recursively, in dir
+             (define (process-files dir) ; visit list of all files, recursively, in dir
                (cond ((is-directory? dir)
-                      (let ((current (current-directory)))
-                        (for-each process-files (map (lambda (p) (string-append dir "/" p)) (list-directory dir)))
-                        (change-directory current)
-                        #f))
+                      (for-each process-files 
+                                (map (lambda (p) (string-append dir "/" p)) 
+                                     (list-directory dir))))
                      ((glob-match? dir) ; run proc on the function
                       (proc dir))
                      (else ; ignore file
