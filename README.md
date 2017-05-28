@@ -12,7 +12,7 @@ Tested against:
     keywords are treated as symbols
 * Kawa 2.4: https://www.gnu.org/software/kawa/
 * Larceny 0.99: http://www.larcenists.org/
-* Sagittarius 0.8.3: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
+* Sagittarius 0.8.4: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
 ## AutoDiff
 

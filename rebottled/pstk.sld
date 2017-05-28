@@ -58,7 +58,7 @@
 ; - David St-Hilaire: suggested catching unspecific value in form->string. 
 ; - Ken Dickey: added Ikarus Scheme 
 ; - Ken Dickey: added Larceny Scheme 
-; - Peter Lane: R7RS / Sagittarius support
+; - Peter Lane: R7RS support
 ; Thank you! 
 ; 
 ; Change Log: 

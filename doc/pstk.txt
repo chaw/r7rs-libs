@@ -1,5 +1,7 @@
 == PS/Tk: Tk Graphical User Interface Toolkit
 
+To use the library: +(import (rebottled pstk))+
+
 The PS/Tk library enables a Scheme program to interact with Tk, to create
 cross-platform graphical user interfaces.  Virtually all of Tcl/Tk is available
 through Scheme.  Other examples of using Tk in this way include 
@@ -9,27 +11,26 @@ Perl/Tk and Ruby/Tk.
 
 indexterm:[pstk]
 
-PS/Tk must interact with the tcl/tk shell, which is a separate program.  To do so 
-requires some inter-process communication, which is managed in an implementation 
-specific manner.  The current R7RS version of PSTK has been tested on the following:
+PS/Tk must communicate with the separate Tcl/Tk program, a process managed in
+an implementation-specific manner.  The current R7RS version of PS/Tk has
+support for, and has been tested on, the following:
 
 * Chibi Scheme: under Linux (calls to "/bin/sh")
 * Gauche Scheme: under Linux (calls to "/bin/sh")
 * Sagittarius Scheme: under Linux and Windows.  (Should work on Mac OS too.)
 
-Support for further Scheme versions or platforms can be added by extending 
-the +cond-expand+ statement in the source code.
+Further Scheme versions or platforms can be added by extending the
++cond-expand+ statement in the source code.
 
 For more information:
 
 * Several small examples of using the library are available from
-  https://github.com/petercrlane/r7rs-libs/tree/master/rebottled-examples/pstk[the
+  https://github.com/petercrlane/r7rs-libs/tree/master/rebottled-examples/pstk[a
   github repository].
 * Some notes on using PS/Tk with Sagittarius Scheme on Linux and Windows: 
   http://peterlane.info/notes/gui-programs-with-sagittarius-scheme.html[]
 * Documentation about Tk: https://www.tcl.tk/man/tcl8.6/TkCmd/contents.htm[]
-* Some documentation on using TK from various languages (not Scheme specific):
-  http://www.tkdocs.com/[]
+* Some documentation on using Tk from various languages: http://www.tkdocs.com/[]
 
 image::images/pstk-win.jpg[width=500]
 
@@ -52,26 +53,128 @@ Get started with the following program:
 ----
 <1> Starts the TK shell working.  The returned value is used to interact with the shell.
 <2> Creates a button with a label and command, and packs it onto the default frame.
-<3> Commands are given as Scheme procedures of zero arguments.
+<3> Commands are given as Scheme functions of zero arguments.
 <4> Starts the TK event loop.
 
 image::images/pstk-hello.png[width=100]
 
 === Working with Widgets
 
-As shown in the above example, widgets are created using commands sent to the Tk process.
-There is a wide range of widgets available, all of which can be accessed and used through PS/Tk.
-This section describes some examples, which should be enough to see how programs from Tcl/Tk 
-documentation can be translated into Scheme.
+The example above shows how widgets are created by sending instructions to the Tk process.
+The manner of operation is very close to, but a little different to that used in Tcl/Tk itself.
+In this section, some descriptions and examples are given to help in translating the Tcl/Tk 
+documentation into Scheme.
 
-=== Available Functions
+In Tk, widgets are created using appropriately named functions, providing a name for the new 
+widget as a string.  Tk parses this string to work out the parent widget and provide some 
+structure.  In PS/Tk we instead represent widgets as functions; these functions take a 
+_command_ and associated arguments.  Commands that the widgets respond to include:
 
-To use the library: +(import (rebottled pstk))+
+* get-id: returns the Tk id 
+* create-widget: used to create a child widget
+* configure: used to alter parameters of a widget
+* cget: returns value of a configuration option
+
+For example, having created a button, we can later change the displayed text using +configure+,
+or retrieve the text using +cget+:
+
+[source,scheme]
+----
+sash> (hello 'configure 'text: "Goodbye")
+()
+sash> (hello 'cget 'text:)
+"Goodbye"
+----
+
+Apart from representing widgets as functions, most of the Tk parameters and functions 
+map across into Scheme.  Consider the Tcl/Tk equivalent of the example program above:
+
+[source,tcl]
+----
+button .hello -text Hello -command {puts stdout "Hello world"}
+pack .hello -padx 20 -pady 20
+----
+
+The first line creates a widget named ".hello".  The "." means it is attached to the top-most
+frame.  The widget is referred to in the second line, which packs the widget into the frame.
+
+Comparing the second line with the Scheme program illustrates how direct most conversions 
+can be:
+
+[source,tcl]
+----
+pack <widget-name> -padx 20 -pady 20
+----
+
+[source,scheme]
+----
+(tk/pack <widget-value> 'padx: 20 'pady: 20)
+----
+
+Notice these three principles:
+
+. Instead of a string for the widget name, we have what is returned by creating the 
+  widget (a function); for the top-most frame ("." in tcl/tk) we have the return value 
+  of +tk-start+ (called +tk+ here).
+. The parameters +-padx+ are converted to symbols with a trailing colon +'padx:+ 
+. The function name +pack+ becomes +tk/pack+
+
+In addition, Scheme values are converted to Tcl values.  So Scheme's #t/#f are
+Tcl's "1"/"0", symbols can be used in place of strings, etc.
+
+Creating a widget is done through the +create-widget+ command mentioned above:
+
+[source,tcl]
+----
+button .hello -text Hello -command {puts stdout "Hello world"}
+----
+
+[source,scheme]
+----
+(define hello
+  (tk 'create-widget 'button 
+      'text: "Hello"
+      'command: (lambda () (display "Hello world") (newline))))
+----
+
+Instead of calling a +button+ function, as in Tcl, the parent widget's function
+is requested to create a button widget.  The parameters defining the button are
+the same as in the Tcl example, just mapped to Scheme equivalents.  This call
+returns a function defining the new button, which we can name in a Scheme
+variable.
+
+Notice how the command +'create-widget+ is passed as a symbol without a
+trailing colon; compare with how the parameter +'text:+ is given.
+
+This use of symbols as commands arises elsewhere, for example with +winfo+:
+
+[source,tcl]
+----
+winfo screenwidth .           # TCL version
+----
+
+[source,scheme]
+----
+(tk/winfo 'screenwidth tk)    ; Scheme version
+----
+
+All the Tk widgets can be created and used in this way.  For a list of 
+available widgets see any Tk documentation or 
+https://www.tcl.tk/man/tcl8.6/TkCmd/contents.htm[].  
+
+
+=== Tk Functions
+
+These functions map directly onto underlying Tk functions.  The names start +tk/+ 
+with the remainder of the name mapping onto the Tk equivalent function: 
+
+* +tk/bell+ is equivalent to Tk's +bell+
+* +tk/choose-color+ is equivalent to Tk's +tk_chooseColor+
 
 ==== +tk/after+
 
-indexterm2:[+tk/after+] takes a time in milliseconds and an optional procedure.  After the 
-given time, it calls the procedure or continues processing.  
+indexterm2:[+tk/after+] takes a time in milliseconds and an optional function.  After the 
+given time, it calls the function or continues processing.  
 
 In the analogue clock example, the function to redraw the hands in the clock uses +tk/after+ 
 to delay for a second before calling itself to draw the hands in the new position and repeating.
@@ -129,12 +232,12 @@ indexterm2:[+tk/caret+] is used to query or set the current caret position in a 
 
 [source,scheme]
 ----
-sash> (tk/caret ".")                            ; <1>
+sash> (tk/caret tk)                            ; <1>
 "-height 0 -x 0 -y 0"
-sash> (tk/caret "." 'height: 10 'x: 2 'y: 3)    ; <2>
+sash> (tk/caret tk 'height: 10 'x: 2 'y: 3)    ; <2>
 ""
 ----
-<1> "." refers to the default, or top-most window.
+<1> +tk+ refers to the default, or top-most window, as it is the value returned by +tk-start+.
 <2> Sets the height or x/y position of the caret in the given window.  
 
 ==== +tk/choose-color+
@@ -152,7 +255,7 @@ image::images/color-chooser.png[width=300]
 
 Optional parameters let you select the +initialcolor+ +parent+ and +title+.
 See the Tk documentation for details:
-https://www.tcl.tk/man/tcl8.6/TkCmd/chooseColor.htm[width=300]
+https://www.tcl.tk/man/tcl8.6/TkCmd/chooseColor.htm[]
 
 
 ==== +tk/choose-directory+
@@ -183,45 +286,11 @@ See Tk documentation for details: https://www.tcl.tk/man/tcl8.6/TkCmd/clipboard.
 
 indexterm2:[+tk/destroy+] deletes the window or windows given as arguments.
 
-==== +tk-eval+
-
-indexterm2:[+tk-eval+] evaluates a piece of TCL code, provided as a string.
-
-[source,scheme]
-----
-sash> (tk-eval "bell")
-""
-sash> (tk-eval "puts 3")
-
-An error occurred inside Tcl/Tk
- --> 3 
-#<unspecified>
-----
-
-==== +tk-end+
-
-indexterm2:[+tk-end+] is used to shutdown the Tk process, and effectively end the program.
-
-[source,scheme]
-----
-(tk-end)
-----
-
 ==== +tk/event+
 
 indexterm2:[+tk/event+] is used to create and manage events.
 
 See the Tk documentation for details: https://www.tcl.tk/man/tcl8.6/TkCmd/event.htm[]
-
-==== +tk-event-loop+
-
-indexterm2:[+tk-event-loop+] is used to enter the TK event loop.  It takes the +tk+ 
-value returned from +tk-start+ as a parameter, and does not end until +tk-end+ is called.
-
-[source,scheme]
-----
-(tk-event-loop tk)
-----
 
 ==== +tk/focus+
 
@@ -315,7 +384,7 @@ the possibilities:
 <3> This option only has +w+ for the +sticky+ option: the text label is left-justified.
 <4> With the +e+ option for +sticky+, this label is right-justified.
 
-The final layout is as follows:
+The final layout is:
 
 image::images/pstk-temp.png[width=200]
 
@@ -328,9 +397,9 @@ indexterm2:[+tk/image+] used to create, delete and query images.
 
 [source,scheme]
 ----
-sash> (define im (tk/image 'create 'photo 'file: "doc/images/pstk-hello.png"))  ; <1>
+sash> (define im (tk/image 'create 'photo 'file: "doc/pstk-hello.png"))  ; <1>
 #<unspecified>
-sash> (tk/pack (tk 'create-widget 'label 'image: im))                           ; <2>
+sash> (tk/pack (tk 'create-widget 'label 'image: im))                    ; <2>
 ""
 ----
 <1> Loads an image from a file.  The type should be +photo+ or +bitmap+.
@@ -347,7 +416,7 @@ indexterm2:[+tk/lower+] lowers the given window below all its siblings in the cu
 
 ==== +tk/message-box+
 
-indexterm2:[+tk/message-box+] displays a Tk message box.  These dialogs can be very straightforward 
+indexterm2:[+tk/message-box+] displays a Tk message box.  These dialogs can be straightforward 
 or display a range of options and an icon.  
 
 The simplest information box shows a given message, and adds an "OK" button:
@@ -437,26 +506,15 @@ the function with the symbol +'get+:
 
 image:images/pstk-selection.png[width=150]
 
-==== +tk-start+
-
-indexterm2:[+tk-start+] is used to initiate the Tk process.  It returns a
-function used to send commands to Tk.  An optional argument names the tcl/tk
-program to use: on Linux, this program is "tclsh", but for easy distribution,
-you may wish to use "tclkit".
-
-[source,scheme]
-----
-(let ((tk (tk-start "tclkit"))) ...)  ; <1>
-----
-<1> Starts the Tk program called "tclkit" and stores the result in the +tk+ variable.
-
 ==== +tk/update+
 
 indexterm2:[+tk/update+] updates any pending events - "Use with extreme care" (Nils Holm)
 
 ==== +tk/useinputmethods+
 
-indexterm2:[+tk/useinputmethods+], according to Nils Holm, is used to "Query, activate or de-activate XIM filtering".
+indexterm2:[+tk/useinputmethods+] is used for XIM filtering.
+According to the http://wiki.tcl.tk/8695[Tcl wiki], this is useful in some locales, such as 
+Japanese or Korean, to use particular input devices.  This only works under X.
 
 ----
 (tk/useinputmethods ['displayof: window] [boolean])
@@ -470,33 +528,6 @@ sash> (tk/useinputmethods)
 "1"
 ----
 
-According to the http://wiki.tcl.tk/8695[Tcl wiki], this is useful in some locales, such as 
-Japanese or Korean, to use particular input devices.  This only works under X.
-
-==== +tk-var+ +tk-get-var+ +tk-set-var!+
-
-These three functions are worth treating together, as they deal with how variables 
-are linked to widget controls.  
-
-indexterm2:[+tk-var+] is used to register a new +tk-var+ with the given symbol name.
-
-indexterm2:[+tk-get-var+] is used to retrieve the value of a +tk-var+
-
-indexterm2:[+tk-set-var!+] is used to change the value of a +tk-var+
-
-For example:
-
-[source,scheme]
-----
-(tk-var 'cb-value)                                    ; <1>
-(tk 'create-widget 'checkbutton 'text: "Check me"
-	       'variable: (tk-var 'cb-value))         ; <2>
-(display (tk-get-var 'cb-value))                      ; <3>
-----
-<1> Set up symbol +cb-value+ as the name of variable 
-<2> Associates the +cb-value+ variable with the check button
-<3> Retrieves the +cb-value+ value to display the check button's state
-
 ==== +tk/wait+
 
 indexterm2:[+tk/wait+] is a general-purpose wait function, where the arguments
@@ -506,15 +537,6 @@ function can also wait for changes to variables.
 
 See the Tk documentation for details:
 https://www.tcl.tk/man/tcl8.6/TkCmd/tkwait.htm[]
-
-==== +tk-wait-for-window+
-
-indexterm2:[+tk-wait-for-window+] waits until the given window is destroyed (such as a dialog 
-being closed).
-
-==== +tk-wait-until-visible+
-
-indexterm2:[+tk-wait-until-visible+] waits until the given window becomes visible.
 
 ==== +tk/windowingsystem+
 
@@ -552,19 +574,6 @@ sash> (tk/winfo 'y tk)
 
 There are many kinds of information that may be queried.  For a full list, see the 
 Tk documentation: https://www.tcl.tk/man/tcl8.6/TkCmd/winfo.htm[]
-
-==== +tk-with-lock+
-
-indexterm2:[+tk-with-lock+] is used to protect functions which are working with 
-state in a multi-threaded environment.
-
-[source,scheme]
-----
-(tk 'create-widget 'button
-    'command: (lambda ()
-                (tk-with-lock
-                  (lambda () do-something-critical))))
-----
 
 ==== +tk/wm+
 
@@ -623,6 +632,105 @@ sash> (ttk/set-theme "classic")
 
 indexterm2:[+ttk/style+] is used to query or change the Tk style database.  For 
 the Tk documentation, see: https://www.tcl.tk/man/tcl8.6/TkCmd/ttk_style.htm[]
+
+=== PS/Tk Functions
+
+These functions are included within the library but do not have direct Tk equivalents. 
+(The function names start "tk-".)
+
+==== +tk-end+
+
+indexterm2:[+tk-end+] is used to shutdown the Tk process, and effectively end the program.
+
+[source,scheme]
+----
+(tk-end)
+----
+
+==== +tk-eval+
+
+indexterm2:[+tk-eval+] evaluates a piece of TCL code, provided as a string.
+
+[source,scheme]
+----
+sash> (tk-eval "bell")
+""
+sash> (tk-eval "puts 3")
+
+An error occurred inside Tcl/Tk
+ --> 3 
+#<unspecified>
+----
+
+==== +tk-event-loop+
+
+indexterm2:[+tk-event-loop+] is used to enter the TK event loop.  It takes the +tk+ 
+value returned from +tk-start+ as a parameter, and does not end until +tk-end+ is called.
+
+[source,scheme]
+----
+(tk-event-loop tk)
+----
+
+==== +tk-start+
+
+indexterm2:[+tk-start+] is used to initiate the Tk process.  It returns a
+function used to send commands to Tk.  An optional argument names the tcl/tk
+program to use: on Linux, this program is "tclsh", but for easy distribution,
+you may wish to use "tclkit".
+
+[source,scheme]
+----
+(let ((tk (tk-start "tclkit"))) ...)  ; <1>
+----
+<1> Starts the Tk program called "tclkit" and stores the result in the +tk+ variable.
+
+==== +tk-var+ +tk-get-var+ +tk-set-var!+
+
+These three functions work as a group and deal with how variables 
+are linked to widget controls.  
+
+indexterm2:[+tk-var+] is used to register a new +tk-var+ with the given symbol name.
+
+indexterm2:[+tk-get-var+] is used to retrieve the value of a +tk-var+
+
+indexterm2:[+tk-set-var!+] is used to change the value of a +tk-var+
+
+For example:
+
+[source,scheme]
+----
+(tk-var 'cb-value)                                    ; <1>
+(tk 'create-widget 'checkbutton 'text: "Check me"
+	       'variable: (tk-var 'cb-value))         ; <2>
+(display (tk-get-var 'cb-value))                      ; <3>
+----
+<1> Set up symbol +cb-value+ as the name of variable 
+<2> Associates the +cb-value+ variable with the check button
+<3> Retrieves the +cb-value+ value to display the check button's state
+
+==== +tk-wait-for-window+
+
+indexterm2:[+tk-wait-for-window+] waits until the given window is destroyed (such as a dialog 
+being closed).
+
+==== +tk-wait-until-visible+
+
+indexterm2:[+tk-wait-until-visible+] waits until the given window becomes visible.
+
+==== +tk-with-lock+
+
+indexterm2:[+tk-with-lock+] is used to protect functions which are working with 
+state in a multi-threaded environment.
+
+[source,scheme]
+----
+(tk 'create-widget 'button
+    'command: (lambda ()
+                (tk-with-lock
+                  (lambda () do-something-critical))))
+----
+
 
 === History
 
