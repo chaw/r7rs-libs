@@ -121,7 +121,13 @@
     tk/focus-follows-mouse tk/focus-next tk/focus-prev 
     tk/popup tk/wait tk/appname tk/caret tk/scaling  
     tk/useinputmethods tk/windowingsystem ttk/available-themes 
-    ttk/set-theme ttk/style)
+    ttk/set-theme ttk/style
+    ;; exports for pstk-plotchart
+    gen-symbol
+    form->string
+    scheme-arg->tk-arg
+    scheme-arglist->tk-argstring
+    )
 
   (import (except (scheme base) read-line)
           (scheme cxr)

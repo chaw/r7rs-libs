@@ -88,6 +88,7 @@ sources:
   * Currently supports Chibi, Gauche and Sagittarius
   * Chibi and Gauche rely on calling /bin/sh, so are Linux(?) only
   * Sagittarius tested on Linux and Windows
+* pstk-plotchart - requires 'tklib' 
 * quaternion - Dorai Sitaram's quaternion numbers
 * schelog - Dorai Sitaram's logic-style programming in Scheme
   * not working on Kawa (due to call/cc)
