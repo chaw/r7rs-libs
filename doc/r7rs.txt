@@ -117,6 +117,8 @@ include::text.txt[]
 
 include::pstk.txt[]
 
+include::pstk-plotchart.txt[]
+
 include::slib.txt[]
 
 include::slib-common.txt[]

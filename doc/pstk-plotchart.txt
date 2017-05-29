@@ -1,0 +1,208 @@
+== PS/Tk PlotChart: Chart Plotting Library
+
+To use the library: +(import (rebottled pstk) (rebottled pstk-plotchart))+
+
+The PlotChart library is part of tklib, a library of additional functions to 
+use with Tk.  This library provides access from Scheme to (part of) PlotChart.
+
+Before using this library, you will need to install tklib.  On Linux, tklib 
+can be installed through your standard package manager.  For example:
+
+----
+sudo apt-get install tklib
+----
+
+Alternatively, download the Tcl sourcecode from a site such as:
+
+* https://core.tcl.tk/tklib/wiki?name=Releases[]
+* https://github.com/tcltk/tklib[]
+
+and install by running the Tcl script "installer.tcl".
+
+Check your installation by running one of the Tcl example programs.
+
+The Tcl documentation available for
+http://core.tcl.tk/tklib/doc/trunk/embedded/www/tklib/files/modules/plotchart/plotchart.html[plotchart]
+is easily converted into Scheme.  The following examples illustrate how to use the library, and more 
+examples (some converted from tklib's examples) are in
+https://github.com/petercrlane/r7rs-libs/tree/master/rebottled-examples/pstk/plotchart[this
+github folder].
+
+=== Bar Chart
+
+indexterm:[create-bar-chart]
+Bar charts are used to display and compare some measurable quantity of discrete 
+categories of data.  One or more series of data may be shown per category, and 
+the series may be shown side-by-side or stacked.
+
+The first example shows a single series of data:
+
+[source,scheme]
+----
+(import (scheme base)
+        (rebottled pstk)
+        (rebottled pstk-plotchart))
+
+(define tk (tk-start))                                          ; <1>
+(import-plotchart)                                              ; <2>
+
+(define canvas (tk 'create-widget 'canvas
+                   'background: 'white
+                   'width: 400
+                   'height: 400))
+
+(define bar-chart (create-bar-chart canvas                      ; <3>
+                                    '(Venus Earth Mars Pluto)   ; <4>
+                                    '(0 6 2)                    ; <5>
+                                    1))                         ; <6>
+(bar-chart 'plot 'mydata '(0 1 2 5) 'green)                     ; <7>
+(bar-chart 'title "Number of Moons")                            ; <8>
+(bar-chart 'legend 'mydata "Moons")                             ; <9>
+
+(tk/pack canvas)
+
+(tk-event-loop tk)
+----
+<1> Start and use Tk in the usual manner.
+<2> Plotchart must be imported (this loads the package into Tk).
+<3> Create a bar chart on a given canvas.
+<4> Define the x-axis labels.
+<5> Define the y-axis scale: (minimum maximum label-gap) .
+<6> Number of series to plot on the bar chart.
+<7> Add a series of data.  +mydata+ is the name assigned to the series.  The list of numbers give the column sizes.
+<8> Set a title to the bar chart.
+<9> And a label to the named series, to place in the legend.
+
+image::images/pstk-bar-chart-1.png[width=300]
+
+As a second example, three series of data are plotted in a stacked arrangement:
+
+[source,scheme]
+----
+(define bar-chart (create-bar-chart canvas 
+                                    '(Q1 Q2 Q3 Q4) 
+                                    '(0 30 2) 
+                                    'stacked))      ; <1>
+(bar-chart 'plot 'yr2014 '(4 2 3 5) 'green)
+(bar-chart 'plot 'yr2015 '(7 6 3 8) 'red)
+(bar-chart 'plot 'yr2016 '(6 4 7 9) 'blue)          ; <2>
+(bar-chart 'title "Quarterly Sales")
+(bar-chart 'legend 'yr2014 "2014")
+(bar-chart 'legend 'yr2015 "2015")
+(bar-chart 'legend 'yr2016 "2016")                  ; <3>
+----
+<1> +stacked+ is used instead of a count of the number of series.
+<2> Data are given for each series separately.
+<3> Similarly, a separate identifier is given for the legend.
+
+image::images/pstk-bar-chart-2.png[width=300]
+
+=== Pie Chart
+
+indexterm:[create-pie-chart]
+Pie charts represent a set of values as proportions of a disk.
+
+[source,scheme]
+----
+(define pie-chart (create-pie-chart canvas)) 
+(pie-chart 'plot '("Earth" 1 "Mars" 2 "Jupiter" 53                    ; <1>
+                   "Saturn" 53 "Uranus" 27 "Neptune" 13  "Pluto" 5))
+(pie-chart 'title "Number of Moons")
+----
+<1> Data are given in a list where alternate values give the label and count.
+
+image::images/pstk-pie-chart.png[width=300]
+
+=== XY Plot
+
+indexterm:[create-xy-plot]
+An xy-plot is used to display various kinds of data in a 2D arrangement.
+
+The first example plots two simple functions:
+
+[source,scheme]
+----
+(import (scheme base)
+        (rebottled pstk)
+        (rebottled pstk-plotchart))
+
+(define tk (tk-start))
+(import-plotchart)
+
+(define canvas (tk 'create-widget 'canvas
+                   'background: 'white
+                   'width: 400
+                   'height: 400))
+
+(define graph (create-xy-plot canvas            ; <1>
+                              '(-10 10 2)
+                              '(-100 100 20)))
+;; label the graph and axes
+(graph 'title "Two Functions")
+(graph 'xtext "input x")
+(graph 'ytext "output y")
+;; colour the two lines
+(graph 'dataconfig "square" 'colour: 'blue)
+(graph 'dataconfig "cube" 'colour: 'green)
+;; line labels in the legend
+(graph 'legendconfig 'position: 'bottom-right)  ; <2>
+(graph 'legend "square" "x*x")                  ; <3>
+(graph 'legend "cube" "x*x*x")
+;; add data
+(do ((i -10 (+ i 0.1)))
+  ((> i 10) )
+  (graph 'plot "square" i (square i))           ; <4>
+  (graph 'plot "cube" i (* i i i)))
+
+(tk/pack canvas)
+
+(tk-event-loop tk)
+----
+<1> When creating the xy-plot, the ranges and tick spacing of the x and y axes are defined.
+<2> Sets the position of the legend: this must be done first
+<3> Sets the text to use for the legend for this series.
+<4> (x y) values are plotted in turn for each series.
+
+image::images/pstk-xy-plot-1.png[width=300]
+
+The second example illustrates a scatter plot with a trend line:
+
+[source,scheme]
+----
+(define tk (tk-start))
+(import-plotchart)
+
+(define canvas (tk 'create-widget 'canvas
+                   'background: 'white
+                   'width: 400
+                   'height: 400))
+
+(define graph (create-xy-plot canvas
+                              '(0 20000 4000)
+                              '(0 100 20)))
+;; label the graph and axes
+(graph 'title "Crater Diameter vs Depth")
+(graph 'xtext "Depth (feet)")
+(graph 'ytext "Diameter (miles)")
+;;
+(graph 'dataconfig "values" 'type: 'symbol 'symbol: 'upfilled 'colour: "blue")  ; <1>
+(graph 'dataconfig "relation" 'colour: "green")
+;; add data
+(for-each (lambda (pair)
+            (graph 'plot "values" (car pair) (cdr pair))
+            (graph 'trend "relation" (car pair) (cdr pair)))                    ; <2>
+          '((14500 . 81) (2000 . 2) (10500 . 73) (7000 . 51) (16000 . 77)))
+
+(tk/pack canvas)
+
+;; finally save the plot
+(graph 'saveplot "craters.ps")                                                   ; <3>
+
+(tk-event-loop tk)
+----
+<1> The +type+ can be +line+ +symbol+ or +none+ for lines/symbols/nothing to be drawn for the series.
+<2> The +trend+ command records the datavalues and draws a line indicating the 'trend' of the data.
+<3> A copy of any plot can be saved as a postscript file, but call this _after_ the canvas has been packed.
+
+image::images/pstk-xy-plot-2.png[width=300]
+
