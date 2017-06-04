@@ -28,7 +28,8 @@
   (import (scheme base)
           (scheme char)
           (slib color)
-          (srfi 69))
+          (scheme comparator)
+          (scheme hash-table))
 
   (begin
 
@@ -41,7 +42,7 @@
       (hash-table-keys *saturate*))
 
     (define *saturate*
-      (let ((ht (make-hash-table string=?)))
+      (let ((ht (make-hash-table (make-comparator string? string=? string<? string-hash))))
         (for-each (lambda (pair) (hash-table-set! ht (string-downcase (car pair)) (cdr pair)))
                   (list
                     (cons "red"			(CIEXYZ->color '(0.735484 0.264516 0)))

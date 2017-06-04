@@ -34,8 +34,8 @@
           (slib common)
           (slib common-list-functions)
           (slib relational-database)
-          (only (srfi 1) delete every filter)
-          (only (srfi 132) list-sort!))
+          (only (scheme list) delete every filter)
+          (only (scheme sort) list-sort!))
 
   (begin
 

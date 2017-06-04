@@ -52,7 +52,7 @@
           (slib scanf)
           (slib string-case)
           (slib string-search)
-          (srfi 1))
+          (scheme list))
 
   (begin
 

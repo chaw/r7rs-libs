@@ -3,9 +3,9 @@
 
 (import (scheme base)
         (pfds priority-search-queue)
-        (only (srfi 1) fold filter)
+        (only (scheme list) fold filter)
         (srfi 64)
-        (srfi 132))
+        (scheme sort))
 
 (define (alist->psq alist key<? priority<?)
   (fold (lambda (kv psq)

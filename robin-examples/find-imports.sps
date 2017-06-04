@@ -10,8 +10,8 @@
         (robin directory)
         (robin series)
         (slib format)
-        (srfi 1)
-        (srfi 132))
+        (scheme list)
+        (scheme sort))
 
 (define *search-paths* '("nltk" "pfds" "rebottled" "robin" "slib" "weinholt"))
 

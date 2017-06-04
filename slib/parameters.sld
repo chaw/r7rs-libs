@@ -34,7 +34,7 @@
   (import (scheme base)
           (scheme cxr)
           (slib common)
-          (only (srfi 1) every remove))
+          (only (scheme list) every remove))
 
   (begin
 

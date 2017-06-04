@@ -30,7 +30,7 @@
           (slib getopt)
           (slib parameters)
           (slib printf)
-          (only (srfi 1) filter remove))
+          (only (scheme list) filter remove))
 
   (begin
 

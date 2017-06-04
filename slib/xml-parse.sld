@@ -73,7 +73,7 @@
           (slib common)
           (slib rev2-procedures)
           (slib string-search)
-          (srfi 1))
+          (scheme list))
 
   (begin
     ;;@subsection String Glue

@@ -35,7 +35,7 @@
   (export abbrev)
   (import (scheme base)
           (scheme case-lambda)
-          (only (srfi 1) remove))
+          (only (scheme list) remove))
   (cond-expand
     ((library (chibi string))
       (import (only (chibi string) string-prefix?)))

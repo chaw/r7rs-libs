@@ -3,11 +3,11 @@
 
 (import (scheme base) 
         (pfds hash-array-mapped-trie)
-        (only (srfi 1) fold iota)
+        (only (scheme list) fold iota)
         (srfi 64)
         (robin srfi64-utils)
-        (only (srfi 69) string-hash)
-        (srfi 132))
+        (only (scheme comparator) string-hash)
+        (scheme sort))
  
 (define (make-string-hamt)
   (make-hamt string-hash string=?))

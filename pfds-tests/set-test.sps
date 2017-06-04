@@ -4,10 +4,10 @@
 (import (scheme base)
         (pfds set)
         (only (pfds list-helpers) fold-left)
-        (only (srfi 1) any every)
+        (only (scheme list) any every)
         (srfi 64)
         (robin srfi64-utils)
-        (srfi 132))
+        (scheme sort))
 
 (test-begin "pfds-set")
 

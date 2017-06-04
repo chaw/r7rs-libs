@@ -1,7 +1,7 @@
 (import (scheme base)
+        (scheme sort)
         (slib factor)
-        (srfi 64)
-        (srfi 132))
+        (srfi 64))
 
 (test-begin "slib-factor")
 

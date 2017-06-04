@@ -1,6 +1,6 @@
 # Run tests: chibi/gauche/kawa/larceny/sagittarius argument selects implementation
-# For Kawa, the build script must first be run, which leaves r7rs-libs.jar 
-#           in the current directory.
+# For Kawa, r7rs-libs.jar must be built and on the CLASSPATH
+#           (similarly, r7rs-large.jar)
 
 if [ "$1" = "kawa" ]; then
   export CLASSPATH=r7rs-libs.jar
@@ -10,7 +10,7 @@ else if [ "$1" = "larceny" ]; then
 else if [ "$1" = "chibi" ]; then
   PROG="chibi-scheme -I srfis/chibi/ "
 else if [ "$1" = "sagittarius" ]; then
-  PROG="sagittarius -r7 -L . -L srfis/sagittarius "
+  PROG="sagittarius -r7 -L . "
 else if [ "$1" = "gauche" ]; then
   export GAUCHE_KEYWORD_IS_SYMBOL=1
   PROG="gosh -r7 -I . -I srfis/gauche/ "

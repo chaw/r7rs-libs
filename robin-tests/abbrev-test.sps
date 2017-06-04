@@ -2,7 +2,7 @@
 
 (import (scheme base)
         (robin abbrev)
-        (srfi 1)
+        (scheme list)
         (srfi 64))
 
 (define (equal-assocs? alist1 alist2)

@@ -53,8 +53,8 @@
           (slib parameters)
           (slib printf)
           (slib string-search)
-          (only (srfi 1) remove)
-          (srfi 132))
+          (only (scheme list) remove)
+          (scheme sort))
 
   (begin
 

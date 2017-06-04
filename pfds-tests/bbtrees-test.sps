@@ -5,7 +5,7 @@
         (pfds bounded-balance-tree)
         (srfi 64)
         (robin srfi64-utils)
-        (srfi 132))
+        (scheme sort))
 
 (test-begin "pfds-bounded-balance-tree")
 

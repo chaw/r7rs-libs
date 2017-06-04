@@ -14,6 +14,11 @@ Tested against:
 * Larceny 0.99: http://www.larcenists.org/
 * Sagittarius 0.8.4: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
 
+The libraries require R7RS-large, RedEdition.  
+Currently, only Sagittarius comes with support for these libraries.  See 
+[r7rs-large](https://github.com/petercrlane/r7rs-large/) for a complete 
+implementation for the other Scheme implementations mentioned above.
+
 ## AutoDiff
 
 A repackaging of an R6RS implementation by Jeffrey Mark Siskind for automatic differentiation: https://github.com/qobi/R6RS-AD
@@ -100,6 +105,7 @@ A set of libraries written for R7RS Scheme:
 * abbrev - creates a set of unambiguous abbreviations for strings (based on Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
 * directory - portable directory-handling functions
+  * change-directory not working on Kawa and Larceny
 * disjoint-set - data structure to hold sets of items in disjoint sets
 * logger - a logging framework (based on Ruby's Logger class)
 * series - a mostly complete (though inefficient) version of Richard Waters' Lisp Series package
@@ -191,7 +197,7 @@ moved, as required, into `(slib common)`.
 
 5: Mathematical libraries
 
-* logical: use (srfi 60)
+* logical: use (srfi 151)
 * modular
 * math-integer
 * math-real
@@ -248,13 +254,13 @@ moved, as required, into `(slib common)`.
 
 7.2: Sorting and Searching
 
-* common-list-functions: use (srfi 1)
+* common-list-functions: use (scheme list)
 * tree
 * chapter-order
-* sort: use (srfi 132) 
+* sort: use (scheme sort) 
 * topological-sort
-* hash-table: use (srfi 125) or (srfi 69)
-* hash: or use (srfi 128)
+* hash-table: use (scheme hash-table)
+* hash: or use (scheme comparator)
 * space-filling
 * hilbert-fill
 * peano-fill
@@ -279,40 +285,24 @@ moved, as required, into `(slib common)`.
 
 (Remainder mostly in R7RS already: some added to `(slib common)` if necessary.)
 
-### Required SRFIs
-
-Some of the libraries require the following SRFIs (in place of related SLIB files):
-
-* srfi 1   Lists
-* srfi 13  Strings (For Chibi, alternatives are chosen from (chibi string) or implemented.)
-* srfi 27  Random Bits
-* srfi 60  Integers as Bits
-* srfi 63  Arrays
-* srfi 69  Hash Tables 
-* srfi 132 Sorting
-
 ## SRFIs
 
-A few SRFIs are implemented here.  These fill gaps in those SRFIs provided by
-some implementations and support the above libraries.  Provided SRFIs:
+A few SRFIs are provided here.  These fill gaps in those SRFIs provided by some
+implementations and support the remaining libraries.  The
+implementation-specific SRFIs are organised in the 'srfis' folder, by
+implementation, including:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
-* srfi 60  for Chibi (still used in SLIB)
-* srfi 63  SLIB's array.scm implemented as a srfi library
 * srfi 64  for Gauche and Chibi 
-* srfi 132 for Chibi, Gauche and Kawa
 
-The implementation-specific SRFIs are organised in the 'srfis' folder, by implementation.
+The 'srfi' folder contains SRFIs for all R7RS implementations:
 
-The 'srfi' folder contains SRFIs for all implementations:
-
+* srfi 2   and-let\*
+* srfi 8   receive
 * srfi 42  Eager Comprehensions (lightly modified reference implementation)
-* srfi 151 Bitwise Operations (reference implementation tailored to R7RS implementations) - anticipating its acceptance in place of srfi 142
-
-For compatibility with the Red Edition http://trac.sacrideo.us/wg/wiki/RedEdition
-it is planned to rewrite:
-
-* srfi 69 -> srfi 125 (scheme hash-table)
+* srfi 63  SLIB's array.scm implemented as a srfi library
+* srfi 151 Bitwise Operations (reference implementation tailored to R7RS
+  implementations) - anticipating its acceptance in place of srfi 142
 
 
 ## Weinholt (partial)

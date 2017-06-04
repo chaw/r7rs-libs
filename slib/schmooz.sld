@@ -31,7 +31,7 @@
           (slib directory)
           (slib filename)
           (slib string-search)
-          (only (srfi 1) any))
+          (only (scheme list) any))
   
   (begin
 

@@ -59,7 +59,7 @@
   (import (except (scheme base) bytevector-copy! error)
           (scheme case-lambda)
           (r6rs base)
-          (r6rs bytevectors)
+          (except (r6rs bytevectors) bytevector-fill!)
           (weinholt bytevector)
           (weinholt maths)
           (only (srfi 151) arithmetic-shift bit-count integer-length))

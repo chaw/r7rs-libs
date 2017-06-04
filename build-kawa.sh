@@ -18,11 +18,12 @@ mkdir bin
 
 cd srfis/kawa
 # 27 needs compiling as a Java module
-# 63 as a Scheme module
 ${KAWA} -d ../../bin -C srfi/27.sld
-${KAWA} --r7rs -d ../../bin -C srfi/63.sld
-${KAWA} -d ../../bin -C srfi/132.sld
 cd ../..
+for file in srfi/*.sld
+do
+${KAWA} $OPTS -C $file
+done
 
 # only one file from autodiff 
 ${KAWA} $OPTS -C autodiff/AD.sld

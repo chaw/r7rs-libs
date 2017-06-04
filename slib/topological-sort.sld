@@ -11,7 +11,8 @@
   (slib topological-sort)
   (export topological-sort)
   (import (scheme base)
-          (srfi 69)) 
+          (scheme comparator)
+          (scheme hash-table)) 
 
   (begin
 
@@ -68,7 +69,10 @@
     (define (topological-sort dag pred)
       (if (null? dag)
         '()
-        (let* ((adj-table (make-hash-table pred))
+        (let* ((adj-table (make-hash-table (make-comparator (lambda (obj) #t)
+                                                            pred
+                                                            #f
+                                                            default-hash)))
                (sorted '()))
           (letrec ((visit
                      (lambda (u adj-list)

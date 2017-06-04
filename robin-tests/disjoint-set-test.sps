@@ -2,11 +2,11 @@
 (import (scheme base)
         (robin disjoint-set)
         (srfi 64)
-        (srfi 69))
+        (scheme comparator))
 
 (test-begin "robin-disjoint-set")
 
-(let ((ds (make-disjoint-set eq? hash-by-identity)))
+(let ((ds (make-disjoint-set eq? default-hash)))
   (test-equal 0 (disjoint-set:size ds)) ; starts empty
   (disjoint-set:make ds 'a)
   (test-equal 1 (disjoint-set:size ds))

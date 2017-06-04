@@ -3,7 +3,7 @@
 
 (import (scheme base)
         (pfds queue)
-        (only (srfi 1) fold)
+        (only (scheme list) fold)
         (srfi 64))
 
 (test-begin "pfds-queue")

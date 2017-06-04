@@ -37,7 +37,7 @@
           (r6rs base)
           (r6rs bytevectors)
           (r6rs fixnums)
-          (only (srfi 1) iota)
+          (only (scheme list) iota)
           (only (srfi 151) arithmetic-shift bitwise-ior bitwise-and bitwise-xor))
 
   (begin

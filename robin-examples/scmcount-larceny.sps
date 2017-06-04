@@ -13,9 +13,9 @@
         (robin directory)
         (robin series)
         (slib string-search)
-        (only (srfi 1) fold)
+        (only (scheme list) fold)
         (only (srfi 13) string-null? string-pad string-trim)
-        (only (srfi 132) list-sort))
+        (only (scheme sort) list-sort))
 
 (define *extns* '("scm" "sld" "sls" "sps" "ss"))
 (define *files* '())

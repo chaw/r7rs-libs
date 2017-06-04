@@ -45,7 +45,8 @@
          str-split)
  (import (scheme base)
          (scheme case-lambda)
-         (srfi 69))
+         (scheme comparator)
+         (scheme hash-table))
  
  (begin
 
@@ -127,7 +128,7 @@
 
    (define sequence->hashtable
      (case-lambda
-       ((seq) (sequence->hashtable seq (make-hash-table equal?)))
+       ((seq) (sequence->hashtable seq (make-hash-table (make-default-comparator))))
        ((seq wlhash)
         (begin
           (for-each

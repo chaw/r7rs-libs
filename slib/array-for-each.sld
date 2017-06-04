@@ -30,7 +30,7 @@
           array:copy!)
   (import (except (scheme base) equal?)
           (slib common)
-          (srfi 1)
+          (scheme list)
           (srfi 63))
 
   (begin

@@ -53,7 +53,7 @@
           (slib string-case)
           (slib string-search)
           (slib uri)
-          (only (srfi 1) drop take))
+          (only (scheme list) drop take))
 
   (begin
 

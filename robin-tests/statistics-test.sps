@@ -4,7 +4,7 @@
         (scheme case-lambda)
         (scheme char)
         (robin statistics)
-        (srfi 1)
+        (scheme list)
         (srfi 64)
         (robin srfi64-utils))
 

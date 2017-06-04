@@ -34,7 +34,8 @@
   (import (scheme base)
           (scheme char)
           (slib color)
-          (srfi 69))
+          (scheme comparator)
+          (scheme hash-table))
 
   (begin
 
@@ -47,7 +48,7 @@
       (hash-table-keys *resene*))
 
     (define *resene*
-      (let ((ht (make-hash-table string=?)))
+      (let ((ht (make-hash-table (make-comparator string? string=? string<? string-hash))))
         (for-each (lambda (pair) (hash-table-set! ht (string-downcase (car pair)) (cdr pair)))
                   (list
                     (cons "Abbey" (sRGB->color '(	73	81	84)))

@@ -30,8 +30,8 @@
           (slib common)
           (slib databases)
           (slib relational-database)
-          (only (srfi 1) any remove filter)
-          (srfi 132))
+          (only (scheme list) any remove filter)
+          (scheme sort))
 
   (begin
 

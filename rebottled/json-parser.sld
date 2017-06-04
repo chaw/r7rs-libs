@@ -37,7 +37,7 @@
   (import (scheme base) 
           (scheme char)
           (rebottled packrat) 
-          (only (srfi 1) cons*))
+          (only (scheme list) cons*))
 
   (begin
 

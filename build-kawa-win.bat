@@ -4,11 +4,13 @@
 
 cd srfis/kawa
 :: 27 needs compiling as a Java module
-:: 63 as a Scheme module
 call kawa -d ../../bin -C srfi/27.sld
-call kawa --r7rs -d ../../bin -C srfi/63.sld
-call kawa -d ../../bin -C srfi/132.sld
 cd ../..
+
+for %%f in srfi/*.sld do (
+  echo %%f
+  call kawa -d bin --r7rs -C "srfi/%%~nf.sld"
+)
 
 :: only one file from autodiff 
 call kawa -d bin --r7rs -C autodiff/AD.sld

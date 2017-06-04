@@ -89,7 +89,7 @@
     (sagittarius
       (import (sagittarius)
               (util file)
-              (only (srfi 1) filter))
+              (only (scheme list) filter))
       (begin
         ; current-directory exported
         (define (make-directory str) (create-directory str))

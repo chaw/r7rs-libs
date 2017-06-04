@@ -30,7 +30,7 @@
   (import (scheme base)
           (r6rs fixnums)
           (only (weinholt bytevector) bytevector-fill!)
-          (only (srfi 1) iota))
+          (only (scheme list) iota))
 
   (begin
 

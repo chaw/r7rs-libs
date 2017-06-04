@@ -61,11 +61,12 @@
           )
   (import (scheme base)
           (scheme case-lambda)
+          (scheme comparator)
           (scheme inexact)       
-          (srfi 1)
+          (scheme hash-table)
+          (scheme list)
+          (scheme sort)
           (srfi 27)
-          (srfi 69)
-          (srfi 132)
           (only (srfi 151) bitwise-and))
 
   (begin
@@ -103,7 +104,7 @@
     (define (mode lst)
       (if (null? lst)
         (error "Mode: List must not be null")
-        (let ((count-table (make-hash-table eqv?))
+        (let ((count-table (make-hash-table (make-eqv-comparator)))
               (modes '())
               (mode-count 0))
           (for-each 

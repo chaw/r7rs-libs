@@ -5,7 +5,7 @@
         (rebottled pstk)
         (rebottled pstk-plotchart)
         (robin constants)
-        (srfi 1)
+        (scheme list)
         (srfi 27))
 
 (define tk (tk-start)) 

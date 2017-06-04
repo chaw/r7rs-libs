@@ -33,7 +33,7 @@
   (export json:select)
   (import (scheme base)
           (scheme cxr)
-          (only (srfi 1) filter-map)
+          (only (scheme list) filter-map)
           (rebottled json-tools)
           (rebottled json-parser))
 

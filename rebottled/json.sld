@@ -5,7 +5,7 @@
     (import (scheme base)
             (scheme char)
             (scheme write)
-            (srfi 69)
+            (scheme hash-table)
 	    (rebottled packrat))
 
     (begin

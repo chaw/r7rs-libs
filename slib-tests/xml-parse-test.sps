@@ -4,7 +4,7 @@
 (import (scheme base)
         (slib string-port)
         (slib xml-parse)
-        (only (srfi 1) cons*)
+        (only (scheme list) cons*)
         (srfi 64))
 
 (define (string-join strs sep) ;; implemented here to avoid srfi 13 / not dependency

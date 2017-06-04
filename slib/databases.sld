@@ -42,7 +42,7 @@
           (slib printf)
           (slib relational-database)
           (slib transact)
-          (only (srfi 1) take drop))
+          (only (scheme list) take drop))
 
   (begin
 

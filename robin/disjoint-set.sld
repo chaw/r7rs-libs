@@ -70,8 +70,9 @@
           disjoint-set:size)
   (import (scheme base)
           (scheme case-lambda)
-          (srfi 1)
-          (srfi 69))
+          (scheme list)
+          (scheme comparator)
+          (scheme hash-table))
 
   (begin
 
@@ -81,11 +82,22 @@
                         (item-equals? disjoint-set:item-equals?)
                         (items disjoint-set:items))
 
-    (define (make-disjoint-set equality? hash-fn)
-      (unless (and (procedure? hash-fn) 
-                   (procedure? equality?))
-        (error "make-disjoint-set expects two procedures as arguments"))
-      (create-dj-set equality? (make-hash-table equality? hash-fn)))
+    (define make-disjoint-set 
+      (case-lambda
+        ((comp)
+         (unless (comparator? comp)
+           (error "make-disjoint-set requires a comparator for a single argument"))
+         (create-dj-set (comparator-equality-predicate comp)
+                        (make-hash-table comp)))
+        ((equality? hash-fn)
+         (unless (and (procedure? hash-fn) 
+                      (procedure? equality?))
+           (error "make-disjoint-set expects two procedures as arguments"))
+         (create-dj-set equality? (make-hash-table 
+                                    (make-comparator (lambda (obj) #t) ; all types
+                                                     equality? 
+                                                     #f ; no ordering
+                                                     hash-fn))))))
 
     ;; define a record type for an item in the set: includes a parent reference and a rank
     ;; - parent reference is used to link back up to a representative of the item's set
@@ -149,14 +161,12 @@
     ;; input: a disjoint-set
     ;; output: returns the number of sets in the disjoint-set
     (define (disjoint-set:size set)
-      (let ((roots-ht (make-hash-table (disjoint-set:item-equals? set)
-                                       (hash-table-hash-function 
-                                         (disjoint-set:items set)))))
-        (hash-table-walk (disjoint-set:items set)
-                         (lambda (k v)
-                           (hash-table-set! roots-ht
-                                            (disjoint-set:find set k)
-                                            #t)))
+      (let ((roots-ht (hash-table-empty-copy (disjoint-set:items set))))
+        (hash-table-for-each (lambda (k v)
+                               (hash-table-set! roots-ht
+                                                (disjoint-set:find set k)
+                                                #t))
+                             (disjoint-set:items set))
         (hash-table-size roots-ht)))
 
     ))

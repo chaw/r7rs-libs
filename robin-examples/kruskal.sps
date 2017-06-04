@@ -3,11 +3,11 @@
 
 (import (scheme base)
         (scheme cxr)
-        ;        (slib format)  ; Note: Larceny sometimes complains about format!
+        (scheme comparator)
+        (scheme list)
+        (scheme hash-table)
+        (scheme sort)
         (scheme write)
-        (srfi 1)
-        (srfi 69)
-        (srfi 132)
         (robin disjoint-set))
 
 (define (kruskal graph)
@@ -16,7 +16,7 @@
                  (append (map car graph) (map cadr graph))
                  eq?)))
     ; 1. make a disjoint set, with each node an item
-    (let ((ds (make-disjoint-set eq? hash-by-identity)))        ; <1>
+    (let ((ds (make-disjoint-set (make-eq-comparator))))        ; <1>
       (for-each (lambda (node) 
                   (disjoint-set:make ds node))                  ; <2>
                 nodes)
@@ -44,7 +44,4 @@
   (display (string-append "Total length: "
                           (number->string (fold + 0 (map caddr res)))
                           "\n")))
-;  (format #t "MST has ~a links~&" (length res))
-;  (format #t "~{   : ~a~&~}" res)
-;  (format #t "Total length: ~a~&" (fold + 0 (map caddr res))))
 

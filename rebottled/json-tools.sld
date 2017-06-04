@@ -117,7 +117,7 @@
 	    json:sibling-or-self
 	    )
     (import (scheme base) 
-	    (only (srfi 1) append-map delete-duplicates))
+	    (only (scheme list) append-map delete-duplicates))
 
     (begin
 

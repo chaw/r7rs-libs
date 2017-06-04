@@ -40,8 +40,8 @@
   (import (except (scheme base) equal?)
           (scheme inexact)
           (slib subarray)
-          (srfi 1)
-          (only (srfi 60) integer-length reverse-bit-field) ;; TODO: Replace with SRFI 151
+          (scheme list)
+          (only (srfi 151) integer-length bit-field-reverse)
           (srfi 63))
 
   (begin
@@ -71,7 +71,7 @@
       (define pi2i (* 0-8i (atan 1) dir))
       (do ((k 0 (+ 1 k)))
         ((>= k n))
-        (array-set! new (* (array-ref ara k) scl) (reverse-bit-field k 0 lgn)))
+        (array-set! new (* (array-ref ara k) scl) (bit-field-reverse k 0 lgn)))
       (do ((s 1 (+ 1 s))
            (m (expt 2 1) (expt 2 (+ 1 s))))
         ((> s lgn) new)

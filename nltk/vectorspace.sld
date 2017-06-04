@@ -54,7 +54,8 @@
  (import (scheme base)
          (scheme inexact)
          (nltk sequence)
-         (srfi 69))
+         (scheme comparator)
+         (scheme hash-table))
  
  (begin
  
@@ -65,7 +66,7 @@
                      (rowlabels vs-rowlabels vs-rowlabels-set!)
                      (cells vs-cells vs-cells-set!))
 
- (define (make-vs) (%make-vs '() '() (make-hash-table equal?)))
+ (define (make-vs) (%make-vs '() '() (make-hash-table (make-default-comparator))))
 
  (define euclidean-distance
    (lambda (v1 v2)
@@ -109,7 +110,7 @@
 
  (define ngrams->vectorspace
    (lambda (ngram-models)
-     (let ((all-tokens (make-hash-table equal?)))
+     (let ((all-tokens (make-hash-table (make-default-comparator))))
        (for-each
          (lambda (ht)
            (vector-for-each

@@ -14,7 +14,7 @@
   (export soundex)
   (import (scheme base)
           (scheme char)
-          (srfi 1))
+          (scheme list))
 
   (begin
 

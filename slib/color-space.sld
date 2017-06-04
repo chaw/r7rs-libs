@@ -74,8 +74,8 @@
           (scheme file)
           (scheme inexact)
           (scheme read)
-          (only (srfi 60) arithmetic-shift bitwise-and) ;; TODO, replace with SRFI 151
-          (srfi 132))
+          (scheme sort)
+          (only (srfi 151) arithmetic-shift bitwise-and))
 
   (begin
 

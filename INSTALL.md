@@ -3,12 +3,17 @@
 These libraries have mostly been tested on Chibi, Gauche, Kawa, Larceny and Sagittarius.  
 Minor adjustments may be needed to make them work completely on other implementations of R7RS.
 
+The libraries rely on parts of R7RS-large, RedEdition.  If your implementation
+does not support R7RS-large, you will also need to download the +scheme+ folder
+from https://github.com/petercrlane/r7rs-large and include it with this
+collection.  
+
 In most cases, installation is straightforward:
 
 Many of the libraries are available from http://snow-fort.org/pkg
 
 Alternatively, download the entire collection as a zip file and unpack, or
-clone the repository, using the 'Clone or Download' button above.  If the
+clone the repository, using the 'Clone or Download' button on github.  If the
 directory containing the files is SCHEME_LIBS, you must call your
 implementation with SCHEME_LIBS in its library path.  e.g.
 

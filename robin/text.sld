@@ -51,9 +51,8 @@
           (rebottled pregexp)
           (only (robin statistics) sorenson-dice-index)
           (slib soundex)                                              
-          (srfi 1)
-          (srfi 69)
-          (srfi 132))
+          (scheme list)
+          (scheme sort))
 
   (cond-expand
     ((library (srfi 13))

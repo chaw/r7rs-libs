@@ -50,7 +50,7 @@
     ;;
     ((library (chibi filesystem))
      (import (chibi filesystem)
-             (srfi 1))
+             (scheme list))
      (begin ; good support
        ; change-directory exported
        ; current-directory exported
@@ -96,7 +96,7 @@
     ;;
     (gauche
       (import (file util)
-              (srfi 1))
+              (scheme list))
       (begin
         (define (change-directory str) (current-directory str))
         
@@ -152,13 +152,13 @@
               (only (kawa lib ports) current-path)
               (kawa lib system)
               (only (kawa base) as invoke invoke-static)
-              (only (srfi 1) fold remove))
+              (only (scheme list) fold remove))
       (begin
         (define (is-directory? filename)
           (invoke-static java.nio.file.Files 'isDirectory 
                          (as java.nio.file.Path (str->path filename))))
 
-        (define (change-directory str) (system (string-append "cd " str)))
+        (define (change-directory str) (system (string-append "cd " str))) ; TODO: Not working on Kawa
 
         (define (current-directory) (as String (current-path)))
 
@@ -226,11 +226,11 @@
     ;;
     (larceny ; poor support: calls out to system
       (import (primitives current-directory list-directory system)
-              (srfi 1))
+              (scheme list))
       (begin 
         (define (is-directory? str) (zero? (system (string-append "test -d " str))))
 
-        (define (change-directory str) (system (string-append "cd " str)))
+        (define (change-directory str) (system (string-append "cd " str))) ; TODO: Not working on Larceny
 
         ; current-directory exported
 
@@ -286,7 +286,7 @@
     (sagittarius ; good support for functions
       (import (sagittarius)
               (util file)
-              (only (srfi 1) filter))
+              (only (scheme list) filter))
       (begin
 
         (define (change-directory str) (set-current-directory str))
