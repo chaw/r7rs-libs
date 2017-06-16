@@ -161,17 +161,6 @@
     ;; input: a disjoint-set
     ;; output: returns the number of sets in the disjoint-set
     (define (disjoint-set:size set)
-<<<<<<< HEAD
-      (let ((roots-ht (make-hash-table (disjoint-set:item-equals? set)
-                                       (hash-table-hash-function
-                                        (disjoint-set:items set)))))
-        (hash-table-walk (disjoint-set:items set)
-                         (lambda (k v)
-                           (hash-table-set! roots-ht
-                                            (disjoint-set:find set k)
-                                            #t)))
-        (hash-table-size roots-ht))) 
-=======
       (let ((roots-ht (hash-table-empty-copy (disjoint-set:items set))))
         (hash-table-for-each (lambda (k v)
                                (hash-table-set! roots-ht
@@ -180,6 +169,5 @@
                              (disjoint-set:items set))
         (hash-table-size roots-ht)))
 
->>>>>>> 1ea403dba61713de3676b04e07b01235e31e7043
     ))
 
