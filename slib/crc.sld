@@ -36,9 +36,15 @@
           crc5)
   (import (scheme base)
           (scheme file)
-          (slib byte)
-          (slib common)
-          (srfi 60))
+          (slib byte))
+
+  (cond-expand
+    ((library (srfi 151))
+     (only (srfi 151) arithmetic-shift bit-set? bitwise-and bitwise-xor))
+    ((library (srfi 60))
+     (only (srfi 60) arithmetic-shift bit-set? bitwise-and bitwise-xor))
+    (else
+      (error "No suitable logical bits library")))
 
   (begin
 
@@ -71,27 +77,27 @@
     ;@
     (define (crc:make-table str)
       (define deg (+ -1 (string-length str)))
-      (define generator (string->number (substring str 1 (string-length str)) 2))
+      (define generator (string->number (string-copy str 1 (string-length str)) 2))
       (define crctab (make-vector 256))
       (if (not (eqv? #\1 (string-ref str 0)))
-        (slib:error 'crc:make-table 'first-digit-of-polynomial-must-be-1 str))
+        (error 'crc:make-table 'first-digit-of-polynomial-must-be-1 str))
       (if (< deg 8)
-        (slib:error 'crc:make-table 'degree-must-be>7 deg str))
+        (error 'crc:make-table 'degree-must-be>7 deg str))
       (and
         generator
         (do ((i 0 (+ 1 i))
              (deg-1-mask (crc:make-mask (+ -1 deg)))
              (gen generator
-                  (if (logbit? (+ -1 deg) gen)
-                    (logxor (ash (logand deg-1-mask gen) 1) generator)
-                    (ash (logand deg-1-mask gen) 1)))
+                  (if (bit-set? (+ -1 deg) gen)
+                    (bitwise-xor (arithmetic-shift (bitwise-and deg-1-mask gen) 1) generator)
+                    (arithmetic-shift (bitwise-and deg-1-mask gen) 1)))
              (gens '() (cons gen gens)))
           ((>= i 8) (set! gens (reverse gens))
                     (do ((crc 0 0)
                          (m 0 (+ 1 m)))
                       ((> m 255) crctab)
                       (for-each (lambda (gen i)
-                                  (set! crc (if (logbit? i m) (logxor crc gen) crc)))
+                                  (set! crc (if (bit-set? i m) (bitwise-xor crc gen) crc)))
                                 gens '(0 1 2 3 4 5 6 7))
                       (vector-set! crctab m crc))))))
 
@@ -110,14 +116,14 @@
           (define crc 0)
           (define (accumulate-crc byt)
             (set! crc
-              (logxor (ash (logand mask-24 crc) 8)
-                      (vector-ref crc-32-table (logxor (ash crc -24) byt)))))
+              (bitwise-xor (arithmetic-shift (bitwise-and mask-24 crc) 8)
+                      (vector-ref crc-32-table (bitwise-xor (arithmetic-shift crc -24) byt)))))
           (do ((byt (read-byte port) (read-byte port))
                (byte-count 0 (+ 1 byte-count)))
             ((eof-object? byt)
-             (do ((byte-count byte-count (ash byte-count -8)))
-               ((zero? byte-count) (logxor mask-32 crc))
-               (accumulate-crc (logand #xff byte-count))))
+             (do ((byte-count byte-count (arithmetic-shift byte-count -8)))
+               ((zero? byte-count) (bitwise-xor mask-32 crc))
+               (accumulate-crc (bitwise-and #xff byte-count))))
             (accumulate-crc byt)))))
     ;@
     (define (crc16 file)
@@ -134,10 +140,10 @@
           (define crc mask-16)
           (define (accumulate-crc byt)
             (set! crc
-              (logxor (ash (logand mask-8 crc) 8)
-                      (vector-ref crc-16-table (logxor (ash crc -8) byt)))))
+              (bitwise-xor (arithmetic-shift (bitwise-and mask-8 crc) 8)
+                      (vector-ref crc-16-table (bitwise-xor (arithmetic-shift crc -8) byt)))))
           (do ((byt (read-byte port) (read-byte port)))
-            ((eof-object? byt) (logxor mask-16 crc))
+            ((eof-object? byt) (bitwise-xor mask-16 crc))
             (accumulate-crc byt)))))
     ;@
     (define (crc5 file)
@@ -148,15 +154,15 @@
       (define generator #b00101)
       (define crc #b11111)
       (do ((byt (read-byte port) (read-byte port)))
-        ((eof-object? byt) (logxor #b11111 crc))
-        (do ((data byt (ash data 1))
+        ((eof-object? byt) (bitwise-xor #b11111 crc))
+        (do ((data byt (arithmetic-shift data 1))
              (len (+ -1 8) (+ -1 len)))
           ((negative? len))
           (set! crc
-            (logand #b11111
-                    (if (eqv? (logbit? 7 data) (logbit? 4 crc))
-                      (ash crc 1)
-                      (logxor (ash crc 1) generator)))))))
+            (bitwise-and #b11111
+                    (if (eqv? (bit-set? 7 data) (bit-set? 4 crc))
+                      (arithmetic-shift crc 1)
+                      (bitwise-xor (arithmetic-shift crc 1) generator)))))))
 
     ))
 

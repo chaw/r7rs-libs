@@ -96,8 +96,7 @@
           wt-tree/delete-min!
           wt-tree/valid?)
   (import (scheme base)
-          (scheme case-lambda)
-          (slib common))
+          (scheme case-lambda))
 
   (begin
 
@@ -349,11 +348,11 @@
         (if (or (< index 0)
                 (>= index bound)
                 (not (fix:fixnum? index)))
-          (slib:error 'bad-range-argument index 'node/index)
+          (error 'bad-range-argument index 'node/index)
           (loop node index))))
 
     (define (error:empty owner)
-      (slib:error "Operation requires non-empty tree:" owner))
+      (error "Operation requires non-empty tree:" owner))
 
     (define (local:make-wt-tree-type key<?)
 
@@ -564,7 +563,7 @@
                 ((pair? alist)  (loop (cdr alist)
                                       (node/add node (caar alist) (cdar alist))))
                 (else
-                  (slib:error 'wrong-type-argument alist "alist" 'alist->tree))))
+                  (error 'wrong-type-argument alist "alist" 'alist->tree))))
         (%make-wt-tree my-type (loop alist empty)))
 
       (define (tree/get tree key default)
@@ -605,19 +604,19 @@
 
     (define (guarantee-tree tree procedure)
       (if (not (wt-tree? tree))
-        (slib:error 'wrong-type-argument
+        (error 'wrong-type-argument
                     tree "weight-balanced tree" procedure)))
 
     (define (guarantee-tree-type type procedure)
       (if (not (tree-type? type))
-        (slib:error 'wrong-type-argument
+        (error 'wrong-type-argument
                     type "weight-balanced tree type" procedure)))
 
     (define (guarantee-compatible-trees tree1 tree2 procedure)
       (guarantee-tree tree1 procedure)
       (guarantee-tree tree2 procedure)
       (if (not (eq? (tree/type tree1) (tree/type tree2)))
-        (slib:error "The trees" tree1 'and tree2 'have 'incompatible 'types
+        (error "The trees" tree1 'and tree2 'have 'incompatible 'types
                     (tree/type tree1) 'and (tree/type tree2))))
 
     (define (valid? tree)

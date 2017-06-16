@@ -11,7 +11,7 @@ indexterm2:[+change-directory+] changes the current working directory to the giv
 
 indexterm2:[+current-directory+] returns the current working directory (as a string):
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:1|# (import (robin directory))
 #|kawa:2|# (current-directory)
@@ -26,7 +26,7 @@ indexterm2:[+delete-directory+] deletes the given directory.
 
 indexterm2:[+list-directory+] returns a list of all files and directories in the given directory:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:3|# (list-directory ".")
 (pfds announce.txt robin-examples pfds-tests weinholt robin r7rs-libs.jar r6rs
@@ -41,7 +41,7 @@ indexterm2:[+list-directory+] returns a list of all files and directories in the
 
 indexterm2:[+list-directory-files+] returns a list of the _filenames_ in the given directory:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:3|# (list-directory-files ".")
 (announce.txt r7rs-libs.jar build-kawa.sh INSTALL.md run-tests.sh .gitignore
@@ -50,7 +50,7 @@ indexterm2:[+list-directory-files+] returns a list of the _filenames_ in the giv
 
 Giving #t as the optional second argument returns a list of the _pathnames_ of files in the given directory:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:4|# (list-directory-files "." #t)
 (/home/peter/Software/r7rs-libs/announce.txt
@@ -71,7 +71,7 @@ indexterm2:[+list-glob+] returns all files matching the given glob.  A indexterm
 matched using slib's
 http://people.csail.mit.edu/jaffer/slib/Filenames.html#Filenames[+filename:match??+].
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:5|# (list-glob "**/*.txt")
 (/home/peter/Software/r7rs-libs/doc/logger.txt
@@ -100,7 +100,7 @@ http://people.csail.mit.edu/jaffer/slib/Filenames.html#Filenames[+filename:match
 
 indexterm2:[+make-directory+] creates a directory with the given name:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:6|# (make-directory "test-directory")
 ----
@@ -112,7 +112,7 @@ functions to scan through all child directories from a given directory
 for Scheme files.  The number of code lines in each file is then counted, 
 and a list displayed of the full file paths and the counts.
 
-[source,lisp]
+[source,scheme]
 ----
 (define (collect-information directory)
   (let ((current (current-directory)))

@@ -41,8 +41,7 @@
           (slib line-io)
           (slib printf)
           (slib scanf)
-          (slib string-search)
-          (only (srfi 59) pathname->vicinity))
+          (slib string-search))
 
   (cond-expand
     ((library (srfi 13))
@@ -103,9 +102,9 @@
     ;;link associated with @1.
     (define (emacs-lock:path path)
       (unless (string? path) (error "emacs-lock:path argument not a string"))
-      (let* ((dir (pathname->vicinity path))
+      (let* ((dir (pathname->dirname path))
              (file (if (string-prefix? dir path)
-                     (substring path (string-length dir) (string-length path))
+                     (string-copy path (string-length dir) (string-length path))
                      path)))
         (string-append dir (string-append ".#" file))))
 
@@ -113,14 +112,14 @@
     ;;associated with @1.
     (define (word-lock:path path)
       (unless (string? path) (error "word-lock:path argument not a string"))
-      (let* ((dir (pathname->vicinity path))
+      (let* ((dir (pathname->dirname path))
              (file (if (string-prefix? dir path)
-                     (substring path (string-length dir) (string-length path))
+                     (string-copy path (string-length dir) (string-length path))
                      path))
              (filen (string-length file)))
         (string-append
           dir (string-append
-                "~$" (substring file (min 2 (max 0 (- filen 10))) filen)))))
+                "~$" (string-copy file (min 2 (max 0 (- filen 10))) filen)))))
 
     (define (word-lock:certificate lockpath)
       (define iport (open-file lockpath 'r))
@@ -167,7 +166,7 @@
                      (or (and (eof-object? (peek-char iport)) (= pos 162))
                          (and (not (and (discard (- 162 pos))
                                         (eof-object? (peek-char iport))))
-                              (slib:error lockpath 'length pos '(not = 162))))
+                              (error lockpath 'length pos '(not = 162))))
                      (and name company (sprintf #f "%s@%s" name company))))))
           iport)))
 
@@ -176,8 +175,8 @@
         (system->line (sprintf #f "ls -ld %#a 2>/dev/null" lockpath)))
        (cond ((and conflict (substring? "-> " conflict))
              => (lambda (idx)
-                  (substring conflict (+ 3 idx) (string-length conflict))))
-            ((and conflict (not (equal? conflict ""))) (slib:error 'bad 'emacs 'lock lockpath conflict))
+                  (string-copy conflict (+ 3 idx) (string-length conflict))))
+            ((and conflict (not (equal? conflict ""))) (error 'bad 'emacs 'lock lockpath conflict))
             (else #f)))
 
     (define (file-lock:certificate path)
@@ -198,11 +197,11 @@
     (define (word:lock! path email)
       (define lockpath (word-lock:path path))
       (define at (substring? "@" email))
-      (define (trim str len) (substring str 0 (min len (string-length str))))
+      (define (trim str len) (string-copy str 0 (min len (string-length str))))
       (let ((user
-              (trim (substring email 0 at) 15))
+              (trim (string-copy email 0 at) 15))
             (hostname
-              (trim (substring email (+ 1 at) (string-length email)) 14))
+              (trim (string-copy email (+ 1 at) (string-length email)) 14))
             (oport (open-file lockpath 'w)))
         (define userlen (string-length user))
         (and oport
@@ -233,7 +232,7 @@
                        (write-field user)
                        (nulls (- 162 pos))
                        (if (not (eqv? 162 pos))
-                         (slib:error lockpath 'length pos '(not = 162)))
+                         (error lockpath 'length pos '(not = 162)))
                        #t))
              (let ((certificate (word-lock:certificate lockpath)))
                (and (equal? certificate (string-append user "@" hostname))
@@ -347,9 +346,9 @@
     ;;;@subsubheading File Transactions
 
     (define (emacs:backup-number path)
-      (let* ((dir (pathname->vicinity path))
+      (let* ((dir (pathname->dirname path))
              (file (if (string-prefix? dir path)
-                     (substring path (string-length dir) (string-length path))
+                     (string-copy path (string-length dir) (string-length path))
                      path))
              (largest #f))
         (if (equal? "" dir) (set! dir "./"))
@@ -357,8 +356,8 @@
           (lambda (str)
             (define left.~ (substring? ".~" str))
             (cond ((not left.~))
-                  ((not (equal? file (substring str 0 left.~))))
-                  ((string->number (substring str
+                  ((not (equal? file (string-copy str 0 left.~))))
+                  ((string->number (string-copy str
                                               (+ 2 left.~)
                                               (string-reverse-index str #\~)))
                    => (lambda (number)
@@ -397,7 +396,7 @@
                       (if bn (numbered bn) (simple))))
         ((orig bak) (sprintf #f "%s.%s" path backup-style))
         (else
-          (slib:error 'emacs:backup-name 'unknown 'backup-style backup-style))))
+          (error 'emacs:backup-name 'unknown 'backup-style backup-style))))
 
     ;;@args proc path backup-style certificate
     ;;@args proc path backup-style
@@ -435,18 +434,18 @@
       (define certificate (case (length args)
                             ((2) (cadr args))
                             ((1 0) #f)
-                            (else (slib:error 'transact-file-replacement
+                            (else (error 'transact-file-replacement
                                               (+ 2 (length args)) 'args))))
       (define backup-style (if (null? args) #f (car args)))
       (define move (case (software-type)
                      ((unix coherent plan9 posix) "mv -f")
                      ((ms-dos windows os/2 atarist) "MOVE /Y")
-                     (else (slib:error (software-type) 'move?))))
+                     (else (error (software-type) 'move?))))
       (define (move? tmpfn path)
         (eqv? 0 (system (sprintf #f "%s %#a %#a" move tmpfn path))))
-      (let* ((dir (pathname->vicinity path))
+      (let* ((dir (pathname->dirname path))
              (file (if (string-prefix? dir path)
-                     (substring path (string-length dir) (string-length path))
+                     (string-copy path (string-length dir) (string-length path))
                      path))
              (tmpfn (string-append dir (string-append "#" file "#"))))
         (cond ((not (file-exists? path)) (slib:warn 'file path 'missing) #f)
@@ -491,10 +490,13 @@
                                      (lambda (port)
                                        (do ((line (read-line port) (read-line port)))
                                          ((eof-object? line))
-                                         (sscanf line " User name %s" user)
-                                         (sscanf line " Computer name \\\\%s" compname)
+                                         (let ((case1 (scanf-read-list " User name %s" line)))
+                                           (when (= 1 (length case1)) (set! user (car case1))))
+                                         (let ((case2 (scanf-read-list " Computer name \\\\%s" line)))
+                                           (when (= 1 (length case2)) (set! compname (car case2))))
                                          ;; Don't want "DNS" from "Workstation Domain DNS Name"
-                                         (sscanf line " Workstation domain %s" workgroup)))))))
+                                         (let ((case3 (scanf-read-list " Workstation domain %s" line)))
+                                           (when (= 1 (length case3)) (set! workgroup (car case3))))))))))
       (string-append (or user "John_Doe") "@"
                      (if (and compname (not hostname))
                        (string-append compname "." (or workgroup "localnet"))

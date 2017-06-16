@@ -8,7 +8,7 @@ indexterm2:[+test-all-equal+] accepts two arguments: a function to test and an
 association list of +( argument . result )+ pairs.  The function effectively
 calls +(test-equal result (function argument))+ for all pairs.
 
-[source,lisp]
+[source,scheme]
 ----
 (test-all-equal daitch-mokotoff-soundex '(("MANHEIM" . "665600")
                                           ("MINTZ" . "664000")
@@ -21,7 +21,7 @@ calls +(test-equal result (function argument))+ for all pairs.
 indexterm2:[+test-approx-same+] checks if two inexact numbers are within a given bound.  This is 
 the same as +test-approximate+ except that the tolerance is optional, and defaults to 0.001.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:32|# (test-approx-same 1 1.001)
 #|kawa:33|# (test-approx-same 1 1.001 0.0001)
@@ -35,7 +35,7 @@ indexterm2:[+test-compare+] checks if two given items satisfy the given comparis
 This is useful for testing equality of more complex data.  For example, we might want to check if 
 just the first item of sublists are the same:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:34|# (import (srfi 1))
 #|kawa:41|# (define (equal-cars? i1 i2) (every (lambda (l1 l2) (equal? (car l1) (car l2))) i1 i2))
@@ -44,27 +44,13 @@ just the first item of sublists are the same:
 robin/srfi64-utils.sld:69: FAIL
 ----
 
-=== test-for-error
-
-indexterm2:[+test-for-error+] is used to confirm that a piece of code _has_ thrown an error.
-In the following example, the first line raises an +error+, and so the test passes.
-The second line does not raise an +error+, and so the test fails.
-
-[source,lisp]
-----
-#|kawa:24|# (test-for-error (if (zero? 0) (error "") #t))
-#|kawa:25|# (test-for-error (if (zero? 1) (error "") #t))
-robin/srfi64-utils.sld:55: FAIL
-----
-
-
 === test-no-error
 
 indexterm2:[+test-no-error+] is used to confirm that a piece of code has _not_ thrown an error.
 In the following example, the first line raises an +error+, and so the test fails.
 The second line does not raise an +error+, and so the test passes.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:27|# (test-no-error (if (zero? 0) (error "") #t))
 robin/srfi64-utils.sld:55: FAIL

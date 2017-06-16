@@ -63,7 +63,7 @@
                        (lambda (str)
                          (let ((len (string-length str)))
                            (cond ((> len left)
-                                  (set! result (cons (substring str 0 left) result))
+                                  (set! result (cons (string-copy str 0 left) result))
                                   (set! left 0)
                                   #f)
                                  (else

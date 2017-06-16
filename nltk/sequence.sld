@@ -45,7 +45,8 @@
          str-split)
  (import (scheme base)
          (scheme case-lambda)
-         (srfi 69))
+         (scheme comparator)
+         (scheme hash-table))
  
  (begin
 
@@ -127,7 +128,7 @@
 
    (define sequence->hashtable
      (case-lambda
-       ((seq) (sequence->hashtable seq (make-hash-table equal?)))
+       ((seq) (sequence->hashtable seq (make-hash-table (make-default-comparator))))
        ((seq wlhash)
         (begin
           (for-each
@@ -164,10 +165,10 @@
          ((split
             (lambda (a b)
               (cond
-                ((>= b len) (if (= a b) '() (cons (substring str a b) '())))
+                ((>= b len) (if (= a b) '() (cons (string-copy str a b) '())))
                 ((char=? ch (string-ref str b)) (if (= a b)
                                                   (split (+ 1 a) (+ 1 b))
-                                                  (cons (substring str a b) (split b b))))
+                                                  (cons (string-copy str a b) (split b b))))
                 (else (split a (+ 1 b)))))))
          (split 0 0))))
 

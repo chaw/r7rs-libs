@@ -91,7 +91,7 @@
       (if (list? arg1) (set! arg1 (list->vector arg1)))
       (cond
         ((> (length args) 3)
-         (slib:error 'make-cell 'extra 'arguments 'not 'handled args))
+         (error 'make-cell 'extra 'arguments 'not 'handled args))
         ((vector? arg1)
          (let ((path arg1)
                (precession (and (not (null? args)) (car args))))
@@ -124,18 +124,18 @@
                (define prev frst)
                (for-each (lambda (lst)
                            (if (not (= d (length lst)))
-                             (slib:error 'non-uniform 'ranks frst lst)))
+                             (error 'non-uniform 'ranks frst lst)))
                          (vector->list path))
                (for-each (lambda (cs)
                            (if (not (= 1 (apply + (map abs (map - prev cs)))))
-                             (slib:error 'bad 'step prev cs))
+                             (error 'bad 'step prev cs))
                            (set! prev cs))
                          (cdr (vector->list path)))
-               (cond ((not (zero? (apply + frst))) (slib:error 'strange 'start frst))
-                     ((not (= d (length last))) (slib:error 'non-uniform 'lengths path))
+               (cond ((not (zero? (apply + frst))) (error 'strange 'start frst))
+                     ((not (= d (length last))) (error 'non-uniform 'lengths path))
                      ((apply = s-1 last) #t)
                      ((and (= s-1 (apply + last))) #f)
-                     (else (slib:error 'strange 'net-travel frst last))))
+                     (else (error 'strange 'net-travel frst last))))
              (define diag? (path-diag? path))
              (define entries (make-vector len (vector-ref path 0)))
              (define exits (make-vector
@@ -201,7 +201,7 @@
                          (vector-set! exits t X)
                          (lp (+ 1 t) X))))))))
         ((< (car args) 2)
-         (slib:error 'make-cell 'rank 'too 'small (car args)))
+         (error 'make-cell 'rank 'too 'small (car args)))
         (else
           (case arg1
             ((center centered)
@@ -210,7 +210,7 @@
                                       (if (null? (cdr args)) 3 (cadr args)))
                                     (if (= 3 (length args)) (caddr args) #f))))
                (if (not (eq? 'diagonal (cell-type cell)))
-                 (slib:error 'make-cell 'centered 'must 'be 'diagonal (car cell)))
+                 (error 'make-cell 'centered 'must 'be 'diagonal (car cell)))
                (set-car! (car cell) 'centered)
                cell))
             ((diagonal opposite)
@@ -224,7 +224,7 @@
                           (if (null? (cdr args)) 2 (cadr args)))
                         (if (= 3 (length args)) (caddr args) #f)))
             (else
-              (slib:error 'make-cell 'unknown 'cell 'type arg1))))))
+              (error 'make-cell 'unknown 'cell 'type arg1))))))
 
     ;;@ Hilbert, Peano, and centered Peano cells are generated
     ;;respectively by:

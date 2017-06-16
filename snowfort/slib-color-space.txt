@@ -1,0 +1,9 @@
+= Documentation for Color Space
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Spectra.html#Spectra[]
+
+To use: +(import (slib color-space))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

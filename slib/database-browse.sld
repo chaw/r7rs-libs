@@ -45,14 +45,14 @@
       (let* ((open-table (browse:db 'open-table))
              (catalog (and open-table (open-table '*catalog-data* #f))))
         (cond ((not catalog)
-               (slib:error 'browse "could not open catalog"))
+               (error 'browse "could not open catalog"))
               ((not table-name)
                (browse:display-dir '*catalog-data* catalog))
               (else
                 (let ((table (open-table table-name #f)))
                   (cond (table (browse:display-table table-name table)
                                (table 'close-table))
-                        (else (slib:error 'browse "could not open table"
+                        (else (error 'browse "could not open table"
                                           table-name))))))))
 
     (define (browse:display-dir table-name table)
@@ -88,7 +88,7 @@
                        (set! form (string-append form dwp-any)))
                       ((string symbol)
                        (set! form (string-append form dwp-string)))
-                      (else (slib:error 'browse:display-table "unknown type" type)))
+                      (else (error 'browse:display-table "unknown type" type)))
                     (printf dwp-string type))
                   (table 'column-types))
         (newline)

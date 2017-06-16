@@ -22,7 +22,7 @@
 
 (import (scheme base)
         (scheme char)
-        (only (srfi 1) iota)
+        (only (scheme list) iota)
         (srfi 64)
         (weinholt bytevector)
         (weinholt sha-1))

@@ -126,9 +126,9 @@
                       (chap:inc-string s (+ -1 p)))
                      (else
                        (string-append
-                         (substring s 0 p)
+                         (string-copy s 0 p)
                          "a"
-                         (substring s p (string-length s))))))
+                         (string-copy s p (string-length s))))))
               ((char=? c #\Z)
                (string-set! s p #\A)
                (cond ((zero? p) (string-append "A" s))
@@ -136,9 +136,9 @@
                       (chap:inc-string s (+ -1 p)))
                      (else
                        (string-append
-                         (substring s 0 p)
+                         (string-copy s 0 p)
                          "A"
-                         (substring s p (string-length s))))))
+                         (string-copy s p (string-length s))))))
               ((char=? c #\9)
                (string-set! s p #\0)
                (cond ((zero? p) (string-append "1" s))
@@ -146,9 +146,9 @@
                       (chap:inc-string s (+ -1 p)))
                      (else
                        (string-append
-                         (substring s 0 p)
+                         (string-copy s 0 p)
                          "1"
-                         (substring s p (string-length s))))))
+                         (string-copy s p (string-length s))))))
               ((or (char-alphabetic? c) (char-numeric? c))
                (string-set! s p (integer->char
                                   (+ chap:char-incr

@@ -74,7 +74,7 @@
                                 (substring line idx2 len))
                           alist)))))
           ;;Else -- ignore malformed line
-          ;;(else (slib:error 'http:read-header 'malformed-input line))
+          ;;(else (error 'http:read-header 'malformed-input line))
           )))
 
     (define (http:read-query-string request-line header port)

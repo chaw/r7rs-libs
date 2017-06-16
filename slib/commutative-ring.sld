@@ -30,8 +30,8 @@
           (slib common)
           (slib databases)
           (slib relational-database)
-          (only (srfi 1) any remove filter)
-          (srfi 95))
+          (only (scheme list) any remove filter)
+          (scheme sort))
 
   (begin
 
@@ -127,7 +127,7 @@
             ((expression-< (car x) (car y)) #t)
             ((expression-< (car y) (car x)) #f)
             (else (expression-< (cdr x) (cdr y)))))
-    (define (expression-sort seq) (sort! seq expression-<))
+    (define (expression-sort seq) (list-sort! expression-< seq))
 
     (define is-term-op? (lambda (term op) (and (pair? term) (eq? op (car term)))))
 
@@ -418,9 +418,9 @@
                            (integer? pow)	;(integer? (cdr fct_pow))
                            ))
                  #f)
-                ;;((zero? pow) (slib:error "Don't try exp-0 terms") #f)
+                ;;((zero? pow) (error "Don't try exp-0 terms") #f)
                 ;;((or (number? arg) (number? (car fct_pow)))
-                ;; (slib:error 'found-number arg fct_pow) #f)
+                ;; (error 'found-number arg fct_pow) #f)
                 ((and (positive? pow) (positive? (cdr fct_pow))
                       (or (cring:apply-rule->terms arg (car fct_pow))
                           (cring:apply-rule->terms (car fct_pow) arg)))

@@ -1,7 +1,7 @@
 (import (scheme base)
+        (scheme sort)
         (slib factor)
-        (srfi 64)
-        (srfi 95))
+        (srfi 64))
 
 (test-begin "slib-factor")
 
@@ -14,11 +14,11 @@
 (test-assert (prime? 17))
 (test-assert (not (prime? 16)))
 
-(test-equal '(13 17) (sort (primes< 18 2) <))
-(test-equal '(19 23) (sort (primes> 18 2) <))
+(test-equal '(13 17) (list-sort < (primes< 18 2)))
+(test-equal '(19 23) (list-sort < (primes> 18 2)))
 
-(test-equal '(2 2 5 5) (sort (factor 100) <))
-(test-equal '(5) (sort (factor 5) <))
+(test-equal '(2 2 5 5) (list-sort < (factor 100)))
+(test-equal '(5) (list-sort < (factor 5)))
 
 (test-end)
 

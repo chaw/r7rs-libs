@@ -31,7 +31,6 @@
   (export test-all-equal
           test-approx-same
           test-compare
-          test-for-error
           test-no-error)
   (import (scheme base)
           (scheme case-lambda)
@@ -56,15 +55,6 @@
     ;; Test if two given items satisfy the given comparison procedure
     (define (test-compare proc l1 l2)
       (test-assert (proc l1 l2)))
-
-    ;; Test fails if no error is raised
-    (define-syntax test-for-error
-      (syntax-rules ()
-                    ((test-no-error code)
-                     (guard (err
-                              (else (test-assert #t)))
-                            code
-                            (test-assert #f)))))
 
     ;; Test fails if an error is raised
     (define-syntax test-no-error

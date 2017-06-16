@@ -27,7 +27,6 @@
           size
           setter)
   (import (scheme base)
-          (slib common)
           (slib yasos))
 
   (begin
@@ -52,7 +51,7 @@
                         ((list?   <collection>) (collect:list-gen-elts   <collection>))
                         ((string? <collection>) (collect:string-gen-elts <collection>))
                         (else
-                          (slib:error 'gen-elts 'operation-not-supported
+                          (error 'gen-elts 'operation-not-supported
                                       (collect:print <collection> #f)))
                         ) )
     ;@
@@ -64,9 +63,9 @@
                               ((< index max+1)
                                (set! index (collect:add1 index))
                                (collect:sub1 index))
-                              (else (slib:error 'no-more 'keys 'in 'generator))
+                              (else (error 'no-more 'keys 'in 'generator))
                               ) ) )
-                        (slib:error 'gen-keys 'operation-not-handled collection)
+                        (error 'gen-keys 'operation-not-handled collection)
                         ) )
     ;@
     (define (do-elts <proc> . <collections>)
@@ -221,7 +220,7 @@
     (define (collect:list-gen-elts <list>)
       (lambda ()
         (if (null? <list>)
-          (slib:error 'no-more 'list-elements 'in 'generator)
+          (error 'no-more 'list-elements 'in 'generator)
           (let ( (elt (car <list>)) )
             (set! <list> (cdr <list>))
             elt))

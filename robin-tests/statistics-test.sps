@@ -4,7 +4,7 @@
         (scheme case-lambda)
         (scheme char)
         (robin statistics)
-        (srfi 1)
+        (scheme list)
         (srfi 64)
         (robin srfi64-utils))
 
@@ -38,6 +38,8 @@
 (test-equal 3/5 (sorenson-dice-index '(1 2 3 4 5) '(3 4 5 6 7)))
 (test-equal 0 (sorenson-dice-index '("a" "b" "c") '("A" "B" "D")))
 (test-equal 2/3 (sorenson-dice-index '("a" "b" "c") '("A" "B" "D") string-ci=?))
+
+(test-approx-same 0.136919958784 (perlin-noise 3.14 42 7) 0.00000000001) ; test used on Rosetta code
 
 (test-end)
 

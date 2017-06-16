@@ -21,8 +21,7 @@
           make-predicate!
           unmake-method!
           get-method)
-  (import (scheme base)
-          (slib common))
+  (import (scheme base))
 
   (begin
 
@@ -39,7 +38,7 @@
     (define (get-all-methods obj)
       (if (object? obj)
         ((vector-ref obj 4))
-        (slib:error "Cannot get methods on non-object: " obj)))
+        (error "Cannot get methods on non-object: " obj)))
     ;@
     (define (object? obj)
       (and (vector? obj)
@@ -51,23 +50,23 @@
           (begin
             ((vector-ref obj 2) generic-method method)
             method)
-          (slib:error "Method must be a procedure: " method))
-        (slib:error "Cannot make method on non-object: " obj)))
+          (error "Method must be a procedure: " method))
+        (error "Cannot make method on non-object: " obj)))
     ;@
     (define (get-method obj generic-method)
       (if (object? obj)
         ((vector-ref obj 1) generic-method)
-        (slib:error "Cannot get method on non-object: " obj)))
+        (error "Cannot get method on non-object: " obj)))
     ;@
     (define (unmake-method! obj generic-method)
       (if (object? obj)
         ((vector-ref obj 3) generic-method)
-        (slib:error "Cannot unmake method on non-object: " obj)))
+        (error "Cannot unmake method on non-object: " obj)))
     ;@
     (define (make-predicate! obj generic-predicate)
       (if (object? obj)
         ((vector-ref obj 2) generic-predicate (lambda (self) #t))
-        (slib:error "Cannot make predicate on non-object: " obj)))
+        (error "Cannot make predicate on non-object: " obj)))
     ;@
     (define (make-generic-method . exception-procedure-in)
       (let ((exception-procedure exception-procedure-in))
@@ -77,16 +76,16 @@
               (let ((object-method ((vector-ref obj 1) generic-method)))
                 (if object-method
                   (apply object-method (cons obj operands))
-                  (slib:error "Method not supported: " obj)))
+                  (error "Method not supported: " obj)))
               (apply exception-procedure (cons obj operands)))))
         ;
         (if (not (null? exception-procedure))
           (if (procedure? (car exception-procedure))
             (set! exception-procedure (car exception-procedure))
-            (slib:error "Exception Handler Not Procedure:"))
+            (error "Exception Handler Not Procedure:"))
           (set! exception-procedure
             (lambda (obj . params)
-              (slib:error "Operation not supported: " obj))))
+              (error "Operation not supported: " obj))))
         generic-method))
 
     ;@

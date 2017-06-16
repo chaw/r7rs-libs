@@ -30,7 +30,7 @@
 (define (rivest)
   ;; TESTING IMPLEMENTATIONS OF DES, Ronald L. Rivest
   ;; http://people.csail.mit.edu/rivest/Destest.txt
-  (do ((x (bytevector-copy '#u8(#x94 #x74 #xB8 #xE8 #xC7 #x3B #xCA #x7D)))
+  (do ((x (bytevector-copy #u8(#x94 #x74 #xB8 #xE8 #xC7 #x3B #xCA #x7D)))
        (i 0 (+ i 1)))
     ((= i 16) x)
     (print i ": " x)
@@ -38,7 +38,7 @@
               (permute-key x)            ;encipher
               (reverse (permute-key x)))))) ;decipher
 
-(test-equal (rivest)  '#u8(#x1B #x1A #x2D #xDB #x4C #x64 #x24 #x38))
+(test-equal (rivest) #u8(#x1B #x1A #x2D #xDB #x4C #x64 #x24 #x38))
 
 
 (define (test-tdea plaintext k1 k2 k3)

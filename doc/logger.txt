@@ -70,7 +70,7 @@ level would be output by the log object.
 
 The following example illustrates how these functions may be used:
 
-[source,lisp]
+[source,scheme]
 ----
 (define log (new-logger "log1.txt"))      ; <1>
 (log-level log 'info)                     ; <2>

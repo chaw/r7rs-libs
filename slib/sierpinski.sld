@@ -10,8 +10,7 @@
 (define-library
   (slib sierpinski)
   (export make-sierpinski-indexer)
-  (import (scheme base)
-          (slib common))
+  (import (scheme base))
 
   (begin
 
@@ -21,7 +20,7 @@
         (lambda (x y)
           (if (not (and (<= 0 x max-coordinate)
                         (<= 0 y max-coordinate)))
-            (slib:error 'sierpinski-index
+            (error 'sierpinski-index
                    "Coordinate exceeds specified maximum.")
             ;
             ; The following two mutually recursive procedures

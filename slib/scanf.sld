@@ -23,14 +23,14 @@
 ;;; functions starting from the POSIX man pages.
 
 ;; Packaged for R7Rs Scheme by Peter Lane, 2017
+;; (Note: broke apart stdio:scan-and-set to avoid Kawa 2.3 problem; problem fixed in later version.)
 
 (define-library
   (slib scanf)
-  (export scanf
-          sscanf
-          fscanf
-          scanf-read-list)
-  (import (scheme base)
+  (export scanf-read-list
+          scanf-read-values)
+  (import (except (scheme base) read-string)
+          (scheme case-lambda)
           (scheme char)
           (scheme cxr)
           (slib common)
@@ -38,17 +38,135 @@
 
   (begin
 
+    (define (char-non-numeric? c) (not (char-numeric? c)))
+
+    (define (flush-whitespace port)
+      (do ((c (peek-char port) (peek-char port))
+           (i 0 (+ 1 i)))
+        ((or (eof-object? c) (not (char-whitespace? c))) i)
+        (read-char port)))
+
+    (define (read-word width separator? input-port read-input-char)
+      (let ((l (read-string width separator? input-port read-input-char)))
+        (if (zero? (string-length l)) #f l)))
+
+    (define (read-string width separator? input-port read-input-char)
+      (cond (width
+              (let ((str (make-string width)))
+                (do ((i 0 (+ 1 i)))
+                  ((>= i width)
+                   str)
+                  (let ((c (peek-char input-port)))
+                    (cond ((eof-object? c)
+                           (set! str (string-copy str 0 i))
+                           (set! i width))
+                          ((separator? c)
+                           (set! str (if (zero? i) "" (string-copy str 0 i)))
+                           (set! i width))
+                          (else
+                            (string-set! str i (read-input-char))))))))
+            (else
+              (do ((c (peek-char input-port) (peek-char input-port))
+                   (l '() (cons c l)))
+                ((or (eof-object? c) (separator? c))
+                 (list->string (reverse l)))
+                (read-input-char)))))
+
+    (define (read-signed proc input-port read-input-char get-width width--)
+      (case (peek-char input-port)
+        ((#\-) (read-input-char) (width--)
+               (let ((ret (proc input-port read-input-char get-width width--))) (and ret (- ret))))
+        ((#\+) (read-input-char) (width--) (proc input-port read-input-char get-width width--))
+        (else (proc input-port read-input-char get-width width--))))
+
+    (define (read-radixed-unsigned input-port read-input-char get-width width--)
+      (let ((c (peek-char input-port)))
+        (case c
+          ((#\0) (read-input-char) (width--)
+                 (set! c (peek-char input-port))
+                 (case c
+                   ((#\x #\X) (read-input-char) (width--) (read-x input-port read-input-char get-width width--))
+                   (else (read-o input-port read-input-char get-width width--))))
+          (else (read-u input-port read-input-char get-width width--)))))
+
+    (define (read-u input-port read-input-char get-width width--)
+      (string->number (read-string (get-width) char-non-numeric? input-port read-input-char)))
+
+    (define (read-o input-port read-input-char get-width width--)
+      (string->number
+        (read-string
+          (get-width)
+          (lambda (c)
+            (not (memv c '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7))))
+          input-port
+          read-input-char)
+        8))
+
+    (define (read-x input-port read-input-char get-width width--)
+      (string->number
+        (read-string
+          (get-width)
+          (lambda (c) (not (memv (char-downcase c)
+                                 '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8
+                                   #\9 #\a #\b #\c #\d #\e #\f))))
+          input-port
+          read-input-char)
+        16))
+
+    (define (read-ui input-port read-input-char get-width width--)
+      (let* ((dot? #f)
+             (mantissa
+               (read-word
+                 (get-width)
+                 (lambda (c)
+                   (not (or (char-numeric? c)
+                            (cond (dot? #f)
+                                  ((eqv? #\. c) (set! dot? #t) #t)
+                                  (else #f)))))
+                 input-port
+                 read-input-char))
+             (exponent
+               (cond
+                 ((not mantissa) #f)
+                 ((and (or (not (get-width)) (> (get-width) 1))
+                       (memv (peek-char input-port) '(#\E #\e)))
+                  (read-input-char)
+                  (width--)
+                  (let* ((expsign
+                           (case (peek-char input-port)
+                             ((#\-) (read-input-char)
+                                    (width--) "-")
+                             ((#\+) (read-input-char)
+                                    (width--) "+")
+                             (else "")))
+                         (expint
+                           (and (or (not (get-width)) (positive? (get-width)))
+                                (read-word (get-width) char-non-numeric? input-port read-input-char))))
+                    (and expint (string-append "e" expsign expint))))
+                 (else #f))))
+        (and mantissa
+             (string->number
+               (string-append
+                 "#i" (or mantissa "") (or exponent ""))))))
+
+
     (define (stdio:scan-and-set format-string input-port . args)
       (define setters (if (equal? '(#f) args) #f args))
       (define assigned-count 0)
       (define chars-scanned 0)
       (define items '())
+
+      (define (read-input-char)
+        (set! chars-scanned (+ 1 chars-scanned))
+        (read-char input-port))
+
       (define (return)
         (cond ((and (zero? chars-scanned)
                     (eof-object? (peek-char input-port)))
                (peek-char input-port))
               (setters assigned-count)
               (else (reverse items))))
+
       (cond
         ((equal? "" format-string) (return))
         ((string? input-port)
@@ -61,33 +179,18 @@
             format-string
             (lambda (format-port)
 
-              (define (char-non-numeric? c) (not (char-numeric? c)))
-
-              (define (flush-whitespace port)
-                (do ((c (peek-char port) (peek-char port))
-                     (i 0 (+ 1 i)))
-                  ((or (eof-object? c) (not (char-whitespace? c))) i)
-                  (read-char port)))
-
-              (define (flush-whitespace-input)
-                (set! chars-scanned (+ (flush-whitespace input-port) chars-scanned)))
-
-              (define (read-input-char)
-                (set! chars-scanned (+ 1 chars-scanned))
-                (read-char input-port))
-
               (define (add-item report-field? next-item)
                 (cond (setters
                         (cond ((and report-field? (null? setters))
-                               (slib:error 'scanf "not enough variables for format"
-                                           format-string))
+                               (error 'scanf "not enough variables for format"
+                                      format-string))
                               ((not next-item) (return))
                               ((not report-field?) (loop1))
                               (else
                                 (let ((suc ((car setters) next-item)))
-                                  (cond ((not (boolean? suc))
-                                         (slib:warn 'scanf "setter returned non-boolean"
-                                               suc)))
+                                  (unless (boolean? suc)
+                                    (slib:warn 'scanf "setter returned non-boolean"
+                                               suc))
                                   (set! setters (cdr setters))
                                   (cond ((not suc) (return))
                                         ((eqv? -1 report-field?) (loop1))
@@ -99,32 +202,6 @@
                                      (loop1))
                       (else (loop1))))
 
-              (define (read-string width separator?)
-                (cond (width
-                        (let ((str (make-string width)))
-                          (do ((i 0 (+ 1 i)))
-                            ((>= i width)
-                             str)
-                            (let ((c (peek-char input-port)))
-                              (cond ((eof-object? c)
-                                     (set! str (substring str 0 i))
-                                     (set! i width))
-                                    ((separator? c)
-                                     (set! str (if (zero? i) "" (substring str 0 i)))
-                                     (set! i width))
-                                    (else
-                                      (string-set! str i (read-input-char))))))))
-                      (else
-                        (do ((c (peek-char input-port) (peek-char input-port))
-                             (l '() (cons c l)))
-                          ((or (eof-object? c) (separator? c))
-                           (list->string (reverse l)))
-                          (read-input-char)))))
-
-              (define (read-word width separator?)
-                (let ((l (read-string width separator?)))
-                  (if (zero? (string-length l)) #f l)))
-
               (define (loop1)
                 (define fc (read-char format-port))
                 (cond
@@ -132,111 +209,38 @@
                    (return))
                   ((char-whitespace? fc)
                    (flush-whitespace format-port)
-                   (flush-whitespace-input)
+                   (set! chars-scanned (+ (flush-whitespace input-port) chars-scanned))
                    (loop1))
                   ((eqv? #\% fc)		; interpret next format
                    (set! fc (read-char format-port))
                    (let ((report-field? (not (eqv? #\* fc)))
                          (width #f))
 
+                     (define (get-width) width)
                      (define (width--) (if width (set! width (+ -1 width))))
 
-                     (define (read-u)
-                       (string->number (read-string width char-non-numeric?)))
-
-                     (define (read-o)
-                       (string->number
-                         (read-string
-                           width
-                           (lambda (c)
-                             (not (memv c '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7)))))
-                         8))
-
-                     (define (read-x)
-                       (string->number
-                         (read-string
-                           width
-                           (lambda (c) (not (memv (char-downcase c)
-                                                  '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8
-                                                    #\9 #\a #\b #\c #\d #\e #\f)))))
-                         16))
-
-                     (define (read-radixed-unsigned)
-                       (let ((c (peek-char input-port)))
-                         (case c
-                           ((#\0) (read-input-char) (width--)
-                                  (set! c (peek-char input-port))
-                                  (case c
-                                    ((#\x #\X) (read-input-char) (width--) (read-x))
-                                    (else (read-o))))
-                           (else (read-u)))))
-
-                     (define (read-ui)
-                       (let* ((dot? #f)
-                              (mantissa
-                                (read-word
-                                  width
-                                  (lambda (c)
-                                    (not (or (char-numeric? c)
-                                             (cond (dot? #f)
-                                                   ((eqv? #\. c) (set! dot? #t) #t)
-                                                   (else #f)))))))
-                              (exponent
-                                (cond
-                                  ((not mantissa) #f)
-                                  ((and (or (not width) (> width 1))
-                                        (memv (peek-char input-port) '(#\E #\e)))
-                                   (read-input-char)
-                                   (width--)
-                                   (let* ((expsign
-                                            (case (peek-char input-port)
-                                              ((#\-) (read-input-char)
-                                                     (width--) "-")
-                                              ((#\+) (read-input-char)
-                                                     (width--) "+")
-                                              (else "")))
-                                          (expint
-                                            (and (or (not width) (positive? width))
-                                                 (read-word width char-non-numeric?))))
-                                     (and expint (string-append "e" expsign expint))))
-                                  (else #f))))
-                         (and mantissa
-                              (string->number
-                                (string-append
-                                  "#i" (or mantissa "") (or exponent ""))))))
-
-                     (define (read-signed proc)
-                       (case (peek-char input-port)
-                         ((#\-) (read-input-char) (width--)
-                                (let ((ret (proc))) (and ret (- ret))))
-                         ((#\+) (read-input-char) (width--) (proc))
-                         (else (proc))))
-
-                     ;;(trace read-word read-signed read-ui read-radixed-unsigned read-x read-o read-u)
-
-                     (cond ((not report-field?) (set! fc (read-char format-port))))
-                     (if (char-numeric? fc) (set! width 0))
+                     (when (not report-field?) (set! fc (read-char format-port)))
+                     (when (char-numeric? fc) (set! width 0))
                      (do () ((or (eof-object? fc) (char-non-numeric? fc)))
                        (set! width (+ (* 10 width) (string->number (string fc))))
                        (set! fc (read-char format-port)))
                      (case fc			;ignore h,l,L modifiers.
                        ((#\h #\l #\L) (set! fc (read-char format-port))))
                      (case fc
-                       ((#\n) (if (not report-field?)
-                                (slib:error 'scanf "not saving %n??"))
+                       ((#\n) (when (not report-field?)
+                                (error 'scanf "not saving %n??"))
                               (add-item -1 chars-scanned)) ;-1 is special flag.
                        ((#\c #\C)
-                        (if (not width) (set! width 1))
+                        (when (not width) (set! width 1))
                         (let ((str (make-string width)))
                           (do ((i 0 (+ 1 i))
                                (c (peek-char input-port) (peek-char input-port)))
                             ((or (>= i width)
                                  (eof-object? c))
-                             (add-item report-field? (substring str 0 i)))
+                             (add-item report-field? (string-copy str 0 i)))
                             (string-set! str i (read-input-char)))))
                        ((#\s #\S)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-word width char-whitespace?)))
+                        (add-item report-field? (read-word width char-whitespace? input-port read-input-char)))
                        ((#\[)
                         (set! fc (read-char format-port))
                         (let ((allbut #f))
@@ -262,117 +266,90 @@
                                          (read-word
                                            width
                                            (if allbut (lambda (c) (memv c scanset))
-                                             (lambda (c) (not (memv c scanset)))))))
-                              (else (cond
-                                      ((eof-object? fc)
-                                       (slib:error 'scanf "unmatched [ in format"))
-                                      (else (scanloop (cons fc scanset)))))))))
+                                             (lambda (c) (not (memv c scanset))))
+                                           input-port
+                                           read-input-char)))
+                              (else (if (eof-object? fc)
+                                      (error 'scanf "unmatched [ in format"))
+                                    (scanloop (cons fc scanset)))))))
                        ((#\o #\O)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-o)))
+                        (add-item report-field? (read-o input-port read-input-char get-width width--)))
                        ((#\u #\U)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-u)))
+                        (add-item report-field? (read-u input-port read-input-char get-width width--)))
                        ((#\d #\D)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-signed read-u)))
+                        (add-item report-field? (read-signed read-u input-port read-input-char get-width width--)))
                        ((#\x #\X)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-x)))
+                        (add-item report-field? (read-x input-port read-input-char get-width width--)))
                        ((#\e #\E #\f #\F #\g #\G)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-signed read-ui)))
+                        (add-item report-field? (read-signed read-ui input-port read-input-char get-width width--)))
                        ((#\i)
-                        ;;(flush-whitespace-input)
-                        (add-item report-field? (read-signed read-radixed-unsigned)))
+                        (add-item report-field? (read-signed read-radixed-unsigned input-port read-input-char get-width width--)))
                        ((#\%)
                         (cond ((or width (not report-field?))
-                               (slib:error 'SCANF "%% has modifiers?"))
+                               (error 'SCANF "%% has modifiers?"))
                               ((eqv? #\% (read-input-char))
                                (loop1))
                               (else (return))))
-                       (else (slib:error 'SCANF
-                                         "Unknown format directive:" fc)))))
+                       (else (error 'SCANF
+                                    "Unknown format directive:" fc)))))
                   ((eqv? (peek-char input-port) fc)
                    (read-input-char)
                    (loop1))
                   (else (return))))
-              ;;(trace flush-whitespace-input flush-whitespace add-item return read-string read-word loop1)
               (loop1))))))
 
     ;;;This implements a Scheme-oriented version of SCANF: returns a list of
     ;;;objects read (rather than set!-ing values).
     ;@
-    (define (scanf-read-list format-string . optarg)
-      (define input-port
-        (cond ((null? optarg) (current-input-port))
-              ((not (null? (cdr optarg)))
-               (slib:error 'scanf-read-list 'wrong-number-of-args optarg))
-              (else (car optarg))))
-      (cond ((input-port? input-port)
-             (stdio:scan-and-set format-string input-port #f))
-            ((string? input-port)
-             (call-with-input-string
-               input-port (lambda (input-port)
-                            (stdio:scan-and-set format-string input-port #f))))
-            (else (slib:error 'scanf-read-list "argument 2 not a port"
-                              input-port))))
+    (define scanf-read-list
+      (case-lambda
+        ((format-string)
+         (scanf-read-list format-string (current-input-port)))
+        ((format-string input-port)
+         (cond ((input-port? input-port)
+                (stdio:scan-and-set format-string input-port #f))
+               ((string? input-port)
+                (call-with-input-string
+                  input-port (lambda (input-port)
+                               (stdio:scan-and-set format-string input-port #f))))
+               (else 
+                 (error 'scanf-read-list "argument 2 not a port"
+                        input-port))))
+        (else
+          (error 'scanf-read-list 'wrong-number-of-args))))
 
-    (define (stdio:setter-procedure sexp)
-      (let ((v (gentemp)))
-        (cond ((symbol? sexp) `(lambda (,v) (set! ,sexp ,v) #t))
-              ((not (and (pair? sexp) (list? sexp)))
-               (slib:error 'scanf "setter expression not understood" sexp))
-              (else
-                (case (car sexp)
-                  ((vector-ref) `(lambda (,v) (vector-set! ,@(cdr sexp) ,v) #t))
-                  ((array-ref) `(lambda (,v) (array-set! ,(cadr sexp) ,v ,@(cddr sexp)) #t))
-                  ((substring)
-                   `(lambda (,v) (substring-move-left!
-                                   ,v 0 (min (string-length ,v)
-                                             (- ,(cadddr sexp) ,(caddr sexp)))
-                                   ,(cadr sexp) ,(caddr sexp))
-                      #t))
-                  ((list-ref)
-                   `(lambda (,v) (set-car! (list-tail ,@(cdr sexp)) ,v) #t))
-                  ((car) `(lambda (,v) (set-car! ,@(cdr sexp) ,v) #t))
-                  ((cdr) `(lambda (,v) (set-cdr! ,@(cdr sexp) ,v) #t))
-                  (else (slib:error 'scanf "setter not known" sexp)))))))
+    ;; Returns the objects read as separate values, preceded by the number read
+    (define scanf-read-values
+      (case-lambda
+        ((format-string)
+         (scanf-read-values format-string (current-input-port)))
+        ((format-string input-port)
+         (let ((res (scanf-read-list format-string input-port)))
+           (apply values (length res) res)))))
 
-    ;@
-    (define-syntax scanf
-      (syntax-rules 
-        ()
-        ((_ format-string . args)
-         `(stdio:scan-and-set ,format-string (current-input-port)
-                              ,@(map stdio:setter-procedure args)))))
+    ;; Not needed without scanf sscanf fscanf
+    ;    (define (stdio:setter-procedure sexp)
+    ;      (let ((v (gentemp)))
+    ;        (cond ((symbol? sexp) `(lambda (,v) (set! ,sexp ,v) #t))
+    ;              ((not (and (pair? sexp) (list? sexp)))
+    ;               (error 'scanf "setter expression not understood" sexp))
+    ;              (else
+    ;                (case (car sexp)
+    ;                  ((vector-ref) `(lambda (,v) (vector-set! ,@(cdr sexp) ,v) #t))
+    ;                  ((array-ref) `(lambda (,v) (array-set! ,(cadr sexp) ,v ,@(cddr sexp)) #t))
+    ;                  ((substring)
+    ;                   `(lambda (,v) (substring-move-left!
+    ;                                   ,v 0 (min (string-length ,v)
+    ;                                             (- ,(cadddr sexp) ,(caddr sexp)))
+    ;                                   ,(cadr sexp) ,(caddr sexp))
+    ;                      #t))
+    ;                  ((list-ref)
+    ;                   `(lambda (,v) (set-car! (list-tail ,@(cdr sexp)) ,v) #t))
+    ;                  ((car) `(lambda (,v) (set-car! ,@(cdr sexp) ,v) #t))
+    ;                  ((cdr) `(lambda (,v) (set-cdr! ,@(cdr sexp) ,v) #t))
+    ;                  (else (error 'scanf "setter not known" sexp)))))))
 
-
-;    (defmacro scanf (format-string . args)
-;      `(stdio:scan-and-set ,format-string (current-input-port)
-;                           ,@(map stdio:setter-procedure args)))
-    ;@
-    (define-syntax sscanf
-      (syntax-rules 
-        ()
-        ((_ str format-string . args)
-         `(stdio:scan-and-set ,format-string ,str
-                              ,@(map stdio:setter-procedure args)))))
-
-;    (defmacro sscanf (str format-string . args)
-;      `(stdio:scan-and-set ,format-string ,str
-;                           ,@(map stdio:setter-procedure args)))
-    ;@
-    (define-syntax fscanf
-      (syntax-rules 
-        ()
-        ((_ input-port format-string . args)
-         `(stdio:scan-and-set ,format-string ,input-port
-                              ,@(map stdio:setter-procedure args)))))
-
-;    (defmacro fscanf (input-port format-string . args)
-;      `(stdio:scan-and-set ,format-string ,input-port
-;                           ,@(map stdio:setter-procedure args)))
+    ;; TODO: scanf sscanf fscanf not defined as no define-macro in R7RS
 
     ))
 

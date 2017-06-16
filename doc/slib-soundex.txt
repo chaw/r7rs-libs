@@ -1,0 +1,24 @@
+=== Soundex: +(import (slib soundex))+
+
+This implementation of the indexterm2:[Russell Soundex] algorithm is based on
+Knuth, Vol. 3 "Sorting and searching", pp.391-2: note, reexported by +(robin text)+
+
+The soundex algorithm returns a code for a word, and equivalent sounding words
+should return equivalent codes:
+
+[source,scheme]
+----
+> (soundex "pair")
+"P600"
+> (soundex "pare")
+"P600"
+> (soundex "rabbit")
+"R130"
+> (soundex "racket")
+"R230"
+> (soundex "smith")
+"S530"
+> (soundex "smythe")
+"S530"
+----
+

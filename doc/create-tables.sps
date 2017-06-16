@@ -1,5 +1,6 @@
 ;; This program creates the tables of information on library imports/imported by
 ;; used in the documentation
+;; -- run from root directory of r7rs-libs
 
 (import (scheme base)
         (scheme cxr)
@@ -12,7 +13,7 @@
         (only (slib common) identity)
         (slib format)
         (srfi 1)
-        (srfi 95))
+        (srfi 132))
 
 (define *search-paths* '("autodiff" "nltk" "pfds" "rebottled" "robin" "slib" "weinholt"))
 
@@ -33,7 +34,7 @@
           exports)))
 
 (define (library-path? path)
-  (pregexp-match "[:alnum:]*\[:alnum:]*.sld$" path))
+  (pregexp-match "[:alnum:]*.sld$" path))
 
 (define (library-defn? expr)
   (and (not (eof-object? expr))
@@ -52,7 +53,8 @@
             (format #f "~a" (car lib-2))))
 
 (define *dataset* 
-  (sort
+  (list-sort
+    library<?
     (collect-append 
       (map-fn process-file
               (choose-if library-path?
@@ -60,8 +62,7 @@
                            (apply append 
                                   (map (lambda (path) 
                                          (list-directory-files path #t))
-                                       *search-paths*))))))
-    library<?))
+                                       *search-paths*))))))))
 
 ;; return list of libraries which this assn imports
 (define (imports assn) 

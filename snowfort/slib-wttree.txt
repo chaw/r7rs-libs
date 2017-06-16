@@ -1,0 +1,9 @@
+= Documentation for Weight-Balanced Trees
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Weight_002dBalanced-Trees.html#Weight_002dBalanced-Trees[]
+
+To use: +(import (slib wt-tree))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

@@ -3,10 +3,11 @@
 
 (import (scheme base)
         (scheme cxr)
-        (slib format)
-        (srfi 1)
-        (srfi 69)
-        (srfi 95)
+        (scheme comparator)
+        (scheme list)
+        (scheme hash-table)
+        (scheme sort)
+        (scheme write)
         (robin disjoint-set))
 
 (define (kruskal graph)
@@ -15,13 +16,13 @@
                  (append (map car graph) (map cadr graph))
                  eq?)))
     ; 1. make a disjoint set, with each node an item
-    (let ((ds (make-disjoint-set eq? hash-by-identity)))        ; <1>
+    (let ((ds (make-disjoint-set (make-eq-comparator))))        ; <1>
       (for-each (lambda (node) 
                   (disjoint-set:make ds node))                  ; <2>
                 nodes)
       ; 2. set 'links' holds all the links in graph, sorted
       (let loop ((links 
-                   (sort graph (lambda (a b) (< (caddr a) (caddr b))))))
+                   (list-sort (lambda (a b) (< (caddr a) (caddr b))) graph)))
         ; 3. if links non-empty and size > 1
         (when (and (not (null? links))
                    (> (disjoint-set:size ds) 1))                ; <3>
@@ -35,7 +36,12 @@
 
 (let* ((graph '((a b 3) (a e 1) (b c 5) (b e 4) (c d 2) (c e 6) (d e 7)))
        (res (kruskal graph)))
-  (format #t "MST has ~a links~&" (length res))
-  (format #t "~{   : ~a~&~}" res)
-  (format #t "Total length: ~a~&" (fold + 0 (map caddr res))))
+  (display (string-append "MST has "
+                          (number->string (length res))
+                          " links\n"))
+  (for-each (lambda (link) (display "  : ") (display link) (newline))
+            res)
+  (display (string-append "Total length: "
+                          (number->string (fold + 0 (map caddr res)))
+                          "\n")))
 

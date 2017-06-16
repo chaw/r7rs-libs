@@ -25,7 +25,8 @@
 (define-library 
   (weinholt hmac)
   (export make-hmac)
-  (import (scheme base)
+  (import (except (scheme base) bytevector-copy!)
+          (r6rs bytevectors)
           (r6rs fixnums))
 
   (begin
@@ -33,8 +34,8 @@
     ;; Returns a procedure that calculates the HMAC given a secret and
     ;; data (both of which are bytevectors).
     (define (make-hmac block-length hash ->bytevector make-hash update! finish! clear!)
-      (lambda (secret . data)
-        (let lp ((secret secret))
+      (lambda (secret-in . data)
+        (let lp ((secret secret-in))
           (if (> (bytevector-length secret) block-length)
             (lp (->bytevector (hash secret)))
             (let ((k-ipad (make-bytevector block-length 0))

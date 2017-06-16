@@ -1,0 +1,7 @@
+= Documentation for SRFI 60
+
+Documentation: http://srfi.schemers.org/srfi-60/srfi-60.html[]
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

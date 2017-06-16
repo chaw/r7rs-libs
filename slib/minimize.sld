@@ -56,7 +56,7 @@
   (export golden-section-search)
   (import (scheme base)
           (scheme inexact)
-          (slib common))
+          (only (slib common) slib:warn))
 
   (begin
 
@@ -64,10 +64,10 @@
       (let ((gss 'golden-section-search:)
             (r (/ (- (sqrt 5) 1) 2)))	; 1 / golden-section
         (lambda (f x0 x1 prec)
-          (cond ((not (procedure? f)) (slib:error gss 'procedure? f))
-                ((not (number? x0)) (slib:error gss 'number? x0))
-                ((not (number? x1)) (slib:error gss 'number? x1))
-                ((>= x0 x1) (slib:error gss x0 'not '< x1)))
+          (cond ((not (procedure? f)) (error gss 'procedure? f))
+                ((not (number? x0)) (error gss 'number? x0))
+                ((not (number? x1)) (error gss 'number? x1))
+                ((>= x0 x1) (error gss x0 'not '< x1)))
           (let ((stop?
                   (cond
                     ((procedure? prec) prec)
@@ -76,8 +76,8 @@
                        (lambda (x0 x1 a b fa fb count) (<= (abs (- x1 x0)) prec))
                        (if (integer? prec)
                          (lambda (x0 x1 a b fa fb count) (>= count (- prec)))
-                         (slib:error gss 'integer? prec))))
-                    (else (slib:error gss 'procedure? prec))))
+                         (error gss 'integer? prec))))
+                    (else (error gss 'procedure? prec))))
                 (a0 (+ x0 (* (- x1 x0) (- 1 r))))
                 (b0 (+ x0 (* (- x1 x0) r)))
                 (delta #f)
@@ -92,9 +92,9 @@
                        (count 1))
               (define finish
                 (lambda (x fx)
-                  (if (> fx fmin) (slib:warn gss fx 'not 'min (list '> fmin)))
+                  (if (> fx fmin) (slib:warn gss fx 'not 'minimum (list '> fmin)))
                   (if (and (> count 9) (or (eqv? x0 left) (eqv? x1 right)))
-                    (slib:warn gss 'min 'not 'found))
+                    (slib:warn gss 'minimum 'not 'found))
                   (cons x fx)))
               (case count
                 ((1)
@@ -102,7 +102,7 @@
                  (set! fmin (min fa fb)))
                 ((2)
                  (set! fmin (min fmin fa fb))
-                 (if (= fmax fa fb) (slib:error gss 'flat? fmax)))
+                 (if (= fmax fa fb) (error gss 'flat? fmax)))
                 (else
                   (set! fmin (min fmin fa fb))))
               (cond ((stop? left right a b fa fb count)

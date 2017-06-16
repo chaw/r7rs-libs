@@ -34,19 +34,14 @@
           clear-blowfish-schedule!
           blowfish-cbc-encrypt! blowfish-cbc-decrypt!)
   (import (except (scheme base) bytevector-copy! error)
-          (pfds bitwise)
           (r6rs base)
           (r6rs bytevectors)
           (r6rs fixnums)
-          (only (srfi 1) iota)
-          (srfi 60))
+          (only (scheme list) iota)
+          (only (srfi 151) arithmetic-shift bitwise-ior bitwise-and bitwise-xor))
 
   (begin
 
-    (define asl arithmetic-shift)
-    (define asr bitwise-arithmetic-shift-right)
-    (define ior bitwise-ior)
-    (define xor bitwise-xor)
     (define u8-ref bytevector-u8-ref)
 
     (define (vector-reverse-copy x)
@@ -61,16 +56,16 @@
                  (xr (bytevector-u32-ref source (+ source-index 4) (endianness big)))
                  (i 0))
           (cond ((= i 16)
-                 (bytevector-u32-set! target target-index (xor xr (vector-ref P 17)) (endianness big))
-                 (bytevector-u32-set! target (+ target-index 4) (xor xl (vector-ref P 16)) (endianness big)))
+                 (bytevector-u32-set! target target-index (bitwise-xor xr (vector-ref P 17)) (endianness big))
+                 (bytevector-u32-set! target (+ target-index 4) (bitwise-xor xl (vector-ref P 16)) (endianness big)))
                 (else
-                  (let ((xl (xor xl (vector-ref P i))))
-                    (lp (xor (logand #xffffffff
-                                     (+ (xor (+ (vector-ref (vector-ref S 0) (asr xl 24))
-                                                (vector-ref (vector-ref S 1) (logand #xff (asr xl 16))))
-                                             (vector-ref (vector-ref S 2) (logand #xff (asr xl 8))))
-                                        (vector-ref (vector-ref S 3) (logand #xff xl))))
-                             xr)
+                  (let ((xl (bitwise-xor xl (vector-ref P i))))
+                    (lp (bitwise-xor (bitwise-and #xffffffff
+                                                  (+ (bitwise-xor (+ (vector-ref (vector-ref S 0) (arithmetic-shift xl -24))
+                                                                     (vector-ref (vector-ref S 1) (bitwise-and #xff (arithmetic-shift xl -16))))
+                                                                  (vector-ref (vector-ref S 2) (bitwise-and #xff (arithmetic-shift xl -8))))
+                                                     (vector-ref (vector-ref S 3) (bitwise-and #xff xl))))
+                                     xr)
                         xl
                         (+ i 1))))))))
 
@@ -83,11 +78,11 @@
                              (unless (<= 1 len 448/8)
                                (error 'expand-blowfish-key "bad key size" len))
                              (lambda (p i)
-                               (xor (ior (asl (u8-ref key (mod i len)) 24)
-                                         (asl (u8-ref key (mod (+ i 1) len)) 16)
-                                         (asl (u8-ref key (mod (+ i 2) len)) 8)
-                                         (u8-ref key (mod (+ i 3) len)))
-                                    p)))
+                               (bitwise-xor (bitwise-ior (arithmetic-shift (u8-ref key (mod i len)) 24)
+                                                         (arithmetic-shift (u8-ref key (mod (+ i 1) len)) 16)
+                                                         (arithmetic-shift (u8-ref key (mod (+ i 2) len)) 8)
+                                                         (u8-ref key (mod (+ i 3) len)))
+                                            p)))
                            P-box
                            (list->vector (iota (vector-length P-box) 0 4))))
             (S (vector (vector-copy S0) (vector-copy S1)
@@ -108,8 +103,8 @@
               (vector-set! S (+ j 1) (bytevector-u32-ref tmp 4 (endianness big)))))
           sched)))
 
-;    (define (hex x)
-;      (number->string x 16))
+    ;    (define (hex x)
+    ;      (number->string x 16))
 
     (define (reverse-blowfish-schedule sched)
       (cons (vector-reverse-copy (car sched))

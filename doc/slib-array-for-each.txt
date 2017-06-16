@@ -1,0 +1,130 @@
+=== Array Mapping: +(import (slib array-for-each))+
+
+indexterm:[array-for-each]
+This library provides implementations of +for-each+ and +map+ for arrays, as well as functions
+to work on the indices of an array.
+
+==== array-for-each
+
+indexterm2:[+array-for-each+] takes a procedure and one or more arrays.  The procedure 
+is applied to the equivalent elements of each array in row-major order.
+
+The example below simply displays each element in the given array and returns +#t+.
+
+[source,scheme]
+----
+sash[r7rs]> (define x (list->array 2 #() '((1 2) (3 4))))
+#<unspecified>
+sash[r7rs]> (array-for-each display x)
+1234#t
+----
+
+==== array-indexes
+
+indexterm2:[+array-indexes+] takes an array as an argument and returns a new array 
+of the same dimensions with lists of indexes in each element position.
+
+[source,scheme]
+----
+sash[r7rs]> (define x (list->array 2 #() '((1 2) (3 4))))
+#<unspecified>
+sash[r7rs]> (array-indexes x)
+#<<array> 0x2b52960>
+sash[r7rs]> (matrix->lists (array-indexes x))
+(((0 0) (0 1)) ((1 0) (1 1)))
+----
+
+==== array-index-for-each
+
+indexterm2:[+array-index-for-each+] takes an array and a procedure and applies 
+the procedure to the indices of each element in the array.
+
+[source,scheme]
+----
+sash[r7rs]> (define x (list->array 2 #() '((1 2) (3 4))))
+#<unspecified>
+sash[r7rs]> (array-index-for-each x (lambda args (map display args)))
+11011000#t
+----
+
+Notice the order of application is not specified.
+
+==== array-index-map!
+
+indexterm2:[+array-index-map!+] takes an array and a procedure and applies 
+the procedure to the indices of each element in the array storing the return 
+value in the corresponding element of the array.
+
+[source,scheme]
+----
+sash[r7rs]> (define a (vector 0 0 0))
+#<unspecified>
+sash[r7rs]> a
+#(0 0 0)
+sash[r7rs]> (array-index-map! a (lambda args (apply + args)))
+#t
+sash[r7rs]> a
+#(0 1 2)
+----
+
+In this case, the original array +a+ has the sum of its indices placed into its elements.
+
+==== array-map!
+
+indexterm2:[+array-map!+] takes a result array, a procedure and one or more source arrays.  
+The procedure is applied to the equivalent elements of each source array in row-major order.  
+The return values of the procedure are placed into the respective element of the _result_ array.
+
+In the example below +x+ is used as both the result array and the first source array.
+
+[source,scheme]
+----
+sash[r7rs]> (define x (list->array 2 #() '((1 2) (3 4))))
+#<unspecified>
+sash[r7rs]> (define y (list->array 2 #() '((5 6) (7 8))))
+#<unspecified>
+sash[r7rs]> (array-map! x + x y)      
+#t
+sash[r7rs]> (matrix->lists x)                             ; <1>
+((6 8) (10 12))
+----
+<1> +matrix->lists+ is from +(slib determinant)+
+
+==== array-map
+
+indexterm2:[+array-map+] takes an array prototype, a procedure and one or more arrays.  
+The procedure is applied to the equivalent elements of each array in row-major order.  
+The return values of the procedure are placed into the respective element of a _new_ array
+built using the type of the given prototype.
+
+[source,scheme]
+----
+sash[r7rs]> (define x (list->array 2 #() '((1 2) (3 4))))
+#<unspecified>
+sash[r7rs]> (define y (list->array 2 #() '((5 6) (7 8))))
+#<unspecified>
+sash[r7rs]> (matrix->lists (array-map #() + x y))           ; <1>
+((6 8) (10 12))
+----
+<1> +matrix->lists+ is from +(slib determinant)+
+
+==== array:copy!
+
+indexterm2:[+array:copy!+] copies the elements of the _second_ vector or array into the 
+corresponding positions of the _first_ vector or array; the destination must be at least 
+as large as the source in each dimension.  
+
+[source,scheme]
+----
+sash[r7rs]> (define v (vector 1 2 3))
+#<unspecified>
+sash[r7rs]> (define w (vector 4 5 6))
+#<unspecified>
+sash[r7rs]> v
+#(1 2 3)
+sash[r7rs]> (array:copy! v w)
+#t
+sash[r7rs]> v
+#(4 5 6)
+----
+

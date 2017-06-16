@@ -34,8 +34,8 @@
           (slib common)
           (slib common-list-functions)
           (slib relational-database)
-          (only (srfi 1) delete every filter)
-          (srfi 95))
+          (only (scheme list) delete every filter)
+          (only (scheme sort) list-sort!))
 
   (begin
 
@@ -271,7 +271,7 @@
                   ((string? k) k)
                   ((symbol? k) (symbol->string k))
                   ((vector? k) (map key->sortable (vector->list k)))
-                  (else (slib:error "unsortable key" k))))
+                  (else (error "unsortable key" k))))
           ;; This routine assumes that the car of its operands are either
           ;; numbers or strings (or lists of those).
           (define (car-key-< x y)
@@ -284,10 +284,10 @@
                   ((key-< (car x) (car y)) #t)
                   ((key-< (car y) (car x)) #f)
                   (else (key-< (cdr x) (cdr y)))))
-          (map cdr (sort! (map (lambda (p)
-                                 (cons (key->sortable (car p)) p))
-                               alist)
-                          car-key-<)))
+          (map cdr (list-sort! car-key-< 
+                               (map (lambda (p)
+                                      (cons (key->sortable (car p)) p))
+                                    alist))))
 
         (define (present? handle ckey)
           (assoc* ckey (handle->alist handle)))

@@ -1,0 +1,11 @@
+= Documentation for Topological Sort
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Topological-Sort.html#Topological-Sort[]
+
+To use: +(import (slib topological-sort))+
+
+Only +topological-sort+ is exported, so use as +(topological-sort dag pred)+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

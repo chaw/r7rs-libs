@@ -1,0 +1,36 @@
+=== Minimize: +(import (slib minimize))+
+
+The Golden Section Search algorithm can find minima of functions
+where derivatives are expensive to compute or unavailable.  
+
+==== golden-section-search
+
+indexterm2:[+golden-section-search+] takes four arguments:
+
+. the function to minimize (of one argument)
+. the lowest value of +x+ to search from
+. the highest value of +x+ to search to
+. a stopping condition for the search, which is one of
+.. a positive number defines a target tolerance
+.. a negative number is negated to define the number of iterations
+.. a function of +(x0 x1 a b fa fb count)+ ends the search by returning +#t+
+
+The function returns a dotted pair: the value of +x+ for the minimum and +f(x)+
+
+[source,scheme]
+----
+sash[r7rs]> (golden-section-search square -10 10 -100)  ; <1>
+(4.258043576850981e-21 . 1.8130935102361897e-41)        ; <2>
+----
+<1> Find the minimum of the +square+ value in range (-10, 10) for 100 iterations
+<2> The minimum is x=0 and (square x)=0
+
+The following example minimizes its function to within the specified tolerance:
+
+[source,scheme]
+----
+sash[r7rs]> (golden-section-search (lambda (x) (+ (* x x x) (* -2 x) -5)) 0 1 (/ 10000)))
+(0.8164883855245578 . -6.0886621077391165)
+----
+
+Further documentation: http://people.csail.mit.edu/jaffer/slib/Minimizing.html[]

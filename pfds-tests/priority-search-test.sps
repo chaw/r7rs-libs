@@ -3,10 +3,9 @@
 
 (import (scheme base)
         (pfds priority-search-queue)
-        (only (srfi 1) fold filter)
+        (only (scheme list) fold filter)
         (srfi 64)
-        (robin srfi64-utils)
-        (srfi 95))
+        (scheme sort))
 
 (define (alist->psq alist key<? priority<?)
   (fold (lambda (kv psq)
@@ -29,7 +28,7 @@
        (psq3  (psq-set psq2 #\c 3))
        (psq4  (psq-set psq3 #\a 12)))
   (test-equal 10 (psq-ref psq1 #\a))
-  (test-for-error (psq-ref psq1 #\b))
+  (test-error (psq-ref psq1 #\b))
   (test-equal 1 (psq-size psq1))
 
   (test-equal 10 (psq-ref psq2 #\a))
@@ -94,7 +93,7 @@
        (psq4 (make-psq < <)))
   (test-equal #\c (psq-min psq1))
   (test-equal #\e (psq-min psq2))
-  (test-for-error (psq-delete-min psq4))
+  (test-error (psq-delete-min psq4))
   (test-equal #\a (psq-min (psq-set psq1 #\a 0)))
   (call-with-values
     (lambda ()
@@ -107,8 +106,9 @@
 (let* ((alist '((#\f . 24) (#\u . 42) (#\p . 16) (#\s . 34) (#\e . 17)
                            (#\x . 45) (#\l . 14) (#\z . 5) (#\t . 45) (#\r . 41)
                            (#\k . 32) (#\w . 14) (#\d . 12) (#\c . 16) (#\m . 20) (#\j . 25)))
-       (alist-sorted (sort alist (lambda (x y)
-                             (char<? (car x) (car y)))))
+       (alist-sorted (list-sort (lambda (x y)
+                                  (char<? (car x) (car y))) 
+                                alist))
        (psq  (alist->psq alist char<? <)))
   (test-equal alist-sorted
               (psq-at-most psq +inf.0))

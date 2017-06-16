@@ -1,0 +1,50 @@
+=== Resene Colour System: +(import (slib resene))+
+
+indexterm:[resene]
+This library provides a mapping of colour names to colour values (as defined in +(slib color)+) 
+based on the Resene colour system.  For more information see http://www.resene.co.nz[]
+
+Two functions are provided:
+
+. indexterm2:[+resene-names+] returns a list of all the names
+. indexterm2:[+resene+] returns the named colour
+
+[source,scheme]
+----
+sash[r7rs]> (import (slib resene))
+#<unspecified>
+sash[r7rs]> (length (resene-names))
+1379
+sash[r7rs]> (list-ref (resene-names) 0)
+"mantis"
+sash[r7rs]> (list-ref (resene-names) 100)
+"st tropaz"
+sash[r7rs]> (resene "mantis")
+#<<color> 0x2d78ea0>
+sash[r7rs]> (color->string (resene "mantis"))   ; <1>
+"sRGB:127/193/92"
+sash[r7rs]> (resene (list-ref (resene-names) 100))
+#<<color> 0xd6fa40>
+sash[r7rs]> (color->string (resene (list-ref (resene-names) 100)))
+"sRGB:50/84/130"
+sash[r7rs]> (resene "rnd")    ; <2>
+#f
+----
+<1> +color->string+ is available from the +(slib color)+ library
+<2> +resene+ returns +#f+ if the name is not recognised
+
+Note, if you include the Resene RGB Values List in binary form in a program,
+then you must include its license with your program:
+
+* Resene RGB Values List
+* For further information refer to http://www.resene.co.nz
+* Copyright Resene Paints Ltd 2001
+
+* Permission to copy this dictionary, to modify it, to redistribute it, to distribute modified versions, and to use it for any purpose is granted, subject to the following restrictions and understandings.
+
+. Any text copy made of this dictionary must include this copyright notice in full.
+. Any redistribution in binary form must reproduce this copyright notice in the documentation or other materials provided with the distribution.
+. Resene Paints Ltd makes no warranty or representation that this dictionary is error-free, and is under no obligation to provide any services, by way of maintenance, update, or otherwise.
+. There shall be no use of the name of Resene or Resene Paints Ltd in any advertising, promotional, or sales literature without prior written consent in each case.
+. These RGB colour formulations may not be used to the detriment of Resene Paints Ltd. 
+

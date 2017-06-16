@@ -33,8 +33,9 @@
         (scheme write)
         (nltk dfsa)
         (nltk sequence)
-        (srfi 1)
-        (srfi 69))
+        (scheme list)
+        (scheme comparator)
+        (scheme hash-table))
 
 
 (define dfsa-minimize2a!
@@ -42,7 +43,7 @@
     (let ((goal-trans         (reverse-transitions automaton))
           (state-emit-symbols (state-symbol automaton))
           (trans              (dfsa-transitions automaton))
-          (str-res (make-hash-table equal?)))
+          (str-res (make-hash-table (default-hash-comparator))))
       ; merge all absolutely final states into one
       (let ((absolute-final-states (filter (lambda (el)
                                              (if (null? (hash-table-ref/default state-emit-symbols el '())) #t #f))
@@ -70,7 +71,7 @@
     (let ((goal-trans         (reverse-transitions automaton))
           (state-emit-symbols (state-symbol automaton))
           (trans              (dfsa-transitions automaton))
-          (str-res (make-hash-table equal?)))
+          (str-res (make-hash-table (make-default-comparator))))
       ; merge all absolutely final states into one
       (let ((absolute-final-states (filter (lambda (el)
                                              (if (null? (hash-table-ref/default state-emit-symbols el '())) #t #f))
@@ -98,7 +99,7 @@
     (let ((goal-trans         (reverse-transitions automaton))
           (state-emit-symbols (state-symbol automaton))
           (trans              (dfsa-transitions automaton))
-          (str-res            (make-hash-table equal?)))
+          (str-res            (make-hash-table (make-default-comparator))))
       ; merge all absolutely final states into one
       (let ((absolute-final-state (merge-absolute-final-states! automaton)))
         ; start from the absolutely final state and try to merge states

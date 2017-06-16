@@ -370,7 +370,7 @@
                                          clrn))))))
       (define (num->str x)
         (define num (exact (round (+ 1000 (* x 999/255)))))
-        (scheme->ps "." (substring (number->string num) 1 4) " "))
+        (scheme->ps "." (string-copy (number->string num) 1 4) " "))
       (cond ((number? clr) (string-append (num->str clr) " setgray"))
             (clr (apply scheme->ps
                         (append (map num->str (color->sRGB clr)) '(setrgbcolor))))

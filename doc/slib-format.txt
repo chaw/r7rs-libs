@@ -1,0 +1,11 @@
+=== Format: +(import (slib format))+
+
+This library provides an almost complete implementation of Common Lisp's
+indexterm2:[+format+] function.
+
+The format string syntax is complex.  Good descriptions are:
+
+* SLIB's documentation: http://people.csail.mit.edu/jaffer/slib/Format.html[]
+* in Peter Seibel's _Practical Common Lisp_: http://www.gigamonkeys.com/book/a-few-format-recipes.html[]
+* in Guy Steele's _Common Lisp: The Language_, 2nd edition: https://www.cs.cmu.edu/Groups/AI/util/html/cltl/clm/node200.html[]
+

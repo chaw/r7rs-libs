@@ -1,0 +1,145 @@
+== SLIB Array Libraries
+
+SLIB provides a number of libraries for defining and working with arrays.  
+The array type used is SRFI 63, which was originally a package in SLIB.
+SRFI 63 provides functions to create, modify and examine arrays.
+
+The collection includes:
+
+* +array-for-each+: Functions for applying functions to arrays.
+* +array-interpolate+: Functions to reduce/resample arrays.
+* +byte+: A library for arrays of small integers (although R7RS includes +bytevector+,
+  several libraries in SLIB make use of byte).
+* +determinant+: A number of standard matrix-algebra functions.
+* +subarray+: Functions to reduce or access sub-arrays.
+
+=== SRFI 63: +(import (srfi 63))+
+
+indexterm:[SRFI 63]
+SLIB uses the array data type from SRFI 63.  This section covers some simple 
+examples to illustrate basic use of the array data type.  For more details, refer to 
+the SLIB documentation: http://people.csail.mit.edu/jaffer/slib/Arrays.html[]
+
+.Note
+****
+When using +(srfi 63)+ you must not export +equal?+ from +(scheme base)+.
+****
+
+There are two basic ways of creating arrays:
+
+. an empty array, using indexterm2:[+make-array+]
+. an array with pre-determined content: 
+.. using indexterm2:[+list->array+], or
+.. using indexterm2:[+vector->array+]
+
+An empty array is constructed from a _prototype_, which is the initial value in a given 
+array, vector or string; an empty prototype will leave the initial value
+unspecified.  Following the prototype are the dimensions of the array.
+
+For example, to construct a 3x2 array filled with 0:
+
+[source,scheme]
+----
+#|kawa:65|# (define a (make-array #(0) 3 2))  ; <1>
+#|kawa:66|# a
+srfi.63$array@7e6f74c
+#|kawa:68|# (array->list a)                   ; <2>
+((0 0) (0 0) (0 0))                           ; <3>
+----
+<1> The prototype +#(0)+ is used to fill the array with 0s.
+<2> indexterm2:[+array->list+] is provided to convert our array into a list-of-lists form.
+<3> We end up with 3 rows, each of size two, filled with 0s.
+
+To construct an array with pre-determined content from a list of lists: 
++list->array+ must also be given the "rank" (number of dimensions) of the 
+array and, as above, a prototype.
+
+[source,scheme]
+----
+#|kawa:71|# (define b (list->array 2 #(0) '((1 2) (3 4) (5 6))))  ; <1>
+#|kawa:72|# b
+srfi.63$array@bcec361
+#|kawa:73|# (array->list b)
+((1 2) (3 4) (5 6))
+----
+<1> Constructs an array of rank 2, with 0 as the prototype, and the given values
+
+To construct an array with pre-determined content from a vector.  The input vector 
+is simply a vector of the values.  The second argument is the prototype, as above.  
+The remaining arguments give the required dimensions of the array.
+
+[source,scheme]
+----
+#|kawa:92|# (define c (vector->array #(1 2 3 4 5 6 7 8 9 10 11 12) #(0) 3 4))
+#|kawa:93|# (array->list c)
+((1 2 3 4) (5 6 7 8) (9 10 11 12))
+#|kawa:94|# (array->vector c)   ; <1>
+#(1 2 3 4 5 6 7 8 9 10 11 12)
+#|kawa:95|# (define c (vector->array #(1 2 3 4 5 6 7 8 9 10 11 12) #(0) 2 3 2))
+#|kawa:96|# (array->list c)
+(((1 2) (3 4) (5 6)) ((7 8) (9 10) (11 12)))
+----
+<1> indexterm2:[+array->vector+] is an alternative way to retrieve the elements of an array,
+    this time into a vector in row-major order.
+
+Access elements in an array using indexterm2:[+array-ref+] and indexterm2:[+array-set!+]:
+
+[source,scheme]
+----
+#|kawa:75|# (array->list a)
+((0 0) (0 0) (0 0))
+#|kawa:78|# (array-ref a 2 1)       ; <1>
+0
+#|kawa:79|# (array-set! a 'x 2 1)
+#|kawa:80|# (array-ref a 2 1)
+x
+#|kawa:81|# (array->list a)
+((0 0) (0 0) (0 x))
+----
+<1> Note order of indexes is the same as in +make-array+
+
+Information about the array can be found using indexterm2:[+array-rank+] to find the number of dimensions of 
+an array, indexterm2:[+array-dimensions+] to return a list of the dimensions, and indexterm2:[+array-in-bounds?+] returns 
+true if its indices are valid for the given array:
+
+[source,scheme]
+----
+#|kawa:82|# (array-rank a)
+2
+#|kawa:83|# (array-dimensions a)
+(3 2)
+#|kawa:84|# (array-in-bounds? a 2 1)
+#t
+#|kawa:85|# (array-in-bounds? a 1 2)
+#f
+----
+
+Finally, indexterm2:[+array?+] is used to tell if an object is of this array type or not, and 
+indexterm2:[+equal?+] is extended to test if two arrays are equal.
+
+[source,scheme]
+----
+#|kawa:86|# (array? 2)
+#f
+#|kawa:87|# (array? a)
+#t
+#|kawa:88|# (array->list a)
+((0 0) (0 0) (0 x))
+#|kawa:89|# (equal? a 2)
+#f
+#|kawa:90|# (equal? a '((0 0) (0 0) (0 x)))
+#f
+#|kawa:91|# (equal? a (list->array 2 #(0) '((0 0) (0 0) (0 x))))
+#t
+----
+
+The following libraries provide more functionality when working with arrays.
+
+include::slib-array-for-each.txt[]
+
+include::slib-array-interpolate.txt[]
+
+include::slib-determinant.txt[]
+
+include::slib-subarray.txt[]
+

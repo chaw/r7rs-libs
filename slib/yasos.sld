@@ -21,7 +21,6 @@
           define-access-operation)
   (import (scheme base)
           (scheme write)
-          (slib common)
           (slib object)
           (slib object-string))
 
@@ -58,7 +57,7 @@
           (lambda (getter)
             (cond
               ((null? added-setters)
-               (slib:error 'remove-setter-for 'unknown-getter getter)
+               (error 'remove-setter-for 'unknown-getter getter)
                )
               ((eq? getter (caar added-setters))
                (set! added-setters (cdr added-setters))
@@ -66,7 +65,7 @@
               (else
                 (let loop ((x added-setters) (y (cdr added-setters)))
                   (cond
-                    ((null? y) (slib:error 'remove-setter-for 'unknown-getter
+                    ((null? y) (error 'remove-setter-for 'unknown-getter
                                            getter))
                     ((eq? getter (caar y)) (set-cdr! x (cdr y)))
                     (else (loop (cdr x) (cdr y)))
@@ -100,7 +99,7 @@
                            (get-method inst self))
                       => (lambda (method) (apply method (cons inst args)))
                       )
-                     (else (slib:error 'operation-not-handled <name> inst))
+                     (else (error 'operation-not-handled <name> inst))
                      )  )
                  )
                )
@@ -129,7 +128,7 @@
     ;;        ((pair?   obj) 2)
     ;;        ((string? obj) (string-length obj))
     ;;        ((char?   obj) 1)
-    ;;        (else (slib:error "Operation not supported: size" obj))))
+    ;;        (else (error "Operation not supported: size" obj))))
     ;@
     (define size
       (make-generic-method
@@ -139,7 +138,7 @@
                 ((pair? obj!2) 2)
                 ((string? obj!2) (string-length obj!2))
                 ((char? obj!2) 1)
-                (else (slib:error 'size "Operation not supported" obj!2))))))
+                (else (error 'size "Operation not supported" obj!2))))))
 
     ;;; internal aliases:
     ;;(define yasos:size size)
@@ -161,7 +160,7 @@
                     ((define-operation (<name> <inst> <arg> ...) ) ;; no body
                      ;;=>
                      (define-operation (<name> <inst> <arg> ...)
-                                       (slib:error 'operation-not-handled
+                                       (error 'operation-not-handled
                                                    '<name>
                                                    (if (yasos:instance? <inst>) "#<INSTANCE>" <inst>))))))
 

@@ -23,7 +23,7 @@
   (slib database-interpolate)
   (export interpolate-from-table)
   (import (scheme base)
-          (only (srfi 1) last-pair))
+          (only (scheme list) last-pair))
 
   (begin
 

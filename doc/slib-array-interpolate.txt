@@ -1,0 +1,65 @@
+=== Array Interpolation: +(import (slib array-interpolate))+
+
+indexterm:[array-interpolate]
+This library provides two functions to obtain interpolated values or arrays formed 
+from interpolated values of a source array.
+
+==== interpolate-array-ref
+
+indexterm2:[+interpolate-array-ref+] takes an array and a sequence of index
+positions as real numbers.  This is very similar to +array-ref+, however the 
+index positions need not be integers and so define a point _within_ the array.
+The function returns an interpolated value based on the coordinates nearest
+to that point.
+
+For example:
+
+[source,scheme]
+----
+> (define arr (list->array 2 #() '((1 2 3) (4 5 6))))
+> (interpolate-array-ref arr 1 0.1)
+4.1
+----
+
+The call to +interpolate-array-ref+ selects the row of index 1, which is (4 5
+6), and position 0.1 within that row.  The value returned is (+ (* 0.9 4) (* 0.1 5)) = 4.1, 
+the intermediate value between 4 and 5 lying a tenth of the way from 4.
+
+Similarly:
+
+[source,scheme]
+----
+> (define arr (list->array 2 #() '((1 2 3) (4 5 6))))
+> (interpolate-array-ref arr 0.5 0.25)
+2.75
+----
+
+The first index is mid-way between rows index 0 and index 1, and 
+the second index is between the columns index 0 and index 1.
+
+The interpolated value is calculated as:
+
+. (+ (* 0.75 4) (* 0.25 5)) = 4.25, a quarter of the way between the 4 and 5 (columns 0 and 1 in row 1)
+. (+ (* 0.75 1) (* 0.25 2)) = 1.25, a quarter of the way between the 1 and 2 (columns 0 and 1 in row 2)
+. (+ (* 0.5 4.25) (* 0.5 1.25)) = 2.75, midway between these two values (rows 1 and 2)
+
+==== resample-array!
+
+indexterm2:[+resample-array!+] takes two arrays of equal rank but unequal dimension.  The first array is 
+filled with values formed by interpolating its values from the second array.  
+
+[source,scheme]
+----
+> (define arr1 (list->array 2 #() '((1 2 3 4) (5 6 7 8))))
+> (define arr2 (make-array #() 2 3))
+> (array->list arr2)
+((0 0 0) (0 0 0))
+> (resample-array! arr2 arr1)
+> (array->list arr2)
+((1 5/2 4) (5 13/2 8))
+----
+
+The interpolation process retains the outer corners.  So +arr2+ preserves the 1, 4, 5 and 8 in its corners.
+The value of 5/2 in the first row is obtained from the middle value of the first row, 
+computed as: +(interpolate-array-ref arr1 0 1.5)+
+

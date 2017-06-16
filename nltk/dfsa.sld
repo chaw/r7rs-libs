@@ -69,8 +69,9 @@
          (scheme case-lambda)
          (scheme write)
          (nltk sequence)
-         (srfi 1)
-         (srfi 69))
+         (scheme list)
+         (scheme comparator)
+         (scheme hash-table))
  
  (begin
 
@@ -87,7 +88,7 @@
                   (if (dfsa-is-final-state? automaton state)
                     #t
                     #f))
-                 ((hash-table-exists? trans (vector state (car symbols)))
+                 ((hash-table-contains? trans (vector state (car symbols)))
                   (loop (hash-table-ref/default trans (vector state (car symbols)) -1) (cdr symbols)))
                  (else
                    #f))))))
@@ -131,7 +132,7 @@
                        (transitions dfsa-transitions dfsa-transitions-set!)
                        (startstate  dfsa-startstate  dfsa-startstate-set!))
 
-   (define (make-dfsa) (%dfsa '() '() '( 0 ) (make-hash-table equal?) 0))
+   (define (make-dfsa) (%dfsa '() '() '( 0 ) (make-hash-table (make-default-comparator)) 0))
 
    ; returns a string for an automaton
    (define dfsa->dot
@@ -284,7 +285,7 @@
    ; value = list of transitions to key
    (define reverse-transitions
      (lambda (automaton)
-       (let ((goals-transitions (make-hash-table equal?)))
+       (let ((goals-transitions (make-hash-table (make-default-comparator))))
          (let-values (((keys values) (values (apply vector (hash-table-keys (dfsa-transitions automaton)))
                                              (apply vector (hash-table-values (dfsa-transitions automaton))))))
                      (vector-for-each
@@ -297,7 +298,7 @@
 
    (define state-symbol
      (lambda (automaton)
-       (let ((stsym (make-hash-table equal?)))
+       (let ((stsym (make-hash-table (make-default-comparator))))
          (vector-for-each
            (lambda (key)
              (hash-table-set! stsym (vector-ref key 0)
@@ -313,7 +314,7 @@
        (let ((goal-trans         (reverse-transitions automaton))
              (state-emit-symbols (state-symbol automaton))
              (trans              (dfsa-transitions automaton))
-             (str-res (make-hash-table equal?)))
+             (str-res (make-hash-table (make-default-comparator))))
          ; merge all absolutely final states into one
          (let ((absolute-final-states (filter (lambda (el)
                                                 (if (null? (hash-table-ref/default state-emit-symbols el '())) #t #f))

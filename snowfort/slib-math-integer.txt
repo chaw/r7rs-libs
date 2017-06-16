@@ -1,0 +1,7 @@
+= Documentation for Math Integer
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+include::../doc/slib-math-integer.txt[]
+

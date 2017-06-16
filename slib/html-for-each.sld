@@ -26,6 +26,7 @@
           htm-fields)
   (import (scheme base)
           (scheme char)
+          (scheme cxr)
           (scheme file)
           (slib common)
           (slib scanf)
@@ -88,9 +89,9 @@
                ((or (>= jdx edx)
                     (char-whitespace? (string-ref line jdx)))
                 (and white-proc (not (= ldx idx))
-                     (white-proc (substring line ldx idx)))
+                     (white-proc (string-copy line ldx idx)))
                 (and word-proc (not (= idx jdx))
-                     (word-proc (substring line idx jdx)))
+                     (word-proc (string-copy line idx jdx)))
                 (if (< jdx edx) (loop jdx))))))))
       ((if (input-port? file) call-with-open-ports call-with-input-file)
        file
@@ -102,9 +103,9 @@
              ; seen '<'
              (proc-words line idx)
              (let ((trm (if (and (<= (+ 4 idx) (string-length line))
-                                 (string=? "<!--" (substring line idx (+ 4 idx))))
+                                 (string=? "<!--" (string-copy line idx (+ 4 idx))))
                           "-->" #\>)))
-               (let loop ((lne (substring line idx (string-length line)))
+               (let loop ((lne (string-copy line idx (string-length line)))
                           (tag "")
                           (quot #f))
                  (define edx (or (eof-object? lne)
@@ -120,39 +121,39 @@
                           (and markup-proc (string-append tag lne nl))
                           quot))
                    ((eqv? #t edx)		; EOF
-                    ;;(print quot trm 'eof lne)
-                    (slib:error 'unterminated 'HTML 'entity file)
-                    (and markup-proc (markup-proc tag)))
+                    (error 'unterminated 'HTML 'entity file)
+                    #;(and markup-proc (markup-proc tag))  ;; unreachable due to error
+                    )
                    ((eqv? quot (string-ref lne edx))	; end of quoted string
                     ;;(print quot trm 'end-quote lne)
                     (set! edx (+ 1 edx))
-                    (loop (substring lne edx (string-length lne))
+                    (loop (string-copy lne edx (string-length lne))
                           (and markup-proc
-                               (string-append tag (substring lne 0 edx)))
+                               (string-append tag (string-copy lne 0 edx)))
                           #f))
                    ((not (eqv? #\> (string-ref lne edx))) ; start of quoted
                     ;;(print quot trm 'start-quote lne)
                     (set! edx (+ 1 edx))
-                    (loop (substring lne edx (string-length lne))
+                    (loop (string-copy lne edx (string-length lne))
                           (and markup-proc
-                               (string-append tag (substring lne 0 edx)))
+                               (string-append tag (string-copy lne 0 edx)))
                           (string-ref lne (+ -1 edx))))
                    ((or (and (string? trm)	; found matching '>' or '-->'
                              (<= 2 edx)
-                             (equal? trm (substring lne (+ -2 edx) (+ 1 edx))))
+                             (equal? trm (string-copy lne (+ -2 edx) (+ 1 edx))))
                         (eqv? (string-ref lne edx) trm))
                     ;;(print quot trm 'end-> lne)
                     (set! edx (+ 1 edx))
                     (and markup-proc
-                         (markup-proc (string-append tag (substring lne 0 edx))))
+                         (markup-proc (string-append tag (string-copy lne 0 edx))))
                     ; process words after '>'
-                    (set! line (substring lne edx (string-length lne))))
+                    (set! line (string-copy lne edx (string-length lne))))
                    (else
                      ;;(print quot trm 'within-comment lne)
                      (set! edx (+ 1 edx))
-                     (loop (substring lne edx (string-length lne))
+                     (loop (string-copy lne edx (string-length lne))
                            (and markup-proc
-                                (string-append tag (substring lne 0 edx)))
+                                (string-append tag (string-copy lne 0 edx)))
                            #f))))))
            (and newline-proc (newline-proc))))))
 
@@ -205,7 +206,7 @@
     (define (prefix-ci? pre str)
       (define prelen (string-length pre))
       (and (< prelen (string-length str))
-           (string-ci=? pre (substring str 0 prelen))))
+           (string-ci=? pre (string-copy str 0 prelen))))
 
     ;;@body
     ;;@1 is a hypertext markup string.
@@ -219,13 +220,13 @@
     ;;assigned within the markup.
     (define (htm-fields htm)
       (and
-        (not (and (> (string-length htm) 3) (equal? "<!" (substring htm 0 2))))
+        (not (and (> (string-length htm) 3) (equal? "<!" (string-copy htm 0 2))))
         (call-with-input-string htm
                                 (lambda (port)
                                   (define element #f)
                                   (define fields '())
-                                  (cond ((not (eqv? 1 (fscanf port "<%s" element)))
-                                         (slib:error 'htm-fields 'strange htm)))
+                                  (unless (= 1 (length (scanf-read-list "<%s" port)))
+                                    (error 'htm-fields 'strange htm))
                                   (let loop ((chr (peek-char port)))
                                     (define name #f)
                                     (define junk #f)
@@ -236,7 +237,7 @@
                                                    (eqv? (string-ref element
                                                                      (+ -1 (string-length element)))
                                                          #\>))
-                                              (cons (substring element 0 (+ -1 (string-length element)))
+                                              (cons (string-copy element 0 (+ -1 (string-length element)))
                                                     fields))
                                              (else
                                                (slib:warn 'htm-fields 'missing '> htm)
@@ -248,23 +249,31 @@
                                        (set! element (string-append element (string (read-char port))))
                                        (loop (peek-char port)))
                                       ((char-whitespace? chr) (read-char port) (loop (peek-char port)))
-                                      ((let ((scan (fscanf port "%[-a-zA-Z0-9:] %[=] %[-.a-zA-Z0-9]"
-                                                           name junk value)))
+                                      ((let ((scan (scanf-read-list "%[-a-zA-Z0-9:] %[=] %[-.a-zA-Z0-9]" port)))
                                          (case (if (list? scan) (length scan) 0)
-                                           ((3 1) #t)
+                                           ((3)
+                                            (set! name (car scan))
+                                            (set! junk (cadr scan))
+                                            (set! value (caddr scan))
+                                            #t)
+                                           ((1) 
+                                            (set! name (car scan))
+                                            #t)
                                            ((2)
+                                            (set! name (car scan))
+                                            (set! junk (cadr scan))
                                             (case (peek-char port)
-                                              ((#\") (cond ((eqv? 1 (fscanf port "\"%[^\"]\"" value)) #t) ;; PCL Added #t
+                                              ((#\") (cond ((= 1 (length (scanf-read-list "\"%[^\"]\"" port))) #t)
                                                            ((eqv? #\" (peek-char port))
                                                             (read-char port)
                                                             (set! value "")
-                                                            #t)                                           ;; PCL Added #t
+                                                            #t)                                
                                                            (else #f)))
-                                              ((#\') (cond ((eqv? 1 (fscanf port "'%[^']'" value)) #t)    ;; PCL Added #t
+                                              ((#\') (cond ((= 1 (length (scanf-read-list "'%[^']'" port))) #t)
                                                            ((eqv? #\' (peek-char port))
                                                             (read-char port)
                                                             (set! value "") 
-                                                            #t)                                           ;; PCL Added #t
+                                                            #t)                                       
                                                            (else #f)))
                                               (else #f)))
                                            (else #f)))

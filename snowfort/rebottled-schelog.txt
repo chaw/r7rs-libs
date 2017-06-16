@@ -1,0 +1,35 @@
+= Documentation for Schelog
+
+Documentation: https://ds26gte.github.io/schelog/index.html[]
+
+To use: +(import (rebottled schelog))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+----
+$ rlwrap larceny -r7rs
+Larceny v0.99 "Goldie" (May 25 2016 01:16:34, precise:Linux:unified)
+larceny.heap, built on Wed May 25 01:17:00 EDT 2016
+
+> (import (rebottled schelog))
+
+> (include "holland.scm")
+Reading holland.scm
+(define %country
+  (%rel () (('holland)) (('belgium))))
+
+> (%which (x) (%city x))
+((x amsterdam))
+
+> (%more)
+((x brussels))
+
+> (%more)
+#f
+
+> 
+----
+
+Example scripts: https://github.com/ds26gte/schelog/tree/master/examples[]
+

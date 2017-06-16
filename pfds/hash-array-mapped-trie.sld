@@ -16,70 +16,9 @@
 
 ;; Documentation:
 ;;
-;; Note: For all procedures which take a key as an argument, the key
-;; must be hashable with the hamt hash function, and comparable with
-;; the hamt equivalence predicate.
-;;
-;; make-hamt : (any -> non-negative integer) (any -> any -> boolean) -> hamt
-;; returns a new empty hamt using the given hash and equivalence functions.
-;;
-;; hamt? : any -> boolean
-;; returns #t if argument is a hamt, #f otherwise.
-;;
-;; hamt-size : hamt -> non-negative integer
-;; returns the number of associations in the hamt.
-;;
-;; hamt-ref : hamt any [any] -> any
-;; returns the value associated with the key in the hamt. If there is
-;; no value associated with the key, it returns the default value if
-;; provided, or raises an error if it isn't.
-;;
-;; hamt-contains? : hamt any -> boolean
-;; returns #t if there is an association for the key in the hamt, #f
-;; otherwise.
-;;
-;; hamt-set : hamt any any -> hamt
-;; returns a new hamt with the key associated to the value. If the key
-;; is already associated with a value, it is replaced.
-;;
-;; hamt-update : hamt any (any -> any) any -> hamt
-;; returns a new hamt with the valued associated with the key updated
-;; by the update procedure. If the hamt does not already have a value
-;; associated with the key, then it applies the update procedure to
-;; the default value, and associates the key with that.
-;;
-;; hamt-delete : hamt any -> hamt
-;; returns a hamt with the key and its associated value removed. If
-;; the key is not in the hamt, a copy of the original hamt is
-;; returned.
-;;
-;; hamt-fold : (any any any -> any) any hamt -> hamt
-;; returns the value obtained by iterating the combine procedure over
-;; each key value pair in the hamt. The combine procedure takes three
-;; arguments, the key and value of an association, and an accumulator,
-;; and returns a new accumulator value. The initial value of the
-;; accumulator is provided by the base argument. The order in which
-;; the hamt is traversed is not guaranteed.
-;;
-;; hamt-map : (any -> any) hamt -> hamt
-;; returns the hamt obtained by applying the update procedure to each
-;; of the values in the hamt.
-;;
-;; hamt->alist : hamt -> Listof(Pairs)
-;; returns the key/value associations of the hamt as a list of pairs.
-;; The order of the list is not guaranteed.
-;;
-;; alist->hamt : Listof(Pairs) (any -> non-negative integer) (any -> any -> boolean) -> hamt
-;; returns the hamt containing the associations specified by the pairs
-;; in the alist. If the same key appears in the alist multiple times,
-;; its leftmost value is the one that is used.
-;;
-;; hamt-equivalence-predicate : hamt -> (any -> any -> boolean)
-;; returns the procedure used internally by the hamt to compare keys.
-;;
-;; hamt-hash-function : hamt -> (any -> non-negative integer)
-;; returns the hash procedure used internally by the hamt.
-;;
+;;> Note: For all procedures which take a key as an argument, the key
+;;> must be hashable with the hamt hash function, and comparable with
+;;> the hamt equivalence predicate.
 (define-library 
   (pfds hash-array-mapped-trie)
   (export make-hamt
@@ -100,25 +39,30 @@
   (import (scheme base) 
           (scheme case-lambda)     
           (pfds alist)
-          (pfds bitwise)
           (only (pfds list-helpers) fold-right)
           (pfds vector)
-          (srfi 60))
+          (only (srfi 151) arithmetic-shift bitwise-and bit-count bit-set? bitwise-ior bitwise-not))
 
   (begin
 
     ;;; Helpers
+    
+    (define (bitwise-bit-set bits i)
+      (bitwise-ior bits (arithmetic-shift 1 i)))
+
+    (define (bitwise-bit-unset bits i)
+      (bitwise-and bits (bitwise-not (arithmetic-shift 1 i))))
 
     (define cardinality 32) ; 64
 
     (define (mask key level)
-      (bitwise-arithmetic-shift-right (bitwise-and key (- (expt 2 5) 1)) level))
+      (arithmetic-shift (bitwise-and key (- (expt 2 5) 1)) (- level)))
 
     (define (level-up level)
       (+ level 5))
 
     (define (ctpop key index)
-      (bit-count (bitwise-arithmetic-shift-right key (+ 1 index))))
+      (bit-count (arithmetic-shift key (- (+ 1 index)))))
 
     ;;; Node types
 
@@ -160,7 +104,7 @@
         (define bitmap (subtrie-bitmap node))
         (define vector (subtrie-vector node))
         (define index (mask h level))
-        (if (not (bit-set? bitmap index))
+        (if (not (bit-set? index bitmap))
           default
           (let ((node (vector-ref vector (ctpop bitmap index))))
             (cond ((leaf? node)
@@ -194,7 +138,7 @@
         (define index (mask h level))
         (define (fixup node)
           (make-subtrie bitmap (vector-set vector index node)))
-        (if (not (bit-set? bitmap index))
+        (if (not (bit-set? index bitmap))
           (make-subtrie (bitwise-bit-set bitmap index)
                         (vector-insert vector
                                        (ctpop bitmap index)
@@ -209,8 +153,8 @@
 
       (define (handle-leaf node level)
         (define lkey  (leaf-key node))
-        (define khash (bitwise-arithmetic-shift-right h level))
-        (define lhash (bitwise-arithmetic-shift-right (hash lkey) level))
+        (define khash (arithmetic-shift h (- level)))
+        (define lhash (arithmetic-shift (hash lkey) (- level)))
         (cond ((eqv? key lkey)
                (make-leaf key (update (leaf-value node))))
               ((equal? khash lhash)
@@ -221,8 +165,8 @@
                 (handle-subtrie (wrap-subtrie node lhash) (level-up level)))))
 
       (define (handle-collision node level)
-        (define khash (bitwise-arithmetic-shift-right h level))
-        (define chash (bitwise-arithmetic-shift-right (collision-hash node) level))
+        (define khash (arithmetic-shift h (- level)))
+        (define chash (arithmetic-shift (collision-hash node) (- level)))
         (if (equal? khash chash)
           (make-collision (collision-hash node)
                           (alist-update (collision-alist node) key update base eqv?))
@@ -360,6 +304,17 @@
 
     ;;; Exported Interface
 
+    ;;> hamt? : any -> boolean
+    ;;> returns #t if argument is a hamt, #f otherwise.
+    ;;>
+    ;;> hamt-size : hamt -> non-negative integer
+    ;;> returns the number of associations in the hamt.
+    ;;>
+    ;;> hamt-equivalence-predicate : hamt -> (any -> any -> boolean)
+    ;;> returns the procedure used internally by the hamt to compare keys.
+    ;;>
+    ;;> hamt-hash-function : hamt -> (any -> non-negative integer)
+    ;;> returns the hash procedure used internally by the hamt.
     (define-record-type <hamt>
                         (%make-hamt size root hash-function equivalence-predicate)
                         hamt?
@@ -379,9 +334,15 @@
                   (hamt-hash-function hamt)
                   (hamt-equivalence-predicate hamt)))
 
+    ;;> make-hamt : (any -> non-negative integer) (any -> any -> boolean) -> hamt
+    ;;> returns a new empty hamt using the given hash and equivalence functions.
     (define (make-hamt hash eqv?)
       (%make-hamt 0 (make-vector cardinality #f) hash eqv?))
 
+    ;;> hamt-ref : hamt any [any] -> any
+    ;;> returns the value associated with the key in the hamt. If there is
+    ;;> no value associated with the key, it returns the default value if
+    ;;> provided, or raises an error if it isn't.
     (define hamt-ref
       (case-lambda
         ((hamt key)
@@ -398,6 +359,9 @@
                  (hamt-hash-function hamt)
                  (hamt-equivalence-predicate hamt)))))
 
+    ;;> hamt-set : hamt any any -> hamt
+    ;;> returns a new hamt with the key associated to the value. If the key
+    ;;> is already associated with a value, it is replaced.
     (define (hamt-set hamt key value)
       (define root
         (insert (hamt-root hamt)
@@ -408,6 +372,11 @@
                 (hamt-equivalence-predicate hamt)))
       (wrap-root root hamt))
 
+    ;;> hamt-update : hamt any (any -> any) any -> hamt
+    ;;> returns a new hamt with the valued associated with the key updated
+    ;;> by the update procedure. If the hamt does not already have a value
+    ;;> associated with the key, then it applies the update procedure to
+    ;;> the default value, and associates the key with that.
     (define (hamt-update hamt key proc default)
       (define root
         (insert (hamt-root hamt)
@@ -418,6 +387,10 @@
                 (hamt-equivalence-predicate hamt)))
       (wrap-root root hamt))
 
+    ;;> hamt-delete : hamt any -> hamt
+    ;;> returns a hamt with the key and its associated value removed. If
+    ;;> the key is not in the hamt, a copy of the original hamt is
+    ;;> returned.
     (define (hamt-delete hamt key)
       (define root
         (delete (hamt-root hamt)
@@ -426,27 +399,47 @@
                 (hamt-equivalence-predicate hamt)))
       (wrap-root root hamt))
 
+    ;;> hamt-contains? : hamt any -> boolean
+    ;;> returns #t if there is an association for the key in the hamt, #f
+    ;;> otherwise.
     (define (hamt-contains? hamt key)
       (define token (cons #f #f))
       (if (eqv? token (hamt-ref hamt key token))
         #f
         #t))
 
+    ;;> hamt-map : (any -> any) hamt -> hamt
+    ;;> returns the hamt obtained by applying the update procedure to each
+    ;;> of the values in the hamt.
     (define (hamt-map mapper hamt)
       (%make-hamt (hamt-size hamt)
                   (vec-map mapper (hamt-root hamt))
                   (hamt-hash-function hamt)
                   (hamt-equivalence-predicate hamt)))
 
+    ;;> hamt-fold : (any any any -> any) any hamt -> hamt
+    ;;> returns the value obtained by iterating the combine procedure over
+    ;;> each key value pair in the hamt. The combine procedure takes three
+    ;;> arguments, the key and value of an association, and an accumulator,
+    ;;> and returns a new accumulator value. The initial value of the
+    ;;> accumulator is provided by the base argument. The order in which
+    ;;> the hamt is traversed is not guaranteed.
     (define (hamt-fold combine initial hamt)
       (fold combine initial (hamt-root hamt)))
 
+    ;;> hamt->alist : hamt -> Listof(Pairs)
+    ;;> returns the key/value associations of the hamt as a list of pairs.
+    ;;> The order of the list is not guaranteed.
     (define (hamt->alist hamt)
       (hamt-fold (lambda (key value accumulator)
                    (cons (cons key value) accumulator))
                  '()
                  hamt))
 
+    ;;> alist->hamt : Listof(Pairs) (any -> non-negative integer) (any -> any -> boolean) -> hamt
+    ;;> returns the hamt containing the associations specified by the pairs
+    ;;> in the alist. If the same key appears in the alist multiple times,
+    ;;> its leftmost value is the one that is used.
     (define (alist->hamt alist hash eqv?)
       (fold-right (lambda (kv-pair hamt)
                     (hamt-set hamt (car kv-pair) (cdr kv-pair)))

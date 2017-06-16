@@ -33,44 +33,47 @@
 
 (define-library
   (slib xml-parse)
-  (export ssax:reverse-collect-str
-          ssax:reverse-collect-str-drop-ws
-          ssax:assert-current-char
-          ssax:skip-while
-          ssax:init-buffer
-          ssax:next-token
-          ssax:next-token-of
-          ssax:read-string
-          ssax:skip-S
-          ssax:read-NCName
-          ssax:read-QName
-          ssax:read-markup-token
-          ssax:skip-pi
-          ssax:read-pi-body-as-string
-          ssax:skip-internal-dtd
-          ssax:read-cdata-body
-          ssax:read-char-ref
-          ssax:handle-parsed-entity
-          attlist-add
-          attlist-remove-top
-          ssax:read-attributes
-          ssax:resolve-name
-          ssax:complete-start-tag
-          ssax:read-external-id
-          ssax:scan-misc
-          ssax:read-char-data
-          ssax:assert-token
-          ssax:make-pi-parser
-          ssax:make-elem-parser
-          ssax:make-parser
-          ssax:xml->sxml)
+  (export 
+    attlist-add
+    attlist-remove-top
+    ssax:assert-current-char
+    ssax:assert-token
+    ssax:complete-start-tag
+    ssax:handle-parsed-entity
+    ssax:init-buffer
+    ssax:make-elem-parser
+    ssax:make-parser
+    ssax:make-pi-parser
+    ssax:next-token
+    ssax:next-token-of
+    ssax:Prefix-XML
+    ssax:read-NCName
+    ssax:read-QName
+    ssax:read-attributes
+    ssax:read-cdata-body
+    ssax:read-char-data
+    ssax:read-char-ref
+    ssax:read-external-id
+    ssax:read-markup-token
+    ssax:read-pi-body-as-string
+    ssax:read-string
+    ssax:resolve-name
+    ssax:reverse-collect-str-drop-ws
+    ssax:scan-misc
+    ssax:skip-S
+    ssax:skip-internal-dtd
+    ssax:skip-pi
+    ssax:skip-while
+    ssax:xml->sxml
+    ssax:reverse-collect-str
+    )
   (import (scheme base)
           (scheme char)
-          (scheme cxr)
+          (scheme cxr)  
           (slib common)
           (slib rev2-procedures)
           (slib string-search)
-          (srfi 1))
+          (scheme list))
 
   (begin
     ;;@subsection String Glue
@@ -78,7 +81,7 @@
     ;;;; Three functions from SRFI-13
     ; procedure string-concatenate-reverse STRINGS [FINAL END]
     (define (ssax:string-concatenate-reverse strs final end)
-      (if (null? strs) (substring final 0 end)
+      (if (null? strs) (string-copy final 0 end)
         (let*
           ((total-len
              (let loop ((len end) (lst strs))
@@ -223,11 +226,11 @@
     (define (ssax:assert-current-char expected-chars comment port)
       (let ((c (read-char port)))
         (if (memv c expected-chars) c
-          (slib:error port "Wrong character " c
-                      " (0x" (if (eof-object? c)
-                               "*eof*"
-                               (number->string (char->integer c) 16)) ") "
-                      comment ". " expected-chars " expected"))))
+          (error port "Wrong character " c
+                 " (0x" (if (eof-object? c)
+                          "*eof*"
+                          (number->string (char->integer c) 16)) ") "
+                 comment ". " expected-chars " expected"))))
 
     ;;@args char-list port
     ;;
@@ -287,13 +290,13 @@
           (let loop ((i 0) (c c))
             (cond
               ((memv c break-chars)
-               (if (null? filled-buffer-l) (substring buffer 0 i)
+               (if (null? filled-buffer-l) (string-copy buffer 0 i)
                  (ssax:string-concatenate-reverse filled-buffer-l buffer i)))
               ((eof-object? c)
                (if (memq '*eof* break-chars)	; was EOF expected?
-                 (if (null? filled-buffer-l) (substring buffer 0 i)
+                 (if (null? filled-buffer-l) (string-copy buffer 0 i)
                    (ssax:string-concatenate-reverse filled-buffer-l buffer i))
-                 (slib:error port "EOF while reading a token " comment)))
+                 (error port "EOF while reading a token " comment)))
               ((>= i curr-buf-len)
                (outer (make-string curr-buf-len)
                       (cons buffer filled-buffer-l) c))
@@ -352,7 +355,7 @@
                       (read-char port) ; move to the next char
                       (loop (+ 1 i)))
                     ;; incl-list/pred decided it had had enough
-                    (if (null? filled-buffer-l) (substring buffer 0 i)
+                    (if (null? filled-buffer-l) (string-copy buffer 0 i)
                       (ssax:string-concatenate-reverse filled-buffer-l buffer i)))))))
 
           ;; incl-list/pred is a list of allowed characters
@@ -363,7 +366,7 @@
                 (let ((c (peek-char port)))
                   (cond
                     ((not (memv c incl-list/pred))
-                     (if (null? filled-buffer-l) (substring buffer 0 i)
+                     (if (null? filled-buffer-l) (string-copy buffer 0 i)
                        (ssax:string-concatenate-reverse filled-buffer-l buffer i)))
                     (else
                       (string-set! buffer i c)
@@ -379,7 +382,7 @@
     (define (ssax:read-string len port)
       (define buffer (make-string len))
       (do ((idx 0 (+ 1 idx)))
-        ((>= idx len) idx)
+        ((>= idx len) (string-copy buffer 0 idx))
         (let ((chr (read-char port)))
           (cond ((eof-object? chr)
                  (set! idx (+ -1 idx))
@@ -643,7 +646,7 @@
     (define (ssax:read-NCName port)
       (let ((first-char (peek-char port)))
         (or (ssax:ncname-starting-char? first-char)
-            (slib:error port "XMLNS [4] for '" first-char "'")))
+            (error port "XMLNS [4] for '" first-char "'")))
       (string->symbol (ssax:next-token-of (lambda (c)
                                             (cond
                                               ((eof-object? c) #f)
@@ -762,13 +765,13 @@
         (define (skip-comment port)
           (ssax:assert-current-char '(#\-) "XML [15], second dash" port)
           (if (not (find-string-from-port? "-->" port))
-            (slib:error port "XML [15], no -->"))
+            (error port "XML [15], no -->"))
           (make-xml-token 'COMMENT #f))
         ;; we have read "<![" that must begin a CDATA section
         (define (read-cdata port)
           (define cdstr (ssax:read-string 6 port))
           (if (not (string=? "CDATA[" cdstr))
-            (slib:error "expected 'CDATA[' but read " cdstr))
+            (error "expected 'CDATA[' but read " cdstr))
           (make-xml-token 'CDSECT #f))
 
         (lambda (port)
@@ -793,7 +796,7 @@
     ;;The current position is inside a PI.  Skip till the rest of the PI
     (define (ssax:skip-pi port)
       (if (not (find-string-from-port? "?>" port))
-        (slib:error port "Failed to find ?> terminating the PI")))
+        (error port "Failed to find ?> terminating the PI")))
 
     ;;@body
     ;;
@@ -825,8 +828,8 @@
     (define (ssax:skip-internal-dtd port)
       (slib:warn port "Internal DTD subset is not currently handled ")
       (if (not (find-string-from-port? "]>" port))
-        (slib:error port
-                    "Failed to find ]> terminating the internal DTD subset")))
+        (error port
+               "Failed to find ]> terminating the internal DTD subset")))
 
     ;;@args port str-handler seed
     ;;
@@ -869,7 +872,7 @@
             (let ((fragment (ssax:next-token '() cdata-delimiters "reading CDATA" port)))
               ;; that is, we're reading the char after the 'fragment'
               (case (read-char port)
-                ((#\newline) (loop (str-handler fragment #\newline seed)))
+                ((#\newline) (loop (str-handler fragment (string #\newline) seed)))
                 ((#\])
                  (if (not (eqv? (peek-char port) #\]))
                    (loop (str-handler fragment "]" seed))
@@ -898,7 +901,7 @@
                                       (str-handler fragment "&" seed)))))))
                 (else ; Must be CR: if the next char is #\newline, skip it
                   (if (eqv? (peek-char port) #\newline) (read-char port))
-                  (loop (str-handler fragment #\newline seed)))
+                  (loop (str-handler fragment (string #\newline) seed)))
                 ))))))
 
     ;;@body
@@ -935,7 +938,7 @@
              (char-code (string->number name base)))
         (read-char port)		       ; read the terminating #\; char
         (if (integer? char-code) (integer->char char-code)
-          (slib:error port "[wf-Legalchar] broken for '" name "'"))))
+          (error port "[wf-Legalchar] broken for '" name "'"))))
 
     (define ssax:predefined-parsed-entities
       `(
@@ -977,11 +980,11 @@
                                        (close-input-port port)
                                        val))
                                     (else
-                                      (slib:error port "[norecursion] broken for " name))))))
+                                      (error port "[norecursion] broken for " name))))))
         ((assq name ssax:predefined-parsed-entities)
          => (lambda (decl-entity)
               (str-handler (cdr decl-entity) "" seed)))
-        (else (slib:error port "[wf-entdeclared] broken for " name))))
+        (else (error port "[wf-entdeclared] broken for " name))))
 
     ;;;; The ATTLIST Abstract Data Type
 
@@ -1094,7 +1097,7 @@
                  (else
                    (read-attrib-value delimiter port entities
                                       (read-named-entity port entities new-fragments)))))
-              (else (slib:error port "[CleanAttrVals] broken")))))
+              (else (error port "[CleanAttrVals] broken")))))
 
         ;; we have read "&" that introduces a named entity reference.
         ;; read this reference and return the result of normalizing of the
@@ -1127,7 +1130,7 @@
                                            (ssax:string-concatenate-reverse/shared
                                              (read-attrib-value delimiter port entities
                                                                 '()))))
-                        (slib:error port "[uniqattspec] broken for " name))))))))
+                        (error port "[uniqattspec] broken for " name))))))))
         ))
 
     ;;@body
@@ -1150,7 +1153,7 @@
              ((assq (car unres-name) namespaces) => cadr)
              ((eq? (car unres-name) ssax:Prefix-XML) ssax:Prefix-XML)
              (else
-               (slib:error port "[nsc-NSDeclared] broken; prefix " (car unres-name))))
+               (error port "[nsc-NSDeclared] broken; prefix " (car unres-name))))
            (cdr unres-name)))
         (apply-default-ns?	      ; Do apply the default namespace, if any
           (let ((default-ns (assq '*DEFAULT* namespaces)))
@@ -1219,7 +1222,7 @@
               (((attr-name content-type use-type default-value)
                 (apply values decl-attr)))
               (and (eq? use-type 'REQUIRED)
-                   (slib:error port "[RequiredAttr] broken for" attr-name))
+                   (error port "[RequiredAttr] broken for" attr-name))
               (if default-value
                 (cons (cons attr-name default-value) result)
                 result)))
@@ -1240,7 +1243,7 @@
                    (if (or (eq? xmlns (car attr))
                            (and (pair? (car attr)) (eq? xmlns (caar attr))))
                      (loop attr-others decl-attrs (cons attr result))
-                     (slib:error port "[ValueType] broken for " attr)))
+                     (error port "[ValueType] broken for " attr)))
                   ((>)
                    (loop attlist other-decls
                          (add-default-decl decl-attr result)))
@@ -1252,12 +1255,12 @@
                       (cond
                         ((eq? use-type 'FIXED)
                          (or (equal? (cdr attr) default-value)
-                             (slib:error port "[FixedAttr] broken for " attr-name)))
+                             (error port "[FixedAttr] broken for " attr-name)))
                         ((eq? content-type 'CDATA) #t) ; everything goes
                         ((pair? content-type)
                          (or (member (cdr attr) content-type)
-                             (slib:error port "[enum] broken for " attr-name "="
-                                         (cdr attr))))
+                             (error port "[enum] broken for " attr-name "="
+                                    (cdr attr))))
                         (else
                           (slib:warn port "declared content type " content-type
                                      " not verified yet")))
@@ -1273,7 +1276,7 @@
         ;; Otherwise, we prepend (prefix uri-symbol . uri-symbol)
         (define (add-ns port prefix uri-str namespaces)
           (and (equal? "" uri-str)
-               (slib:error port "[dt-NSName] broken for " prefix))
+               (error port "[dt-NSName] broken for " prefix))
           (let ((uri-symbol (ssax:uri-string->symbol uri-str)))
             (let loop ((nss namespaces))
               (cond
@@ -1320,7 +1323,7 @@
                                               (if empty-el-tag? 'EMPTY-TAG (cadr decl-elem))
                                               (caddr decl-elem))))
                   (else
-                    (slib:error port "[elementvalid] broken, no decl for " tag-head)))
+                    (error port "[elementvalid] broken, no decl for " tag-head)))
                 (values			; non-validating parsing
                   (if empty-el-tag? 'EMPTY-TAG 'ANY)
                   #f)			; no attributes declared
@@ -1339,8 +1342,8 @@
                     (attlist-add attlist
                                  (cons (ssax:resolve-name port (car name-value) namespaces #f)
                                        (cdr name-value)))
-                    (slib:error port "[uniqattspec] after NS expansion broken for "
-                                name-value)))
+                    (error port "[uniqattspec] after NS expansion broken for "
+                           name-value)))
                 (make-empty-attlist)
                 proper-attrs)
               namespaces
@@ -1380,7 +1383,7 @@
                (cond
                  ((eqv? c delimiter) c)
                  ((eof-object? c)
-                  (slib:error port "Unexpected EOF while skipping until " delimiter))
+                  (error port "Unexpected EOF while skipping until " delimiter))
                  (else (loop (read-char port)))))
              (ssax:assert-current-char ssax:S-chars "space after PubidLiteral" port)
              (ssax:skip-S port)
@@ -1391,8 +1394,8 @@
                (read-char port)		; reading the closing delim
                systemid))
             (else
-              (slib:error port "XML [75], " discriminator
-                          " rather than SYSTEM or PUBLIC"))))))
+              (error port "XML [75], " discriminator
+                     " rather than SYSTEM or PUBLIC"))))))
 
 
     ;;@subsection Mid-Level Parsers and Scanners
@@ -1421,16 +1424,16 @@
         (cond
           ((eof-object? c) c)
           ((not (char=? c #\<))
-           (slib:error port "XML [22], char '" c "' unexpected"))
+           (error port "XML [22], char '" c "' unexpected"))
           (else
             (let ((token (ssax:read-markup-token port)))
               (case (xml-token-kind token)
                 ((COMMENT) (loop (ssax:skip-S port)))
                 ((PI DECL START) token)
                 (else
-                  (slib:error port "XML [22], unexpected token of kind "
-                              (xml-token-kind token)
-                              ))))))))
+                  (error port "XML [22], unexpected token of kind "
+                         (xml-token-kind token)
+                         ))))))))
 
     ;;@args port expect-eof? str-handler iseed
     ;;
@@ -1680,9 +1683,9 @@
                                   'END
                                   start-tag-head
                                   (lambda (token exp-kind exp-head)
-                                    (slib:error port "[elementvalid] broken for " token
-                                                " while expecting "
-                                                exp-kind exp-head)))
+                                    (error port "[elementvalid] broken for " token
+                                           " while expecting "
+                                           exp-kind exp-head)))
                (my-finish-element
                  elem-gi attributes namespaces parent-seed seed))
               (else				; reading the content...
@@ -1703,9 +1706,9 @@
                           ((END)
                            (ssax:assert-token term-token 'END  start-tag-head
                                               (lambda (token exp-kind exp-head)
-                                                (slib:error port "[GIMatch] broken for "
-                                                            term-token " while expecting "
-                                                            exp-kind exp-head)))
+                                                (error port "[GIMatch] broken for "
+                                                       term-token " while expecting "
+                                                       exp-kind exp-head)))
                            (my-finish-element
                              elem-gi attributes namespaces parent-seed seed))
                           ((PI)
@@ -1725,10 +1728,10 @@
                              (loop port entities expect-eof? seed)))
                           ((START)		; Start of a child element
                            (if (eq? expected-content 'PCDATA)
-                             (slib:error port "[elementvalid] broken for "
-                                         elem-gi
-                                         " with char content only; unexpected token "
-                                         term-token))
+                             (error port "[elementvalid] broken for "
+                                    elem-gi
+                                    " with char content only; unexpected token "
+                                    term-token))
                            ;; Do other validation of the element content
                            (let ((seed
                                    (handle-start-tag
@@ -1737,8 +1740,8 @@
                                      preserve-ws? seed)))
                              (loop port entities expect-eof? seed)))
                           (else
-                            (slib:error port "XML [43] broken for "
-                                        term-token))))))))
+                            (error port "XML [43] broken for "
+                                   term-token))))))))
               )))
         ))
 
@@ -1760,8 +1763,8 @@
         ;; element parser.
         (define (handle-decl port token-head seed)
           (or (eq? (string->symbol "DOCTYPE") token-head)
-              (slib:error port "XML [22], expected DOCTYPE declaration, found "
-                          token-head))
+              (error port "XML [22], expected DOCTYPE declaration, found "
+                     token-head))
           (ssax:assert-current-char ssax:S-chars "XML [28], space after DOCTYPE" port)
           (ssax:skip-S port)
           (let*-values
@@ -1785,7 +1788,7 @@
         (define (scan-for-significant-prolog-token-1 port seed)
           (let ((token (ssax:scan-misc port)))
             (if (eof-object? token)
-              (slib:error port "XML [22], unexpected EOF")
+              (error port "XML [22], unexpected EOF")
               (case (xml-token-kind token)
                 ((PI)
                  (let ((seed
@@ -1799,15 +1802,15 @@
                      (*handler-UNDECL-ROOT (xml-token-head token) seed)))
                    (element-parser (xml-token-head token) port elems
                                    entities namespaces #f seed)))
-                (else (slib:error port "XML [22], unexpected markup "
-                                  token))))))
+                (else (error port "XML [22], unexpected markup "
+                             token))))))
         ;; Scan PIs after the doctype declaration, till we encounter
         ;; the start tag of the root element.  After that we exit
         ;; to the element parser
         (define (scan-for-significant-prolog-token-2 port elems entities namespaces seed)
           (let ((token (ssax:scan-misc port)))
             (if (eof-object? token)
-              (slib:error port "XML [22], unexpected EOF")
+              (error port "XML [22], unexpected EOF")
               (case (xml-token-kind token)
                 ((PI)
                  (let ((seed ((ssax:make-pi-parser *handler-PROCESSING-INSTRUCTIONS)
@@ -1818,8 +1821,8 @@
                  (element-parser (xml-token-head token) port elems
                                  entities namespaces #f
                                  (*handler-DECL-ROOT (xml-token-head token) seed)))
-                (else (slib:error port "XML [22], unexpected markup "
-                                  token))))))
+                (else (error port "XML [22], unexpected markup "
+                             token))))))
         ;; A procedure start-tag-head port elems entities namespaces
         ;;		 preserve-ws? seed
         (define element-parser
@@ -1955,25 +1958,25 @@
         (lambda proplist
           (define count 0)
           (if (odd? (length proplist))
-            (slib:error 'ssax:make-parser "takes even number of arguments"
-                        proplist))
+            (error 'ssax:make-parser "takes even number of arguments"
+                   proplist))
           (let ((posititional-args
                   (map (lambda (spec)
                          (define ptail (member (car spec) proplist))
                          (cond ((and ptail (odd? (length ptail)))
-                                (slib:error 'ssax:make-parser 'bad 'argument ptail))
+                                (error 'ssax:make-parser 'bad 'argument ptail))
                                (ptail
                                  (set! count (+ 1 count))
                                  (cadr ptail))
                                ((not (null? (cdr spec)))
                                 (cadr spec))
                                (else
-                                 (slib:error
+                                 (error
                                    'ssax:make-parser 'missing (car spec) 'property))))
                        descriptors)))
             (if (= count (quotient (length proplist) 2))
               (apply ssax:make-parser/positional-args posititional-args)
-              (slib:error 'ssax:make-parser 'extra 'arguments proplist))))))
+              (error 'ssax:make-parser 'extra 'arguments proplist))))))
 
     ;;@subsection Parsing XML to SXML
 

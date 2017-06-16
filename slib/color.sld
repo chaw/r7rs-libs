@@ -42,7 +42,6 @@
           CMC:DE*)
   (import (scheme base)
           (slib color-space)
-          (slib common)
           (slib printf)
           (slib scanf)
           (slib string-case))
@@ -79,11 +78,11 @@
       (define cnt 0)
       (for-each (lambda (x)
                   (if (and (< cnt num-of-nums) (not (real? x)))
-                    (slib:error name ': 'wrong-type x))
+                    (error name ': 'wrong-type x))
                   (set! cnt (+ 1 cnt)))
                 args)
       (or (list->color args)
-          (slib:error name ': 'out-of-range args))))
+          (error name ': 'out-of-range args))))
 
   ;;@noindent
   ;;@cindex tristimulus
@@ -124,7 +123,7 @@
   ;;@body Returns the list of 3 numbers encoding @1 in CIEXYZ.
   (define (color->CIEXYZ color)
     (if (not (color:color? color))
-      (slib:error 'color->CIEXYZ ': 'not 'color? color))
+      (error 'color->CIEXYZ ': 'not 'color? color))
     (case (color:encoding color)
       ((CIEXYZ) (append (color:coordinates color) '()))
       ((RGB709) (RGB709->CIEXYZ (color:coordinates color)))
@@ -137,7 +136,7 @@
                                 (color:coordinates color)))
       ((L*C*h)  (L*a*b*->CIEXYZ (L*C*h->L*a*b* (color:coordinates color))
                                 (color:white-point color)))
-      (else (slib:error 'color->CIEXYZ ': (color:encoding color) color))))
+      (else (error 'color->CIEXYZ ': (color:encoding color) color))))
 
 
   ;;@deftp {Color Space} RGB709
@@ -171,7 +170,7 @@
   ;;@body Returns the list of 3 numbers encoding @1 in RGB709.
   (define (color->RGB709 color)
     (if (not (color:color? color))
-      (slib:error 'color->RGB709 ': 'not 'color? color))
+      (error 'color->RGB709 ': 'not 'color? color))
     (case (color:encoding color)
       ((RGB709) (append (color:coordinates color) '()))
       ((CIEXYZ) (CIEXYZ->RGB709 (color:coordinates color)))
@@ -235,7 +234,7 @@
                    CIEXYZ:D65
                    (color:coordinates (car white-point))))
     (if (not (color:color? color))
-      (slib:error 'color->L*a*b* ': 'not 'color? color))
+      (error 'color->L*a*b* ': 'not 'color? color))
     (case (color:encoding color)
       ((L*a*b*) (if (equal? (wp) (color:white-point color))
                   (append (color:coordinates color) '())
@@ -292,7 +291,7 @@
                    (color:white-point color)
                    (car white-point)))
     (if (not (color:color? color))
-      (slib:error 'color->L*u*v* ': 'not 'color? color))
+      (error 'color->L*u*v* ': 'not 'color? color))
     (case (color:encoding color)
       ((L*u*v*) (append (color:coordinates color) '()))
       ((L*a*b*) (CIEXYZ->L*u*v* (L*a*b*->CIEXYZ (color:coordinates color)
@@ -375,7 +374,7 @@
   ;;Returns the list of 3 numbers encoding @1 in L*C*h.
   (define (color->L*C*h color . white-point)
     (if (not (color:color? color))
-      (slib:error 'color->L*C*h ': 'not 'color? color))
+      (error 'color->L*C*h ': 'not 'color? color))
     (if (and (eqv? 'L*C*h (color:encoding color))
              (equal? (color:white-point color)
                      (if (null? white-point)
@@ -452,7 +451,7 @@
   ;;Returns the list of 3 integers encoding @1 in sRGB.
   (define (color->sRGB color)
     (if (not (color:color? color))
-      (slib:error 'color->sRGB ': 'not 'color? color))
+      (error 'color->sRGB ': 'not 'color? color))
     (case (color:encoding color)
       ((CIEXYZ) (CIEXYZ->sRGB (color:coordinates color)))
       ((sRGB)   (append (color:coordinates color) '()))
@@ -523,8 +522,8 @@
     (case precision
       ((10 12 16)
        (if (not (color:color? color))
-         (slib:error 'color->e-sRGB ': 'not 'color? color)))
-      (else (slib:error 'color->e-sRGB ': 'invalid 'precision precision)))
+         (error 'color->e-sRGB ': 'not 'color? color)))
+      (else (error 'color->e-sRGB ': 'invalid 'precision precision)))
     (case (color:encoding color)
       ((e-sRGB) (e-sRGB->e-sRGB (color:precision color)
                                 (color:coordinates color)
@@ -554,14 +553,14 @@
              ((sRGB)   sRGB->color)
              ((xRGB)   xRGB->color)
              ((e-sRGB) e-sRGB->color)
-             (else (slib:error 'make-color ': 'not 'space? space)))
+             (else (error 'make-color ': 'not 'space? space)))
            args))
   ;@
   (define color-space color:encoding)
   ;@
   (define (color-precision color)
     (if (not (color:color? color))
-      (slib:error 'color-precision ': 'not 'color? color))
+      (error 'color-precision ': 'not 'color? color))
     (case (color:encoding color)
       ((e-sRGB) (color:precision color))
       ((sRGB)   8)
@@ -569,7 +568,7 @@
   ;@
   (define (color-white-point color)
     (if (not (color:color? color))
-      (slib:error 'color-white-point ': 'not 'color? color))
+      (error 'color-white-point ': 'not 'color? color))
     (case (color:encoding color)
       ((L*a*b*) (color:CIEXYZ (color:white-point color)))
       ((L*u*v*) (color:CIEXYZ (color:white-point color)))
@@ -582,9 +581,9 @@
   (define (convert-color color encoding . opt-arg)
     (define (noarg)
       (if (not (null? opt-arg))
-        (slib:error 'convert-color ': 'too-many 'arguments opt-arg)))
+        (error 'convert-color ': 'too-many 'arguments opt-arg)))
     (if (not (color:color? color))
-      (slib:error 'convert-color ': 'not 'color? color))
+      (error 'convert-color ': 'not 'color? color))
     (case encoding
       ((CIEXYZ) (noarg) (CIEXYZ->color (color->CIEXYZ color)))
       ((RGB709) (noarg) (RGB709->color (color->RGB709 color)))
@@ -593,13 +592,13 @@
       ((L*a*b*) (apply L*a*b*->color (color->L*a*b* color) opt-arg))
       ((L*u*v*) (apply L*u*v*->color (color->L*u*v* color) opt-arg))
       ((L*C*h)  (apply L*C*h->color  (color->L*C*h color) opt-arg))
-      (else (slib:error 'convert-color ': encoding '?))))
+      (else (error 'convert-color ': encoding '?))))
 
   ;;; External color representations
   ;@
   (define (color->string color)
     (if (not (color:color? color))
-      (slib:error 'color->string ': 'not 'color? color))
+      (error 'color->string ': 'not 'color? color))
     (case (color:encoding color)
       ((CIEXYZ) (apply sprintf #f "CIEXYZ:%g/%g/%g"
                        (color:coordinates color)))
@@ -627,44 +626,97 @@
       ((sRGB)   (apply sprintf #f "sRGB:%d/%d/%d" (color:coordinates color)))
       ((e-sRGB) (apply sprintf #f "e-sRGB%d:%d/%d/%d"
                        (color:precision color) (color:coordinates color)))
-      (else (slib:error 'color->string ': (color:encoding color) color))))
+      (else (error 'color->string ': (color:encoding color) color))))
   ;@
   (define (string->color str)
-    (define prec #f) (define coding #f)
-    (define x #f) (define y #f) (define z #f)
-    (cond ((eqv? 4 (sscanf str " %[CIEXYZciexyzLABUVlabuvHhRrGg709]:%f/%f/%f"
-                           coding x y z))
-           (case (string-ci->symbol coding)
-             ((CIEXYZ) (color:CIEXYZ x y z))
-             ((CIELab) (color:L*a*b* x y z))
-             ((CIELuv) (color:L*u*v* x y z))
-             ((CIELCh) (color:L*C*h  x y z))
-             ((RGBi		       ; Xlib - C Language X Interface
-                RGB709) (color:RGB709 x y z))
-             (else #f)))
-          ((eqv? 4 (sscanf str " %[sRGBSrgb]:%d/%d/%d" coding x y z))
-           (case (string-ci->symbol coding)
-             ((sRGB)   (color:sRGB x y z))
-             (else #f)))
-          ((eqv? 5 (sscanf str " %[-esRGBESrgb]%d:%d/%d/%d" coding prec x y z))
-           (case (string-ci->symbol coding)
-             ((e-sRGB) (color:e-sRGB prec x y z))
-             (else #f)))
-          ((eqv? 2 (sscanf str " %[sRGBxXXRGB]:%6x%[/0-9a-fA-F]" coding x y))
-           (case (string-ci->symbol coding)
-             ((sRGB
-                xRGB
-                sRGBx)  (xRGB->color x))
-             (else #f)))
-          ((and (eqv? 1 (sscanf str " #%6[0-9a-fA-F]%[0-9a-fA-F]" x y))
-                (eqv? 6 (string-length x)))
-           (xRGB->color (string->number x 16)))
-          ((and (eqv? 2 (sscanf str " %[#0xX]%6[0-9a-fA-F]%[0-9a-fA-F]"
-                                coding x y))
-                (eqv? 6 (string-length x))
-                (member coding '("#" "#x" "0x" "#X" "0X")))
-           (xRGB->color (string->number x 16)))
-          (else #f)))
+    (let ((case1 (scanf-read-list " %[CIEXYZciexyzLABUVlabuvHhRrGg709]:%f/%f/%f" str)))
+      (if (= 4 (length case1))
+        (let ((coding (list-ref case1 0))
+              (x (list-ref case1 1))
+              (y (list-ref case1 2))
+              (z (list-ref case1 3)))
+          (case (string-ci->symbol coding)
+            ((CIEXYZ) (color:CIEXYZ x y z))
+            ((CIELab) (color:L*a*b* x y z))
+            ((CIELuv) (color:L*u*v* x y z))
+            ((CIELCh) (color:L*C*h  x y z))
+            ((RGBi		       ; Xlib - C Language X Interface
+               RGB709) (color:RGB709 x y z))
+            (else #f)))
+        (let ((case2 (scanf-read-list " %[sRGBSrgb]:%d/%d/%d" str)))
+          (if (= 4 (length case2))
+            (let ((coding (list-ref case2 0))
+                  (x (list-ref case2 1))
+                  (y (list-ref case2 2))
+                  (z (list-ref case2 3)))
+              (case (string-ci->symbol coding)
+                ((sRGB)   (color:sRGB x y z))
+                (else #f)))
+            (let ((case3 (scanf-read-list " %[-esRGBESrgb]%d:%d/%d/%d" str)))
+              (if (= 5 (length case3))
+                (let ((coding (list-ref case3 0))
+                      (prec (list-ref case3 1))
+                      (x (list-ref case3 2))
+                      (y (list-ref case3 3))
+                      (z (list-ref case3 4)))
+                  (case (string-ci->symbol coding)
+                    ((e-sRGB) (color:e-sRGB prec x y z))
+                    (else #f)))
+                (let ((case4 (scanf-read-list " %[sRGBxXXRGB]:%6x%[/0-9a-fA-F]" str)))
+                  (if (= 2 (length case4))
+                    (let ((coding (list-ref case4 0))
+                          (x (list-ref case4 1)))
+                      (case (string-ci->symbol coding)
+                        ((sRGB
+                           xRGB
+                           sRGBx)  (xRGB->color x))
+                        (else #f)))
+                    (let ((case5 (scanf-read-list " #%6[0-9a-fA-F]%[0-9a-fA-F]" str)))
+                      (if (and (= 1 (length case5)) (= 6 (string-length (car case5))))
+                        (xRGB->color (string->number (car case5) 16))
+                        (let ((case6 (scanf-read-list " %[#0xX]%6[0-9a-fA-F]%[0-9a-fA-F]" str)))
+                          (if (and (= 2 (length case6)) 
+                                   (= 6 (length (cadr case6)))
+                                   (member (car case6) '("#" "0x" "#X" "0X")))
+                            (xRGB->color (string->number (cadr case6) 16))
+                            #f)))))))))))))
+
+
+
+                   ;; Uncomment if sscanf becomes usable in future!
+;    (cond ((eqv? 4 (sscanf str " %[CIEXYZciexyzLABUVlabuvHhRrGg709]:%f/%f/%f"
+;                           coding x y z))
+;           (case (string-ci->symbol coding)
+;             ((CIEXYZ) (color:CIEXYZ x y z))
+;             ((CIELab) (color:L*a*b* x y z))
+;             ((CIELuv) (color:L*u*v* x y z))
+;             ((CIELCh) (color:L*C*h  x y z))
+;             ((RGBi		       ; Xlib - C Language X Interface
+;                RGB709) (color:RGB709 x y z))
+;             (else #f)))
+;          ((eqv? 4 (sscanf str " %[sRGBSrgb]:%d/%d/%d" coding x y z))
+;           (case (string-ci->symbol coding)
+;             ((sRGB)   (color:sRGB x y z))
+;             (else #f)))
+;          ((eqv? 5 (sscanf str " %[-esRGBESrgb]%d:%d/%d/%d" coding prec x y z))
+;           (case (string-ci->symbol coding)
+;             ((e-sRGB) (color:e-sRGB prec x y z))
+;             (else #f)))
+;          ((eqv? 2 (sscanf str " %[sRGBxXXRGB]:%6x%[/0-9a-fA-F]" coding x y))
+;           (case (string-ci->symbol coding)
+;             ((sRGB
+;                xRGB
+;                sRGBx)  (xRGB->color x))
+;             (else #f)))
+;          ((and (eqv? 1 (sscanf str " #%6[0-9a-fA-F]%[0-9a-fA-F]" x y))
+;                (eqv? 6 (string-length x)))
+;           (xRGB->color (string->number x 16)))
+;          ((and (eqv? 2 (sscanf str " %[#0xX]%6[0-9a-fA-F]%[0-9a-fA-F]"
+;                                coding x y))
+;                (eqv? 6 (string-length x))
+;                (member coding '("#" "#x" "0x" "#X" "0X")))
+;           (xRGB->color (string->number x 16)))
+;          (else #f)))
 
   ;;;; visual color metrics
   ;@

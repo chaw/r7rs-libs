@@ -1,0 +1,6 @@
+= Documentation for Math Real
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+include::../doc/slib-math-real.txt[]

@@ -1,0 +1,89 @@
+=== Factor: +(import (slib factor))+
+
+Functions for testing if numbers are primes, generating prime numbers, and to factor numbers.
+
+These functions use the Solovay-Strassen primality test:
+
+* Robert Solovay and Volker Strassen, A Fast Monte-Carlo Test for Primality,
+  _SIAM Journal on Computing_, 1977, pp 84-85. 
+
+==== factor
+
+indexterm2:[+factor+] takes one argument and returns a list of the prime factors of that 
+number: the numbers are in no guaranteed order.
+
+[source,scheme]
+----
+> (factor 5)
+(5)
+> (factor 100)
+(5 5 2 2)
+----
+
+==== jacobi-symbol
+
+The indexterm2:[+jacobi-symbol+] is used in modular arithmetic with one application, as here, 
+being tests for primality.  The function returns 0, -1 or 1 given two integers.
+
+[source,scheme]
+----
+> (jacobi-symbol 15 7)
+1
+> (jacobi-symbol 63 7)
+0
+> (jacobi-symbol 7 15)
+-1
+----
+
+==== prime:trials
+
+indexterm2:[+prime:trials+] controls the likelihood that +prime?+ will accept a composite 
+number as a prime.  The probability is 2^(- +prime:trials+) 
+
++prime:trials+ is a parameter object, so you can change it to a higher value, if required:
+
+[source,scheme]
+----
+> (prime:trials)
+30
+> (prime:trials 100)
+> (prime:trials)
+100
+----
+
+==== prime?
+
+indexterm2:[+prime?+] returns true or false depending on if the given number passes the 
+Solovay-Strassen primality test.
+
+[source,scheme]
+----
+> (prime? 17)
+#t
+> (prime? 1)
+#f
+----
+
+==== primes<
+
+indexterm2:[+primes<+] accepts two arguments: a start value and a count.  It returns a list 
+of +count+ prime numbers less than the start value.
+
+[source,scheme]
+----
+> (primes< 18 2)
+(13 17)
+----
+
+==== primes>
+
+indexterm2:[+primes>+] accepts two arguments: a start value and a count.  It returns a list 
+of +count+ prime numbers greater than the start value.
+
+[source,scheme]
+----
+> (primes> 18 2)
+(19 23)
+----
+
+

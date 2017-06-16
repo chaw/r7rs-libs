@@ -28,12 +28,10 @@
           (scheme file)
           (scheme read)
           (scheme write)
-          (slib common)
           (slib directory)
           (slib filename)
           (slib string-search)
-          (only (srfi 1) any)
-          (srfi 59))
+          (only (scheme list) any))
   
   (begin
 
@@ -104,20 +102,20 @@
           (let loop ((iend istrt))
             (cond ((>= iend (string-length line))
                    (if close
-                     (slib:error close "not found in" line)
+                     (error close "not found in" line)
                      (cons iend
                            (reverse
                              (if (> iend istrt)
-                               (cons (substring line istrt iend) args)
+                               (cons (string-copy line istrt iend) args)
                                args)))))
                   ((eqv? close (string-ref line iend))
                    (cons (+ iend 1)
                          (reverse (if (> iend istrt)
-                                    (cons (substring line istrt iend) args)
+                                    (cons (string-copy line istrt iend) args)
                                     args))))
                   ((sep? (string-ref line iend))
                    (let ((arg (and (> iend istrt)
-                                   (substring line istrt iend))))
+                                   (string-copy line istrt iend))))
                      (if (equal? arg splice)
                        (let ((rest (tok1 (+ iend 1) close sep? splice)))
                          (cons (car rest)
@@ -149,11 +147,11 @@
       (define (get-word i)
         (let loop ((j (+ i 1)))
           (cond ((>= j (string-length line))
-                 (substring line i j))
+                 (string-copy line i j))
                 ((or (char-alphabetic? (string-ref line j))
                      (char-numeric? (string-ref line j)))
                  (loop (+ j 1)))
-                (else (substring line i j)))))
+                (else (string-copy line i j)))))
       (let loop ((istrt 0)
                  (i 0)
                  (res '()))
@@ -161,7 +159,7 @@
                (list
                  (apply string-append
                         (reverse
-                          (cons (substring line istrt (string-length line))
+                          (cons (string-copy line istrt (string-length line))
                                 res)))))
               ((char=? #\@ (string-ref line i))
                (let* ((w (get-word i))
@@ -174,7 +172,7 @@
                                        (cons
                                          (string-append
                                            "@code{" (cadr args) "}")
-                                         (cons (substring line istrt i) res))))
+                                         (cons (string-copy line istrt i) res))))
                                 (else
                                   (report "@cname wrong number of args" line)
                                   (loop istrt (+ i (string-length w)) res)))))
@@ -183,7 +181,7 @@
                                        line (+ i (string-length w))))
                                (inxt (car args))
                                (rest (loop inxt inxt
-                                           (cons (substring line istrt inxt)
+                                           (cons (string-copy line istrt inxt)
                                                  res))))
                           (cons (car rest)
                                 (cons (cons '@dfn (cdr args))
@@ -201,7 +199,7 @@
                                            (loop (+ i (string-length w))
                                                  (+ i (string-length w))
                                                  (cons (cdr s)
-                                                       (cons (substring line istrt i) res)))))
+                                                       (cons (string-copy line istrt i) res)))))
                        (else (loop istrt (+ i (string-length w)) res)))))
               (else (loop istrt (+ i 1) res)))))
 
@@ -244,7 +242,7 @@
            (else '())))
         ((DEFMACRO) (cons (cadr sexp) (caddr sexp)))
         ((DEFVAR DEFCONST) #f)
-        (else (slib:error 'schmooz "doesn't look like definition" sexp))))
+        (else (error 'schmooz "doesn't look like definition" sexp))))
 
     ;; Generate alist of argument macro definitions.
     ;; If ARGS is a symbol or string, then the definitions will be used in a
@@ -294,7 +292,7 @@
                    (out CONTLINE " "
                         (let ((n (- (string-length args) 1)))
                           (if (eqv? #\s (string-ref args n))
-                            (substring args 0 n)
+                            (string-copy args 0 n)
                             args))
                         " @dots{}"))
                   ((pair? args)
@@ -304,7 +302,7 @@
                           "@dots{}"
                           (car args)))
                    (loop (cdr args)))
-                  (else (slib:error 'schmooz-fun args))))))
+                  (else (error 'schmooz-fun args))))))
       (let* ((mac-list (scheme-args->macros args))
              (ops (case defop
                     ((DEFINE-SYNTAX) '("defspec" "defspecx" "defspec"))
@@ -380,14 +378,13 @@
         (read-char port)))
 
     (define (pathname->local-filename path)
-      (define vic (pathname->vicinity path))
+      (define dir (pathname->dirname path))
       (define plen (string-length path))
-      (let ((vlen (string-length vic)))
-        (if (and (substring? vic path)
+      (let ((vlen (string-length dir)))
+        (if (and (substring? dir path)
                  (< vlen plen))
-          ; (in-vicinity (user-vicinity) (substring path vlen plen))
-          (in-vicinity (current-directory) (substring path vlen plen))
-          (slib:error 'pathname->local-filename path))))
+          (apply string-append (current-directory) (string-copy path vlen plen))
+          (error 'pathname->local-filename path))))
 
     ;;;@ SCHMOOZ files.
     (define schmooz
@@ -448,14 +445,14 @@
               (do ((i istrt (+ i 1)))
                 ((or (>= i (string-length line))
                      (not (memv (string-ref line i) semispaces)))
-                 (substring line i (string-length line)))))
+                 (string-copy line i (string-length line)))))
 
             (define (tok1 line)
               (let loop ((i 0))
                 (cond ((>= i (string-length line)) line)
                       ((or (char-whitespace? (string-ref line i))
                            (memv (string-ref line i) '(#\; #\( #\{)))
-                       (substring line 0 i))
+                       (string-copy line 0 i))
                       (else (loop (+ i 1))))))
 
             (define (read-cmt-line)

@@ -72,11 +72,11 @@
                                             (loop j
                                                   (+ j 1)
                                                   (out "\\"
-                                                       (out (substring obj i j)
+                                                       (out (string-copy obj i j)
                                                             col)))
                                             (loop i (+ j 1) col)))
                                         (out "\""
-                                             (out (substring obj i j) col))))))
+                                             (out (string-copy obj i j) col))))))
               ((char? obj)        (if display?
                                     (out (make-string 1 obj) col)
                                     (out (case obj
@@ -95,7 +95,7 @@
           (if (> n 0)
             (if (> n 7)
               (spaces (- n 8) (out "        " col))
-              (out (substring "        " 0 n) col))
+              (out (string-copy "        " 0 n) col))
             col))
 
         (define (indent to col)

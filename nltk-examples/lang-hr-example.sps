@@ -35,7 +35,7 @@
 (import (scheme base)
         (scheme write)
         (nltk lang-hr)
-        (srfi 69))
+        (scheme hash-table))
 
 (define test1
   (lambda ()

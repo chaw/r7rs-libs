@@ -1,0 +1,10 @@
+= Documentation for Coerce
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Type-Coercion.html[]
+
+To use: +(import (slib coerce))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+

@@ -288,7 +288,7 @@
                              (set! len (find-string-from-port?
                                          match (cadr dyn)
                                          (lambda (c) (display c sp) #f)))))))
-               (stp (and len (substring str 0 (- len (string-length match)))))))
+               (stp (and len (string-copy str 0 (- len (string-length match)))))))
             (else (find-string-from-port? match (cadr dyn)))))
     ;@
     (define (prec:matchfix tk sop sep match . binds)

@@ -47,15 +47,14 @@
           command->p-specs)
   (import (scheme base)
           (scheme eval)
-          (slib common)
           (slib common-list-functions)
           (slib databases)
           (slib object-string)
           (slib parameters)
           (slib printf)
           (slib string-search)
-          (only (srfi 1) remove)
-          (srfi 95))
+          (only (scheme list) remove)
+          (scheme sort))
 
   (begin
 
@@ -161,11 +160,11 @@
       (string-append
         (apply string-append
                (if (substring? "--" line1)
-                 (slib:error 'html:comment "line contains --" line1)
+                 (error 'html:comment "line contains --" line1)
                  (sprintf #f "<!--%s--" line1))
                (map (lambda (line)
                       (if (substring? "--" line)
-                        (slib:error 'html:comment "line contains --" line)
+                        (error 'html:comment "line contains --" line)
                         (sprintf #f "\\n  --%s--" line)))
                     lines))
         (sprintf #f ">\\n")))
@@ -187,7 +186,7 @@
     ;;form.  @0 returns the HTML @dfn{form}.
     (define (html:form method action . body)
       (cond ((not (memq method '(get head post put delete)))
-             (slib:error 'html:form "method unknown:" method)))
+             (error 'html:form "method unknown:" method)))
       (string-append
         (apply string-append
                (sprintf #f "<FORM METHOD=%#a ACTION=%#a>\\n"
@@ -233,7 +232,7 @@
                                   (sprintf #f "%s\\n" (html:plain line)))
                                 default-list)))
                (len (+ -1 (string-length str))))
-          (if (positive? len) (substring str 0 len) str))
+          (if (positive? len) (string-copy str 0 len) str))
         (sprintf #f "</TEXTAREA>\\n")))
 
     (define (html:s<? s1 s2)
@@ -247,7 +246,7 @@
 
     ;;@body Returns HTML string for pull-down menu selector.
     (define (html:select pname arity default-list foreign-values)
-      (set! foreign-values (sort foreign-values (by-car html:s<?)))
+      (set! foreign-values (list-sort (by-car html:s<?) foreign-values))
       (let ((value-list (map car foreign-values))
             (visibles (map cadr foreign-values)))
         (string-append
@@ -276,7 +275,7 @@
 
     ;;@body Returns HTML string for any-of selector.
     (define (html:buttons pname arity default-list foreign-values)
-      (set! foreign-values (sort foreign-values (by-car html:s<?)))
+      (set! foreign-values (list-sort (by-car html:s<?) foreign-values))
       (let ((value-list (map car foreign-values))
             (visibles (map cadr foreign-values)))
         (string-append
@@ -471,8 +470,9 @@
         (let* ((command:row ((comtab 'row:retrieve) command))
                (parameter-table (rdb-open (row-ref command:row 'parameters) #f))
                (pcnames (parameter-table 'column-names))
-               (param-rows (sort! ((parameter-table 'row:retrieve*))
-                                  (lambda (r1 r2) (< (car r1) (car r2))))))
+               (param-rows (list-sort!
+                             (lambda (r1 r2) (< (car r1) (car r2)))
+                             ((parameter-table 'row:retrieve*)))))
           (let ((domains (map (row-refer (position 'domain pcnames)) param-rows))
                 (parameter-names (rdb-open (row-ref command:row 'parameter-names) #f))
                 (pnames (map (row-refer (position 'name pcnames)) param-rows)))

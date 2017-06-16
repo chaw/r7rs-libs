@@ -36,27 +36,14 @@
           tdea-permute-key tdea-encipher! tdea-decipher!
           tdea-cbc-encipher!
           tdea-cbc-decipher!)
-  (import (except (scheme base) bytevector-copy! error)
+  (import (except (scheme base) bytevector-copy!)
           (scheme case-lambda)
-          (pfds bitwise)
-          (r6rs base)
           (r6rs bytevectors)
           (r6rs fixnums)
-          (srfi 60))
+          (only (srfi 151) arithmetic-shift bit-field bit-set?
+                bitwise-and bitwise-ior bitwise-xor bit-field-rotate))
 
   (begin
-
-    (define (bitwise-rotate-bit-field n start end count)
-      ;; From R6RS, not yet implemented in Ikarus.
-      (let ((width (- end start)))
-        (if (positive? width)
-          (let* ((count (mod count width))
-                 (field0 (bit-field n start end))
-                 (field1 (arithmetic-shift field0 count))
-                 (field2 (arithmetic-shift field0 (- count width)))
-                 (field (bitwise-ior field1 field2)))
-            (copy-bit-field n start end field))
-          n)))
 
     (define (split-number x parts per)
       (do ((i 0 (fx+ i 1))
@@ -73,7 +60,7 @@
     (define (permute input inlen table)
       ;; This is basically what makes this library so slow. Among other things.
       (do ((i 0 (fx+ i 1))
-           (ret 0 (if (bitwise-bit-set? input (fx- inlen (bytevector-u8-ref table i)))
+           (ret 0 (if (bit-set? (fx- inlen (bytevector-u8-ref table i)) input)
                     (bitwise-ior ret (arithmetic-shift
                                        1 (- (bytevector-length table) i 1)))
                     ret)))
@@ -102,9 +89,9 @@
         (do ((rotates '(1 1 2 2 2 2 2 2 1 2 2 2 2 2 2 1 0)
                       (cdr rotates))
              (C (bit-field CD 28 56)
-                (bitwise-rotate-bit-field C 0 28 (car rotates)))
+                (bit-field-rotate C (car rotates) 0 28))
              (D (bit-field CD 0 28)
-                (bitwise-rotate-bit-field D 0 28 (car rotates)))
+                (bit-field-rotate D (car rotates) 0 28))
              (subkeys '()
                       (cons (permute (bitwise-ior (arithmetic-shift C 28) D)
                                      56 pc2)
@@ -120,7 +107,7 @@
              57 49 41 33 25 17 9 1 59 51 43 35 27 19 11 3
              61 53 45 37 29 21 13 5 63 55 47 39 31 23 15 7))
       (do ((i 0 (fx+ i 1))
-           (m0 0 (if (bitwise-bit-set? m (fx- (bytevector-u8-ref p i) 1))
+           (m0 0 (if (bit-set? (fx- (bytevector-u8-ref p i) 1) m)
                    (bitwise-ior m0 (arithmetic-shift 1 i))
                    m0)))
         ((fx=? i 64) m0)))
@@ -137,7 +124,7 @@
              34 2 42 10 50 18 58 26
              33 1 41  9 49 17 57 25))
       (do ((i 0 (fx+ i 1))
-           (m0 0 (if (bitwise-bit-set? m (fx- (bytevector-u8-ref p i) 1))
+           (m0 0 (if (bit-set? (fx- (bytevector-u8-ref p i) 1) m)
                    (bitwise-ior m0 (arithmetic-shift 1 i))
                    m0)))
         ((fx=? i 64) m0)))

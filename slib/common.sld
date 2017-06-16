@@ -2,53 +2,58 @@
 
 (define-library
   (slib common)
-  (export call-with-open-ports
-          char-code-limit
-          gentemp
-          identity
-          make-exchanger
-          most-positive-fixnum
-          open-file
-          output-port-height
-          output-port-width
-          provided?
-          system
-          slib:error
-          slib:warn
-          software-type
-          tmpnam
-          with-load-pathname
-          base-table-implementations
-          add-base-table-implementation
-          slib:version)
+  (export 
+    add-base-table-implementation
+    base-table-implementations
+    call-with-open-ports
+    char-code-limit
+    gentemp
+    identity
+    make-exchanger
+    most-positive-fixnum
+    open-file
+    output-port-height
+    output-port-width
+    provided?
+    slib:version
+    slib:warn
+    software-type
+    system
+    tmpnam
+    with-load-pathname
+    )
   (import (scheme base)
           (scheme file)
           (scheme write))
-  
-    ;; Use underlying 'system' implementation, if it exists
-    (cond-expand
-      (kawa 
-        (import (kawa lib system)))
-      (larceny
-        (import (primitives system)))
-      ((library (chibi process))  
-       ;; chibi cannot use 'system' directly for redirecting to files (execvp)
-       ;; hence calls out to bash  TODO: Clearly this is Linux specific
-       (import (prefix (chibi process) chibi:))
-       (begin
-         (define (system cmd)
-           (guard (exc (else 1))
-                  (let-values (((e s) (chibi:system "/bin/bash" "-c" cmd)))
-                              s)))))
-      ((library (sagittarius process))
-       ;; to avoid execvp errors, Sagittarius also calls out to bash  TODO: Clearly this is Linux specific
-       (import (sagittarius process))
-       (begin
-         (define (system cmd)
-           (run "/bin/bash" "-c" cmd))))
-      (else ; else, set system to return an 'unsupported' error
-        (begin
-          (define (system . args) (error "Implementation does not support 'system' calls")))))
+
+  ;; Use underlying 'system' implementation, if it exists
+  (cond-expand
+    (gauche
+      (import (only (gauche base) sys-system))
+      (begin
+        (define system sys-system)))
+    (kawa 
+      (import (kawa lib system)))
+    (larceny
+      (import (primitives system)))
+    ((library (chibi process))  
+     ;; chibi cannot use 'system' directly for redirecting to files (execvp)
+     ;; hence calls out to bash  TODO: Clearly this is Linux specific
+     (import (prefix (chibi process) chibi:))
+     (begin
+       (define (system cmd)
+         (guard (exc (else 1))
+                (let-values (((e s) (chibi:system "/bin/bash" "-c" cmd)))
+                            s)))))
+    ((library (sagittarius process))
+     ;; to avoid execvp errors, Sagittarius also calls out to bash  TODO: Clearly this is Linux specific
+     (import (sagittarius process))
+     (begin
+       (define (system cmd)
+         (run "/bin/bash" "-c" cmd))))
+    (else ; else, set system to return an 'unsupported' error
+      (begin
+        (define (system . args) (error "Implementation does not support 'system' calls")))))
 
   (begin
 
@@ -97,7 +102,7 @@
                 #f))
         ((w) (open-output-file filename))
         ((wb) (open-binary-output-file filename))
-        (else (slib:error 'open-file "invalid mode" modes))))
+        (else (error 'open-file "invalid mode" modes))))
 
     (define (output-port-height . arg) 24) ; value used in all the .init files
     (define (output-port-width . arg) 79) ; value used in all the .init files
@@ -132,12 +137,6 @@
           (display "Warn: " cep)
           (for-each (lambda (x) (display #\space cep) (write x cep)) args)
           (newline cep))))
-
-    ;;@ define an error procedure for the library
-    (define slib:error
-      (let ((error error))
-        (lambda args
-          (apply error args))))
 
     (define tmpnam (let ((cntr 100))
                      (lambda () (set! cntr (+ 1 cntr))

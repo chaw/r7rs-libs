@@ -9,78 +9,7 @@ libraries and may be examined for ideas on how each library works.
 This chapter provides an overview of these repackaged collections: some of 
 these have links to their own detailed documentation.  
 
-=== Automatic Differentiation: +(import (autodiff NNNN))+
-
-indexterm:[autodiff]
-A repackaging of code written by Jeffrey Mark Siskind for R6RS: https://github.com/qobi/R6RS-AD[]
-
-The first library, +AD+ supports automatic differentiation itself.  The
-remaining libraries are, according to JMS, "experimental packages to support
-nondeterministic and stochastic programming, including constraint satisfaction
-problems".
-
-Some examples are provided, but otherwise this collection needs documenting.
-
-==== AD: +(import (autodiff AD))+
-
-This library is the automatic differentiation library itself, providing functions in both 
-forward- and reverse-mode.
-
-The library works by redefining all standard mathematical operators to work with _dual numbers_, 
-pairs containing the "usual" result and its derivative.  So, the first thing to be careful of 
-is not to include those operators from +(scheme base)+!
-
-For the first example, consider the function +(* x x)+.  It's derivative is +2x+.  To get a function 
-to compute the derivative at a given point, we apply the indexterm2:[+derivative-F+] function to it (for forward-mode).
-
-[source,lisp]
-----
-(import (except (scheme base) + - * / expt square = < > <= >= zero? positive? negative? real?)
-        (scheme write)
-        (autodiff AD))
-
-(define (f x) (* x x))
-
-(display "(f 3) = ") (display (f 3))
-(display "  ; (f' 3) = ") (display ((derivative-F f) 3)) (newline)
-----
-
-The output is:
-
-----
-(f 3) = 9  ; (f' 3) = 6
-----
-
-Some further examples:
-
-[source,lisp]
-----
-(define (g x) (/ (* (+ x 1) (- x 2))
-                 (+ x 3)))
-
-(display "(g 3) = ") (display (g 3))
-(display "  ; (g' 3) = ") (display ((derivative-F g) 3)) (newline)
-
-(define (h x) (- x (/ (+ (* 4 x) 2)
-                      (+ x 3))))
-
-(display "(h 3) = ") (display (h 3))
-(display "  ; (h' 3) = ") (display ((derivative-F h) 3)) (newline)
-
-(display "(f x) = (1+x+e^x).sin x ; f'(0) = ") 
-(display ((derivative-F (lambda (x) (* (+ 1 x (exp x)) (sin x))))
-          0)) 
-(newline)
-----
-
-With output:
-
-----
-(g 3) = 2/3  ; (g' 3) = 13/18
-(h 3) = 2/3  ; (h' 3) = 13/18
-(f x) = (1+x+e^x).sin x ; f'(0) = 2.0
-----
-
+include::autodiff.txt[]
 
 === Natural Language Tool Kit: +(import (nltk NNNN))+
 
@@ -100,6 +29,9 @@ These libraries support natural-language processing tasks, such as dividing text
 displaying the n-grams, and working with a deterministic finite-state automaton.
 
 Some tests and examples are provided, but otherwise this collection needs documenting.
+
+https://www.researchgate.net/publication/248392618_The_Scheme_Natural_Language_Toolkit_SNLTK_NLP_libraries_for_R6RS_and_Racket[SNLTK] 
+publication from European Lisp Symposium, 2011.
 
 === Purely Functional Data Structures: +(import (pfds NNNN))+
 
@@ -143,49 +75,16 @@ indexterm:[rebottled]
 Some libraries ported from older Scheme versions or Common Lisp: these libraries are individual 
 or very few files.
 
-==== CL-PDF: +(import (rebottled cl-pdf))+
-
-indexterm:[cl-pdf]
-Originally written for Common Lisp by Marc Battyani, this library was then ported to Scheme 
-by Bruce Butterfield.
-
-The library allows us to construct and output PDF documents.  The following example 
-displays two repeated blocks of text and a title in a variety of fonts, sizes and 
-positions in the document.
-
-[source,lisp]
-----
-(define (ex1)
-  (pdf:with-document-to-file 
-    "ex1.pdf"
-    (let ((helvetica (pdf:build-font "Helvetica"))
-          (courier (pdf:build-font "Courier")))
-      (pdf:with-page
-        (pdf:in-text-mode
-          (pdf:set-font (pdf:font-name helvetica) 36)
-          (pdf:move-text 100 750)
-          (pdf:draw-text "scm-pdf: Example 1"))
-        (pdf:in-text-mode
-          (dotimes (i 25)
-            (pdf:set-font (pdf:font-name helvetica) (* i 1.5))
-            (pdf:move-text (+ i 5) (+ i 10))
-            (pdf:draw-text "Helvetica")))
-        (pdf:in-text-mode
-          (dotimes (i 25)
-            (pdf:set-font (pdf:font-name courier) (* i 1.5))
-            (pdf:move-text (+ i 5) (- 50 (+ i 10)))
-            (pdf:draw-text "Courier")))))))
-----            
-
-This library needs documentation, and some helper functions to layout larger blocks of text.
+include::rebottled-pdf.txt[]
 
 ==== JSON
 
 indexterm:[json]  A collection of JSON utilities provided by Takashi Kato for R6RS.  
 See https://github.com/ktakashi/json-tools[] for more details and documentation.
 
-Three packages:
+Four packages:
 
+* +(import (rebottled json))+
 * +(import (rebottled json-parser))+
 * +(import (rebottled json-select))+
 * +(import (rebottled json-tools))+
@@ -220,11 +119,8 @@ https://ds26gte.github.io/schelog/index.html[]
 
 === SRFI: +(import (srfi NN))+
 
-indexterm:[srfi] The +r7rs-libs+ include some SRFIs for Chibi and Kawa.  These
-are provided solely to provide support for the above libraries.  Although
-mostly complete in themselves, SRFI-64, for example, only provides those
-functions needed in the test suites to support Chibi, wrapping 
-equivalent +(chibi test)+ functions.
+indexterm:[srfi] The +r7rs-libs+ include some SRFIs required by this 
+collection for those implementations which do not otherwise provide them.  
 
 For documentation on the SRFIs, see http://srfi.schemers.org/final-srfis.html[]
 

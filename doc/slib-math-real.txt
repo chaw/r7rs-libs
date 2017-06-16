@@ -1,0 +1,34 @@
+=== Maths Real Functions: +(import (slib math-real))+
+
+indexterm:[math-real]
+The aim of this library is to prevent non-real numbers creeping into calculations.  
+An error is raised if non-real arguments are given to functions, or if non-real results 
+are returned.
+
+Further documentation: http://people.csail.mit.edu/jaffer/slib/Irrational-Real-Functions.html#Irrational-Real-Functions[]
+
+For example: indexterm:[real-sqrt] indexterm:[real-sin]
+
+[source,scheme]
+----
+sash[r7rs]> (sqrt -2)
+0.0+1.4142135623730951i
+sash[r7rs]> (real-sqrt -2)
+Unhandled exception
+  Condition components:
+  1. &error
+  2. &message real-sqrt
+  3. &irritants (-2)
+  4. &stack-trace
+
+sash[r7rs]> (sin 0+i)
+0.0+1.1752011936438014i
+sash[r7rs]> (real-sin 0+i)
+Unhandled exception
+  Condition components:
+  1. &error
+  2. &message real-sin
+  3. &irritants (0+1i)
+  4. &stack-trace
+----
+

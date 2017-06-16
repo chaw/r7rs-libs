@@ -48,7 +48,7 @@
 ;;;    Effect: converts item into a disjoint set item and adds to the disjoint-set
 ;;;    Output: unspecified
 ;;; disjoint-set:find
-;;;    Input: a disjoint set and an item
+;;;    Input: a disjoint set, an item, and an optional default value (for if not found)
 ;;;    Output: a reference to the representative item of set that given item appears in
 ;;; disjoint-set:union
 ;;;    Input: a disjoint set and two representative items
@@ -68,9 +68,11 @@
           disjoint-set:find 
           disjoint-set:union
           disjoint-set:size)
-  (import (scheme base) (scheme write)
-          (srfi 1)
-          (srfi 69))
+  (import (scheme base)
+          (scheme case-lambda)
+          (scheme list)
+          (scheme comparator)
+          (scheme hash-table))
 
   (begin
 
@@ -80,11 +82,22 @@
                         (item-equals? disjoint-set:item-equals?)
                         (items disjoint-set:items))
 
-    (define (make-disjoint-set equality? hash-fn)
-      (unless (and (procedure? hash-fn) 
-                   (procedure? equality?))
-        (error "make-disjoint-set expects two procedures as arguments"))
-      (create-dj-set equality? (make-hash-table equality? hash-fn)))
+    (define make-disjoint-set 
+      (case-lambda
+        ((comp)
+         (unless (comparator? comp)
+           (error "make-disjoint-set requires a comparator for a single argument"))
+         (create-dj-set (comparator-equality-predicate comp)
+                        (make-hash-table comp)))
+        ((equality? hash-fn)
+         (unless (and (procedure? hash-fn) 
+                      (procedure? equality?))
+           (error "make-disjoint-set expects two procedures as arguments"))
+         (create-dj-set equality? (make-hash-table 
+                                    (make-comparator (lambda (obj) #t) ; all types
+                                                     equality? 
+                                                     #f ; no ordering
+                                                     hash-fn))))))
 
     ;; define a record type for an item in the set: includes a parent reference and a rank
     ;; - parent reference is used to link back up to a representative of the item's set
@@ -105,20 +118,24 @@
                        item 
                        (make-item item item 0)))
 
-    ;; input: a disjoint-set and an item
+    ;; input: a disjoint-set, an item and an optional value to return if not found
     ;; effect: none - but path compression is used to optimise future searches
     ;; output: a representative item in set 
-    (define (disjoint-set:find set item)
-      (unless (disjoint-set? set)
-        (error "disjoint-set:find Expected a disjoint-set for set" set))
-      (let ((repn (hash-table-ref (disjoint-set:items set) item (lambda () #f))))
-        (if repn
-          (if ((disjoint-set:item-equals? set) item (parent repn))
-            (parent repn)
-            (let ((res (disjoint-set:find set (parent repn))))
-              (parent-set! repn res) ; path compression 
-              res))
-          'item-not-found)))
+    (define disjoint-set:find
+      (case-lambda
+        ((set item)
+         (disjoint-set:find set item 'item-not-found))
+        ((set item default)
+         (unless (disjoint-set? set)
+           (error "disjoint-set:find Expected a disjoint-set for set" set))
+         (let ((repn (hash-table-ref/default (disjoint-set:items set) item #f)))
+           (if repn
+             (if ((disjoint-set:item-equals? set) item (parent repn))
+               (parent repn)
+               (let ((res (disjoint-set:find set (parent repn))))
+                 (parent-set! repn res) ; path compression 
+                 res))
+             default)))))
 
     ;; input: a disjoint-set and representatives of two sets
     ;; effect: modify disjoint-set so the two represented sets are equivalent
@@ -126,8 +143,8 @@
     (define (disjoint-set:union set item-1 item-2)
       (unless (disjoint-set? set)
         (error "disjoint-set:union Expected a disjoint-set for set" set))
-      (let ((root-1 (hash-table-ref (disjoint-set:items set) (disjoint-set:find set item-1) (lambda () #f)))
-            (root-2 (hash-table-ref (disjoint-set:items set) (disjoint-set:find set item-2) (lambda () #f))))
+      (let ((root-1 (hash-table-ref/default (disjoint-set:items set) (disjoint-set:find set item-1) #f))
+            (root-2 (hash-table-ref/default (disjoint-set:items set) (disjoint-set:find set item-2) #f)))
         (unless root-1 
           (error "disjoint-set:union Item not found in disjoint-set items" item-1))
         (unless root-2
@@ -144,6 +161,7 @@
     ;; input: a disjoint-set
     ;; output: returns the number of sets in the disjoint-set
     (define (disjoint-set:size set)
+<<<<<<< HEAD
       (let ((roots-ht (make-hash-table (disjoint-set:item-equals? set)
                                        (hash-table-hash-function
                                         (disjoint-set:items set)))))
@@ -153,5 +171,15 @@
                                             (disjoint-set:find set k)
                                             #t)))
         (hash-table-size roots-ht))) 
+=======
+      (let ((roots-ht (hash-table-empty-copy (disjoint-set:items set))))
+        (hash-table-for-each (lambda (k v)
+                               (hash-table-set! roots-ht
+                                                (disjoint-set:find set k)
+                                                #t))
+                             (disjoint-set:items set))
+        (hash-table-size roots-ht)))
+
+>>>>>>> 1ea403dba61713de3676b04e07b01235e31e7043
     ))
 

@@ -42,7 +42,7 @@
           make-directory
           )
   (import (scheme base)
-          (scheme case-lambda)
+          (scheme case-lambda)        (slib format)
           (slib filename))
 
   ;; functions must be defined in platform specific ways
@@ -50,7 +50,7 @@
     ;;
     ((library (chibi filesystem))
      (import (chibi filesystem)
-             (srfi 1))
+             (scheme list))
      (begin ; good support
        ; change-directory exported
        ; current-directory exported
@@ -94,18 +94,71 @@
 
        (define make-directory create-directory*)))
     ;;
+    (gauche
+      (import (file util)
+              (scheme list))
+      (begin
+        (define (change-directory str) (current-directory str))
+        
+        ; current-directory exported
+        
+        (define (delete-directory str) (delete-directory* str))
+        
+        (define list-directory directory-list)
+
+        (define list-directory-files
+          (case-lambda 
+            ((dir)
+             (list-directory-files dir #f))
+            ((dir flag)
+             (let ((curr (current-directory)))
+               (let-values (((subdirs files) (directory-list2 dir)))
+                           (if flag
+                             (map (lambda (file) (string-append curr "/" dir "/" file))
+                                  files)
+                             files))))))
+
+        (define list-glob 
+          (case-lambda 
+            ((glob) ; return result as a list
+             (define glob-match? (filename:match?? glob))
+             (define (collect-files dir) ; return list of all files, recursively, in dir
+               (let-values (((subdirs files) (directory-list2 dir)))
+                           (fold append (filter glob-match? files)
+                                 (map collect-files 
+                                      (map (lambda (d) (string-append dir "/" d))
+                                          (remove (lambda (d) (member d '("." "..") string=?))
+                                                  subdirs))))))
+             ;
+             (collect-files (current-directory)))
+            ((glob proc) ; apply proc to each result in list, returns #f
+             (define glob-match? (filename:match?? glob))
+             (define (process-files dir) 
+               (let-values (((subdirs files) (directory-list2 dir)))
+               (format #t "Collect ~a ~a ~a~&" dir files (filter glob-match? files))
+                           (for-each proc (filter glob-match? files))
+                           (for-each process-files 
+                                     (map (lambda (d) (string-append dir "/" d))
+                                          (remove (lambda (d) (member d '("." "..") string=?))
+                                                  subdirs)))))
+             ;
+             (process-files (current-directory))
+             #f)))
+
+        (define (make-directory str) (current-directory str))))
+    ;;
     (kawa ; good support through JVM, except for cd
       (import (only (kawa lib files) create-directory)
               (only (kawa lib ports) current-path)
               (kawa lib system)
               (only (kawa base) as invoke invoke-static)
-              (only (srfi 1) fold remove))
+              (only (scheme list) fold remove))
       (begin
-        (define (is-directory? dir)
+        (define (is-directory? filename)
           (invoke-static java.nio.file.Files 'isDirectory 
-                         (as java.nio.file.Path (str->path dir))))
+                         (as java.nio.file.Path (str->path filename))))
 
-        (define (change-directory str) (system (string-append "cd " str)))
+        (define (change-directory str) (system (string-append "cd " str))) ; TODO: Not working on Kawa
 
         (define (current-directory) (as String (current-path)))
 
@@ -127,14 +180,14 @@
           (case-lambda 
             ((dir)
              (list-directory-files dir #f))
-            ((dir flag)
+            ((dir flag) 
              (map (lambda (file) ; list-directory-files must return just the filenames
                     (if flag ; on true, return complete path, else just filename part
                       (invoke (invoke (str->path file) 'toAbsolutePath)
                               'toString)
                       (invoke (invoke (str->path file) 'getFileName)
                               'toString)))
-                  (remove is-directory? (list-directory dir))))))
+                  (remove is-directory? (map (lambda (p) (string-append dir "/" p)) (list-directory dir)))))))
 
         (define list-glob
           (case-lambda 
@@ -173,11 +226,11 @@
     ;;
     (larceny ; poor support: calls out to system
       (import (primitives current-directory list-directory system)
-              (srfi 1))
+              (scheme list))
       (begin 
         (define (is-directory? str) (zero? (system (string-append "test -d " str))))
 
-        (define (change-directory str) (system (string-append "cd " str)))
+        (define (change-directory str) (system (string-append "cd " str))) ; TODO: Not working on Larceny
 
         ; current-directory exported
 
@@ -203,11 +256,10 @@
              (define glob-match? (filename:match?? glob))
              (define (collect-files dir) ; return list of all files, recursively, in dir
                (cond ((is-directory? dir)
-                      (let ((current (current-directory))
-                            (res (fold append '()
-                                       (map collect-files (map (lambda (p) (string-append dir "/" p)) (list-directory dir))))))
-                        (change-directory current)
-                        res))
+                      (fold append '()
+                            (map collect-files 
+                                 (map (lambda (p) (string-append dir "/" p))
+                                      (list-directory dir)))))
                      ((glob-match? dir)
                       (list dir))
                      (else ; ignore file
@@ -216,12 +268,11 @@
              (collect-files (current-directory)))
             ((glob proc)
              (define glob-match? (filename:match?? glob))
-             (define (process-files dir) ; return list of all files, recursively, in dir
+             (define (process-files dir) ; visit list of all files, recursively, in dir
                (cond ((is-directory? dir)
-                      (let ((current (current-directory)))
-                        (for-each process-files (map (lambda (p) (string-append dir "/" p)) (list-directory dir)))
-                        (change-directory current)
-                        #f))
+                      (for-each process-files 
+                                (map (lambda (p) (string-append dir "/" p)) 
+                                     (list-directory dir))))
                      ((glob-match? dir) ; run proc on the function
                       (proc dir))
                      (else ; ignore file
@@ -235,7 +286,7 @@
     (sagittarius ; good support for functions
       (import (sagittarius)
               (util file)
-              (only (srfi 1) filter))
+              (only (scheme list) filter))
       (begin
 
         (define (change-directory str) (set-current-directory str))

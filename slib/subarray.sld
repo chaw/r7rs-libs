@@ -25,7 +25,6 @@
           array-trim)
   (import (except (scheme base) equal?)
           (scheme cxr)
-          (slib common)
           (srfi 63))
 
   (begin
@@ -98,7 +97,7 @@
                (cond ((null? dims)
                       (if (null? sels)
                         (reverse ndims)
-                        (slib:error
+                        (error
                           'subarray 'rank (array-rank array) 'mismatch selects)))
                      ((null? sels)
                       (loop sels (cdr dims) (cons (car dims) ndims)))
@@ -144,7 +143,7 @@
                        '()
                        (cons (list 0 (+ -1 (car dims))) shps))))
               ((null? dims)
-               (slib:error 'array-trim 'too 'many 'trims trims))
+               (error 'array-trim 'too 'many 'trims trims))
               ((negative? (car trims))
                (loop (cdr dims)
                      (cdr trims)

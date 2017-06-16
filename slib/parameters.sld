@@ -34,7 +34,7 @@
   (import (scheme base)
           (scheme cxr)
           (slib common)
-          (only (srfi 1) every remove))
+          (only (scheme list) every remove))
 
   (begin
 
@@ -116,13 +116,13 @@
                         (for-each
                           (lambda (news)
                             (cond ((adjoin-parameters! parms news))
-                                  (else (slib:error
+                                  (else (error
                                           "expanded feature unknown: " news))))
                           (apply append
                                  (map (lambda (p)
                                         (cond ((expander p))
                                               ((not '()) '())
-                                              (else (slib:error
+                                              (else (error
                                                       "couldn't expand feature: " p))))
                                       (cdr parm)))))))
                   expanders
@@ -152,7 +152,7 @@
       (remove (lambda (elt)
                 (cond ((not (and (pair? elt) (eqv? pname (car elt)))) #f)
                       (found?
-                        (slib:error
+                        (error
                           'remove-parameter 'multiple pname 'in parameter-list))
                       (else (set! found? #t) #t)))
               parameter-list))

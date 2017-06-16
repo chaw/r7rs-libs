@@ -17,8 +17,7 @@
           dequeue-all!
           queue-front
           queue-rear)
-  (import (scheme base)
-          (slib common))
+  (import (scheme base))
 
   (begin
 
@@ -77,7 +76,7 @@
     (define (dequeue! q)
       (let ((first-pair (queue-first q)))
         (if (null? first-pair)
-          (slib:error "queue is empty" q)
+          (error "queue is empty" q)
           (let ((first-cdr (cdr first-pair)))
             (queue-first-set! q first-cdr)
             (when (null? first-cdr)
@@ -101,7 +100,7 @@
     (define (queue-front q)
       (let ((first-pair (queue-first q)))
         (if (null? first-pair)
-          (slib:error "queue is empty" q)
+          (error "queue is empty" q)
           (car first-pair))))
 
     ;;@body
@@ -109,7 +108,7 @@
     (define (queue-rear q)
       (let ((last-pair (queue-last q)))
         (if (null? last-pair)
-          (slib:error "queue is empty" q)
+          (error "queue is empty" q)
           (car last-pair))))
 
     ))

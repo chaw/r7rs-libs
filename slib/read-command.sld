@@ -35,7 +35,6 @@
           (scheme file)
           (scheme read)
           (scheme write)
-          (slib common)
           (slib string-port))
 
   (begin
@@ -164,7 +163,7 @@
       (read-command-from-port (cond ((null? port) (current-input-port))
                                     ((= 1 (length port)) (car port))
                                     (else
-                                      (slib:error 'read-command
+                                      (error 'read-command
                                                   "Wrong Number of ARGs:" port)))
                               #t))
 

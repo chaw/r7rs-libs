@@ -30,10 +30,10 @@
   (begin
 
     (define (tzfile:read-long port)
-      (let ((hibyte (read-byte port)))
+      (let ((hibyte (read-u8 port)))
         (do ((idx 3 (+ -1 idx))
              (val (if (> hibyte 127) (+ #x-100 hibyte) hibyte)
-                  (+ (* val 256) (read-byte port))))
+                  (+ (* val 256) (read-u8 port))))
           ((zero? idx) val))))
     (define (tzfile:read-longs len port)
       (define ra (make-vector len 0))
@@ -42,16 +42,16 @@
         (vector-set! ra idx (tzfile:read-long port))))
 
     (define (tzfile:read-bool port)
-      (let ((c (read-char port)))
-        (if (eof-object? c) c (not (zero? (char->integer c))))))
+      (let ((c (read-u8 port)))
+        (if (eof-object? c) c (not (zero? c)))))
     ;@
     (define (tzfile:read path)
       (call-with-open-ports
-        (open-file path 'rb)
+        (open-file path 'rb) 
         (lambda (port)
           (do ((idx 0 (+ 1 idx)))		;reserved.
             ((>= idx 20))
-            (read-char port))
+            (read-u8 port))
           (let* ((ttisgmtcnt (tzfile:read-long port))
                  (ttisstdcnt (tzfile:read-long port))
                  (leapcnt (tzfile:read-long port))
@@ -63,14 +63,14 @@
                    (do ((ra (make-vector timecnt 0))
                         (idx 0 (+ 1 idx)))
                      ((>= idx timecnt) ra)
-                     (vector-set! ra idx (read-byte port))))
+                     (vector-set! ra idx (read-u8 port))))
                  ;;(printf "  typecnt = %d\\n" typecnt)
                  (mode-table (do ((tt (make-vector typecnt #f))
                                   (idx 0 (+ 1 idx)))
                                ((>= idx typecnt) tt)
                                (let* ((gmt-offset (tzfile:read-long port))
                                       (isdst (tzfile:read-bool port))
-                                      (abbrev-index (read-byte port)))
+                                      (abbrev-index (read-u8 port)))
                                  (vector-set! tt idx
                                               (vector abbrev-index gmt-offset
                                                       isdst #f #f)))))
@@ -78,7 +78,7 @@
                  (abbrevs (do ((ra (make-bytes charcnt 0))
                                (idx 0 (+ 1 idx)))
                             ((>= idx charcnt) ra)
-                            (byte-set! ra idx (read-byte port))))
+                            (byte-set! ra idx (read-u8 port))))
                  (leap-seconds (tzfile:read-longs (* 2 leapcnt) port)))
             (cond ((not (or (eqv? 0 ttisstdcnt) (eqv? typecnt ttisstdcnt)))
                    (slib:warn 'tzfile:read "format error" ttisstdcnt typecnt)))

@@ -1,0 +1,28 @@
+=== Saturated Colour System: +(import (slib saturate))+
+
+indexterm:[resene]
+This library provides a mapping of saturated colour names to colour values (as
+defined in +(slib color)+).
+
+Two functions are provided:
+
+. indexterm2:[+saturate-names+] returns a list of all the names
+. indexterm2:[+saturate+] returns the named colour
+
+[source,scheme]
+----
+sash[r7rs]> (import (slib saturate))
+#<unspecified>
+sash[r7rs]> (length (saturate-names))
+19
+sash[r7rs]> (saturate-names)         
+("green" "greenish blue" "reddish purple" "purplish blue" "yellow green" "bluish purple" "yellow" "blue" "blue green" "purplish red" "red purple" "yellowish orange" "bluish green" "reddish orange" "purple" "red" "yellowish green" "greenish yellow" "orange")
+sash[r7rs]> (saturate "red")
+#<<color> 0x35c02c0>
+sash[r7rs]> (color->string (saturate "red"))  ; <1>
+"CIEXYZ:0.735484/0.264516/0"
+sash[r7rs]> (saturate "rnd")                  ; <2>
+#f
+----
+<1> +color->string+ is available from the +(slib color)+ library
+<2> +saturate+ returns +#f+ if the name is not recognised

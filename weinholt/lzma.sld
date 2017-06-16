@@ -28,9 +28,8 @@
   (weinholt lzma)
   (export lzma-decode-chunk)
   (import (scheme base)
-          (pfds bitwise)
           (r6rs fixnums)
-          (srfi 60)
+          (only (srfi 151) arithmetic-shift bitwise-and bitwise-ior)
           (weinholt bytevector)
           (weinholt sliding-buffer))
 
@@ -46,8 +45,6 @@
                     ((_ . args) (begin 'dummy))))
 
     (define (lzma-decode-chunk in dictionary usize lc lp pb position)
-      (define asl arithmetic-shift)
-      (define asr bitwise-arithmetic-shift-right)
       (define fxasl fxarithmetic-shift-left)
       (define fxasr fxarithmetic-shift-right)
       ;; Range coding. This can use fixnums if fixnum-width can fit
@@ -72,15 +69,15 @@
 
       (define (rc-normalize)
         (when (< rc.range (expt 2 rc-top-bits))
-          (set! rc.range (asl rc.range 8))
+          (set! rc.range (arithmetic-shift rc.range 8))
           (set! rc.code (bitwise-and #xFFFFFFFF
-                                     (bitwise-ior (read-u8 in) (asl rc.code 8))))
+                                     (bitwise-ior (read-u8 in) (arithmetic-shift rc.code 8))))
           (trace "rc-normalize")))
 
       (define (rc-zero? P i)
         (rc-normalize)
         (let ((Pi (vector-ref P i)))
-          (set! rc.bound (* Pi (asr rc.range rc-model-total-bits)))
+          (set! rc.bound (* Pi (arithmetic-shift rc.range (- rc-model-total-bits))))
           (trace ";; " (if (< rc.code rc.bound) 'ZERO 'one)
                  ". code: " rc.code " bound: " rc.bound)
           ;; Update probabilities
@@ -97,22 +94,22 @@
 
       (define (rc-get-bit P i mi)
         (if (rc-zero? P i)
-          (asl mi 1)
-          (bitwise-ior (asl mi 1) #b1)))
+          (arithmetic-shift mi 1)
+          (bitwise-ior (arithmetic-shift mi 1) #b1)))
 
       (define (rc-get-bit* P i mi)
         (if (rc-zero? P i)
-          (values 0 (asl mi 1))
-          (values 1 (bitwise-ior (asl mi 1) #b1))))
+          (values 0 (arithmetic-shift mi 1))
+          (values 1 (bitwise-ior (arithmetic-shift mi 1) #b1))))
 
       (define (rc-bit-tree-decode P i bits)
         (do ((ret 1 (rc-get-bit P (+ i ret) ret))
              (j bits (fx- j 1)))
-          ((fxzero? j) (- ret (asl 1 bits)))))
+          ((fxzero? j) (- ret (arithmetic-shift 1 bits)))))
 
       (define (rc-direct-bit)
         (rc-normalize)
-        (set! rc.range (asr rc.range 1))
+        (set! rc.range (arithmetic-shift rc.range -1))
         (cond ((>= rc.code rc.range)
                (set! rc.code (- rc.code rc.range))
                1)
@@ -218,7 +215,7 @@
                           (if (fxzero? bit)
                             (lp (fx+ n 1) symbol (fx- bits 1) distance)
                             (lp (fx+ n 1) symbol (fx- bits 1)
-                                (bitwise-ior distance (asl 1 n))))))))
+                                (bitwise-ior distance (arithmetic-shift 1 n))))))))
         (trace ";; decoding a match distance...")
         (let ((pos-slot (rc-bit-tree-decode pos-slot-decoders
                                             ;; Different probabilities are
@@ -245,11 +242,11 @@
                             ;; bits that aren't encoded with probabilities.
                             (trace "direct bits")
                             (do ((i (fx- bits distance-bits-alignment) (fx- i 1))
-                                 (dist distance (bitwise-ior (asl dist 1) (rc-direct-bit))))
+                                 (dist distance (bitwise-ior (arithmetic-shift dist 1) (rc-direct-bit))))
                               ((fxzero? i)
                                (trace "alignment bits")
                                (get-bits alignment-decoders 0 distance-bits-alignment
-                                         (asl dist distance-bits-alignment)))))))))))
+                                         (arithmetic-shift dist distance-bits-alignment)))))))))))
 
       ;; For the encoding of literals
       (define literal-coder-size #x300)
@@ -285,7 +282,7 @@
             (rep-G2-decoders (make-bit-model number-of-states))
             (rep-0-long-decoders (make-bit-model (* number-of-states
                                                     (expt 2 maximum-position-bits))))
-            (literal-decoders (make-bit-model (asl literal-coder-size #;4 (+ lc lp))))
+            (literal-decoders (make-bit-model (arithmetic-shift literal-coder-size #;4 (+ lc lp))))
                                                    (pos-decoders (make-bit-model (- full-distances end-pos-model-index)))
                                                    (pos-slot-decoders (make-bit-model (* length-to-position-states
                                                                                          (expt 2 distance-bits-pos-slot))))
@@ -301,7 +298,7 @@
                                                   (values #f #f len-decoders (state+match state) rep0 rep1 rep2)
                                                   (if (rc-zero? rep-G0-decoders state)
                                                     (if (rc-zero? rep-0-long-decoders
-                                                                  (+ (asl state maximum-position-bits) position-state))
+                                                                  (+ (arithmetic-shift state maximum-position-bits) position-state))
                                                       (values (- 1 minimum-match-length)
                                                               rep0 rep-len-decoders (state+short-repeat state)
                                                               rep1 rep2 rep3)
@@ -321,8 +318,8 @@
                                                                                     (state state.literal->literal)
                                                                                     (rep0 1) (rep1 1) (rep2 1) (rep3 1))
                                                 (rc-reset)
-                                                (let ((position-state-mask (- (asl 1 pb) 1))
-                                                      (literal-pos-mask (- (asl 1 lp) 1)))
+                                                (let ((position-state-mask (- (arithmetic-shift 1 pb) 1))
+                                                      (literal-pos-mask (- (arithmetic-shift 1 lp) 1)))
                                                   ;; Decoder loop
                                                   (let loop ((position position) (chunk-position 0)
                                                                                  (state state) (rep0 rep0) (rep1 rep1)
@@ -349,9 +346,9 @@
                                                                      (let* ((previous-byte (if (positive? position)
                                                                                              (sliding-buffer-lookback-u8 dictionary 1)
                                                                                              0))
-                                                                            (subcoder (* (+ (asl (bitwise-and position literal-pos-mask)
+                                                                            (subcoder (* (+ (arithmetic-shift (bitwise-and position literal-pos-mask)
                                                                                                  lc)
-                                                                                            (asr previous-byte (fx- 8 lc)))
+                                                                                            (arithmetic-shift previous-byte (- (fx- 8 lc))))
                                                                                          literal-coder-size))
                                                                             (match-byte (and (not (literal-state? state))
                                                                                              (sliding-buffer-lookback-u8 dictionary

@@ -7,9 +7,17 @@ Documentation in [pdf](http://peterlane.info/downloads/r7rs.pdf) and [html](http
 Tested against:
 
 * Chibi 0.7.3: https://github.com/ashinn/chibi-scheme/
-* Kawa 2.3: https://www.gnu.org/software/kawa/
+* Gauche 0.9.5: http://practical-scheme.net/gauche/
+  * ensure the environment variable GAUCHE_KEYWORD_IS_SYMBOL is set so that 
+    keywords are treated as symbols
+* Kawa 2.4: https://www.gnu.org/software/kawa/
 * Larceny 0.99: http://www.larcenists.org/
-* Sagittarius 0.8.2: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
+* Sagittarius 0.8.4: https://bitbucket.org/ktakashi/sagittarius-scheme/wiki/Home
+
+The libraries require R7RS-large, RedEdition.  
+Currently, only Sagittarius comes with support for these libraries.  See 
+[r7rs-large](https://github.com/petercrlane/r7rs-large/) for a complete 
+implementation for the other Scheme implementations mentioned above.
 
 ## AutoDiff
 
@@ -55,7 +63,6 @@ R6RS Scheme: https://github.com/ijp/pfds
 And, to support implementation:
 
 * alist
-* bitwise
 * lazy-list
 * list-helpers
 * vector
@@ -75,11 +82,18 @@ sources:
 
 * cl-pdf - Port of a Common Lisp library for writing PDF files
 * cl-pdf-utils
-* json-parser - Takashi Kato's libraries for working with JSON
+* json - Takashi Kato's libraries for working with JSON
+* json-parser
 * json-select
+  * The above two libraries do not load into Gauche 0.9.5 (fixed in master)
 * json-tools
 * packrat - Tony Garnock-Jones' Packrat Parser Library
 * pregexp - Dorai Sitaram's Portable regular expressions for Scheme
+* pstk - Uses 'tclsh' to create graphical interfaces/programs
+  * Currently supports Chibi, Gauche and Sagittarius
+  * Chibi and Gauche rely on calling /bin/sh, so are Linux(?) only
+  * Sagittarius tested on Linux and Windows
+* pstk-plotchart - requires 'tklib' 
 * quaternion - Dorai Sitaram's quaternion numbers
 * schelog - Dorai Sitaram's logic-style programming in Scheme
   * not working on Kawa (due to call/cc)
@@ -91,6 +105,7 @@ A set of libraries written for R7RS Scheme:
 * abbrev - creates a set of unambiguous abbreviations for strings (based on Ruby's Abbrev class)
 * constants - some commonly used mathematical or scientific numbers
 * directory - portable directory-handling functions
+  * change-directory not working on Kawa and Larceny
 * disjoint-set - data structure to hold sets of items in disjoint sets
 * logger - a logging framework (based on Ruby's Logger class)
 * series - a mostly complete (though inefficient) version of Richard Waters' Lisp Series package
@@ -118,6 +133,9 @@ Main changes are:
 * code uses SRFIs where possible
 * defmacro not included
 * parameters wrap exported variables
+* slib:error replaced by error, to reduce library dependencies
+* (srfi 59) for vicinities has been removed: 
+  * added function `pathname->dirname` to (slib directory) to replace `pathname->vicinity`
 
 The following list of packages reflects the contents page of the slib
 documentation, and gives some notes on any changes or choices made:
@@ -148,8 +166,11 @@ moved, as required, into `(slib common)`.
     available as parameters
   * three test cases fail (a known issue in this implementation)
   * alternatively use (srfi 28)
+  * Larceny 0.99 often cycles with "Unhandled condition" errors when using format (though tests all pass and some examples work fine)
 * printf
 * scanf
+  * Note: scanf, fscanf and sscanf removed (as no define-macro)
+  * Additionally exports scanf-read-values
 * getopt
   * provided option-index/option-arg/option-name as parameters to access values
 * comparse
@@ -176,7 +197,7 @@ moved, as required, into `(slib common)`.
 
 5: Mathematical libraries
 
-* logical: use (srfi 60)
+* logical: use (srfi 151)
 * modular
 * math-integer
 * math-real
@@ -233,13 +254,13 @@ moved, as required, into `(slib common)`.
 
 7.2: Sorting and Searching
 
-* common-list-functions: use (srfi 1)
+* common-list-functions: use (scheme list)
 * tree
 * chapter-order
-* sort: use (srfi 132) or (srfi 95)
+* sort: use (scheme sort) 
 * topological-sort
-* hash-table: use (srfi 125) or (srfi 69)
-* hash: or use (srfi 128)
+* hash-table: use (scheme hash-table)
+* hash: or use (scheme comparator)
 * space-filling
 * hilbert-fill
 * peano-fill
@@ -264,33 +285,25 @@ moved, as required, into `(slib common)`.
 
 (Remainder mostly in R7RS already: some added to `(slib common)` if necessary.)
 
-### Required SRFIs
-
-Some of the libraries require the following SRFIs (in place of related SLIB files):
-
-* srfi 1   Lists
-* srfi 13  Strings
-* srfi 27  Random Bits
-* srfi 59  Vicinities
-* srfi 60  Integers as Bits
-* srfi 63  Arrays
-* srfi 69  Hash Tables 
-* srfi 95  Sorting
-
 ## SRFIs
 
-A few SRFIs are implemented here.  These fill gaps in those SRFIs provided by
-some implementations and support the above libraries.  Provided SRFIs:
+A few SRFIs are provided here.  These fill gaps in those SRFIs provided by some
+implementations and support the remaining libraries.  The
+implementation-specific SRFIs are organised in the 'srfis' folder, by
+implementation, including:
 
 * srfi 27  for Kawa only: A wrapper around the JVM's Random class.
-* srfi 42  simply the reference implementation (not needed)
-* srfi 59  for Chibi, Kawa, Sagittarius
-* srfi 60  for Chibi
-* srfi 63  SLIB's array.scm implemented as a srfi library
-* srfi 64  for Chibi only: A partial implementation, wrapping (chibi test) -- required for running tests with Chibi
-* srfi 95  for Sagittarius: a partial wrapper around (srfi 132)
+* srfi 64  for Gauche and Chibi 
 
-The SRFIs are organised in the 'srfis' folder, by implementation.
+The 'srfi' folder contains SRFIs for all R7RS implementations:
+
+* srfi 2   and-let\*
+* srfi 8   receive
+* srfi 42  Eager Comprehensions (lightly modified reference implementation)
+* srfi 63  SLIB's array.scm implemented as a srfi library
+* srfi 151 Bitwise Operations (reference implementation tailored to R7RS
+  implementations) - anticipating its acceptance in place of srfi 142
+
 
 ## Weinholt (partial)
 
@@ -300,9 +313,9 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * arcfour
 * bitstream
 * blowfish
-  * Tests pass with Chibi and Larceny, not Kawa
+  * Tests fail on Kawa, pass on rest
 * bytevector
-* (des - tests fail in Kawa / overflow Larceny / fail Sagittarius)
+* des 
 * dh
 * elliptic-curve
 * entropy
@@ -311,9 +324,11 @@ Repackaging of R6RS compression/cryptography libraries from https://github.com/w
 * maths
 * md5
 * sha-1
-* sha-2 (1 failure on Kawa / tests fail to run in Sagittarius)
+* sha-2 
 * sliding-buffer
 * strings
+
+(Chibi and Larceny run particularly slow when testing these libraries.)
 
 The net packages are not converted, due to lack of portable libraries.
 

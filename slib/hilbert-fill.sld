@@ -31,8 +31,9 @@
           gray-code>=?
           delaminate-list)
   (import (scheme base)
-          (slib common)
-          (srfi 60))
+          (only (srfi 60)  ;; TODO: Replace with SRFI 151
+                arithmetic-shift bit-set? bitwise-and bitwise-ior bitwise-not bitwise-xor
+                integer-length list->integer log2-binary-factors rotate-bit-field))
 
   (begin
 
@@ -85,8 +86,8 @@
     ;;@var{k}.
     (define (integer->hilbert-coordinates scalar rank . nbits)
       (define igry (integer->gray-code scalar))
-      (define rnkmsk (lognot (ash -1 rank)))
-      (define rnkhib (ash 1 (+ -1 rank)))
+      (define rnkmsk (bitwise-not (arithmetic-shift -1 rank)))
+      (define rnkhib (arithmetic-shift 1 (+ -1 rank)))
       (define rank*nbits
         (if (null? nbits)
           (let ((rank^2 (* rank rank)))
@@ -94,11 +95,11 @@
                rank^2))
           (* rank (car nbits))))
       (do ((bdxn (- rank rank*nbits) (+ rank bdxn))
-           (chnk (ash igry (- rank rank*nbits))
-                 (logxor rnkhib (logand (ash igry (+ rank bdxn)) rnkmsk)))
+           (chnk (arithmetic-shift igry (- rank rank*nbits))
+                 (bitwise-xor rnkhib (bitwise-and (arithmetic-shift igry (+ rank bdxn)) rnkmsk)))
            (rotation 0 (modulo (+ (log2-binary-factors chnk) 2 rotation) rank))
-           (flipbit 0 (ash 1 rotation))
-           (lst '() (cons (logxor flipbit (rotate-bit-field chnk rotation 0 rank))
+           (flipbit 0 (arithmetic-shift 1 rotation))
+           (lst '() (cons (bitwise-xor flipbit (rotate-bit-field chnk rotation 0 rank))
                           lst)))
         ((positive? bdxn)
          (map gray-code->integer (delaminate-list rank (reverse lst))))))
@@ -117,16 +118,16 @@
         (if (zero? nbits)
           0
           (let ((lst (delaminate-list nbits (map integer->gray-code coords)))
-                (rnkhib (ash 1 (+ -1 rank))))
+                (rnkhib (arithmetic-shift 1 (+ -1 rank))))
             (define (loop lst rotation flipbit scalar)
               (if (null? lst)
                 (gray-code->integer scalar)
-                (let ((chnk (rotate-bit-field (logxor flipbit (car lst))
+                (let ((chnk (rotate-bit-field (bitwise-xor flipbit (car lst))
                                               (- rotation) 0 rank)))
                   (loop (cdr lst)
                         (modulo (+ (log2-binary-factors chnk) 2 rotation) rank)
-                        (ash 1 rotation)
-                        (logior (logxor rnkhib chnk) (ash scalar rank))))))
+                        (arithmetic-shift 1 rotation)
+                        (bitwise-ior (bitwise-xor rnkhib chnk) (arithmetic-shift scalar rank))))))
             (loop (cdr lst)
                   (modulo (+ (log2-binary-factors (car lst)) 2) rank)
                   1
@@ -162,14 +163,14 @@
     ;;@end example
     ;;@end defun
     (define (integer->gray-code k)
-      (logxor k (arithmetic-shift k -1)))
+      (bitwise-xor k (arithmetic-shift k -1)))
     (define (gray-code->integer k)
       (if (negative? k)
-        (slib:error 'gray-code->integer 'negative? k)
+        (error 'gray-code->integer 'negative? k)
         (let ((kln (integer-length k)))
           (do ((d 1 (* d 2))
-               (ans (logxor k (arithmetic-shift k -1)) ; == (integer->gray-code k)
-                    (logxor ans (arithmetic-shift ans (* d -2)))))
+               (ans (bitwise-xor k (arithmetic-shift k -1)) ; == (integer->gray-code k)
+                    (bitwise-xor ans (arithmetic-shift ans (* d -2)))))
             ((>= (* 2 d) kln) ans)))))
 
     (define (grayter k1 k2)
@@ -225,7 +226,7 @@
     (define (delaminate-list count ks)
       (define nks (length ks))
       (do ((kdx 0 (+ 1 kdx))
-           (lst '() (cons (list->integer (map (lambda (k) (logbit? kdx k)) ks))
+           (lst '() (cons (list->integer (map (lambda (k) (bit-set? kdx k)) ks))
                           lst)))
         ((>= kdx count) lst)))
 

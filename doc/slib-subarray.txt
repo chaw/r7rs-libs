@@ -1,0 +1,99 @@
+=== Subarray: +(import (slib subarray))+
+
+indexterm:[subarray]
+The subarray library is used to identify smaller components of arrays.  
+The returned array shares storage with the original, so a copy should be made if required.
+
+==== array-trim
+
+indexterm2:[+array-trim+] is a simplified version of +subarray+.  Its first
+argument should be a vector or array.  The following arguments, one per
+dimension of the array, indicate how much to remove from one or other end.
+Positive values take from the "left", low-index, side and negative values from
+the "right", high-index side.
+
+[source,scheme]
+----
+#|kawa:46|# (define a (list->array 2 #() '((1 2 3) (4 5 6) (7 8 9))))
+#|kawa:47|# (array->list (array-trim a 1 0))  ; <1>
+((4 5 6) (7 8 9))
+#|kawa:48|# (array->list (array-trim a 0 1))  ; <2>
+((2 3) (5 6) (8 9))
+#|kawa:49|# (array->list (array-trim a 2 -1)) ; <3>
+((7 8))
+----
+<1> Trim the first row
+<2> Trim the first column
+<3> Trim the first two rows and last column
+
+As with +subarray+, the trimmed array shares storage with the source array.
+
+==== subarray
+
+indexterm2:[+subarray+] precisely selects contiguous subsets of a given array.  Its first argument should be 
+an array.  There follow one argument per dimension of the array.  Each argument is either:
+
+* an integer: selecting that index of the given dimension
+* a pair of integers: selecting that range of indices in the given dimension
+* +#f+: making no selection, and so that dimension is not altered.
+
+If there are less arguments than dimensions, the remainder are treated as +#f+.
+
+[source,scheme]
+----
+#|kawa:4|# (define a (list->array 2 #() '((1 2 3) (4 5 6) (7 8 9))))
+#|kawa:11|# (array->list (subarray a 1 #f))           ; <1>
+(4 5 6)
+#|kawa:12|# (array->list (subarray a #f 1))           ; <2>
+(2 5 8)
+#|kawa:14|# (array->list (subarray a #f '(0 1)))      ; <3>
+((1 2) (4 5) (7 8))
+#|kawa:15|# (array->list (subarray a '(1 0) #f))      ; <4>
+((4 5 6) (1 2 3))
+#|kawa:17|# (array->list (subarray a '(2 1) '(0 1)))  ; <5>
+((7 8) (4 5))
+----
+<1> Selects a single row in the array: the second row
+<2> Selects a single column in the array: the second column
+<3> Selects the first and second columns 
+<4> Selects the last two rows, but in reverse order
+<5> Selects the last two rows in reverse, and the first two columns
+
+Although the arrays are shared, information is reported as appropriate:
+
+[source,scheme]
+----
+#|kawa:18|# (define b (subarray a '(2 1) '(0 1)))
+#|kawa:19|# (array-dimensions a)
+(3 3)
+#|kawa:20|# (array-dimensions b)
+(2 2)
+#|kawa:21|# (array-rank b)
+2
+#|kawa:25|# (array-set! b 'X 0 0)
+#|kawa:26|# (array->list a)           ; <1>
+((1 2 3) (4 5 6) (X 8 9))
+#|kawa:27|# (array->list b)
+((X 8) (4 5))
+----
+<1> The source array, +a+, has also been changed in the appropriate place
+
+There is no array-copy function in SLIB.  The following can be used:
+
+[source,scheme]
+----
+#|kawa:39|# (define c (array-map #() identity b))     ; <1>
+#|kawa:40|# (array->list c)
+((X 8) (4 5))
+#|kawa:42|# (array-set! c 'y 1 1)
+#|kawa:43|# (array->list c)                           ; <2>
+((X 8) (4 y))
+#|kawa:44|# (array->list a)                           ; <3>
+((1 2 3) (4 5 6) (X 8 9))
+#|kawa:45|# (array->list b)
+((X 8) (4 5))
+----
+<1> +array-map+ from +(slib array-for-each)+, +identity+ from +(slib common)+
+<2> +c+ is updated
+<3> +a+ and +b+ are not updated, as +c+ is no longer shared
+

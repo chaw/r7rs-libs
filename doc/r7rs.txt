@@ -8,14 +8,14 @@ The R7RS Libraries referred to here are a collection of libraries written for
 or, mostly, repackaged for R7RS Scheme.  The library implementations 
 are available from https://github.com/petercrlane/r7rs-libs[].
 
-The collection has been tested on Chibi, Kawa, Larceny and Sagittarius
-implementations.  Any incompatibilities or test failures are noted on the
-github page.  In most cases, the collection will work on other R7RS
-implementations.  However, there are some dependencies.  For example, +(slib
-directory)+ requires some interaction with the operating system, which is
-platform specific.  Most of the individual libraries rely on one or more SRFIs.
-Those SRFIs not currently included with the tested implementations are
-included, as are some R6RS libraries.
+The collection has been tested on Chibi, Gauche, Kawa, Larceny and Sagittarius
+implementations (in R7RS mode, if necessary).  Any incompatibilities or test
+failures are noted in +README.md+.  In most cases, the collection will work
+on other R7RS implementations.  However, there are some dependencies.  For
+example, +(slib directory)+ requires some interaction with the operating
+system, which is platform specific.  Most of the individual libraries rely on
+one or more SRFIs.  Those SRFIs not currently included with the tested
+implementations are included in this collection, as are some R6RS libraries.
 
 See https://github.com/petercrlane/r7rs-libs/blob/master/LICENSE.md[] for license information.
 
@@ -23,34 +23,41 @@ include::summary.txt[]
 
 include::subdata.txt[]
 
+
 === Getting Started
 
-The collection can be obtained by downloading or cloning from the github link
-above.  The directories are named according to each group of libraries.  Those
-directories ending "-examples" or "-tests" are not needed if you are only
-interested in using the libraries (but are a good source of examples to learn from).
+Many of the libraries are available from http://snow-fort.org/pkg[] and 
+can be downloaded directly using +snow-chibi+ or a similar client.
 
-In most cases, installation is straightforward:
+The collection can be obtained directly and in full by downloading or cloning
+from the github link above.  The directories are named according to each group
+of libraries.  Those directories ending "-examples" or "-tests" are not needed
+if you are only interested in using the libraries (but are a good source of
+examples to learn from).
 
-Download as a zip file and unpack, or clone the repository, using the 'Clone or Download'
-button on the github repository.  If the directory containing the files is SCHEME_LIBS,
-you must call your implementation with SCHEME_LIBS in its library path.  e.g.
+In most cases, using the libraries from your implementation is straightforward.
+If the directory containing the files is SCHEME_LIBS, you must call your
+implementation with SCHEME_LIBS in its library path.  e.g.
 
 ----
     > chibi-scheme -I SCHEME_LIBS -I SCHEME_LIBS/srfis/chibi program.sps
+    > gosh -r7 -I SCHEME_LIBS -I SCHEME_LIBS/srfis/gauche program.sps
     > larceny -path SCHEME_LIBS -r7rs -program program.sps
     > sagittarius -r7 -L SCHEME_LIBS -L SCHEME_LIBS/srfis/sagittarius program.sps
 ----
 
 Note that Larceny has all required SRFIs to support the complete collection.
-For Chibi and Sagittarius, you also need to reference the implementation-specific SRFIs, 
+For the others, you also need to reference the implementation-specific SRFIs,
 in the directory SCHEME_LIBS/srfis/IMPLEMENTATION.
+
+(Your implementation may support alternative ways to define the location of libraries.)
 
 .Kawa
 
 For use in Kawa I recommend precompiling the collection into class files.  The
 script +build-kawa+, for bash or msdos, compiles the complete collection and packs
-it into a single jar file: +r7rs-libs.jar+
+it into a single jar file: +r7rs-libs.jar+; the compiler produces some warnings, 
+mostly of unused functions, which can be ignored.
 
 Either:
 
@@ -64,22 +71,24 @@ Either:
 Kawa uses the colon to access properties of a value, such as fields or methods, 
 as explained in https://www.gnu.org/software/kawa/Colon-notation.html[].
 
-This sometimes causes problems if mixing Java calls with libraries containing 
-names with colons: one solution is to rename on import, or use the 
-| ... | vertical bar syntax when referring to the library names.
+This sometimes causes problems in interpretation: one solution is to rename
+names with colons on import, or use the | ... | vertical bar syntax when
+referring to the library names.
 ****
 
 === Documentation
 
-Most of this document describes the libraries under the +robin+ subcollection.  These 
-libraries cover a range of functionality, including a logger, statistics library, 
-an implementation of Lisp's Series package, and a range of functions for working with 
-text.  Each library is covered in a separate chapter.
+This document begins with the libraries under the +robin+ subcollection, as
+these are written by myself.  These libraries cover a range of functionality,
+including a logger, statistics library, an implementation of Lisp's Series
+package, and a range of functions for working with text.  Each library is
+covered in a separate chapter.
 
 The remaining chapters cover collections repackaged from other sources.  These include
 SLIB and a range of smaller collections.  Most of these have their own documentation, 
 which is linked to.  Some examples and descriptions are provided for libraries that 
-particularly interest me, or which lack alternative information.
+particularly interest me, or which lack alternative information.  SLIB's libraries 
+cover a range of topics, and important topics are covered in separate chapters.
 
 .Help Wanted
 ****
@@ -106,7 +115,21 @@ include::statistics.txt[]
 
 include::text.txt[]
 
+include::pstk.txt[]
+
+include::pstk-plotchart.txt[]
+
 include::slib.txt[]
+
+include::slib-common.txt[]
+
+include::slib-arrays.txt[]
+
+include::slib-colours.txt[]
+
+include::slib-maths.txt[]
+
+include::slib-time.txt[]
 
 include::repackaged.txt[]
 
@@ -126,6 +149,33 @@ equivalent functions from other libraries.)
 These tables are automatically generated from the individual library source files.
 
 include::alldata.txt[]
+
+[appendix]
+== Open Works License
+
+This is version 0.9.4 of the Open Works License
+
+*Terms*
+
+Permission is hereby granted by the holder(s) of copyright or other legal
+privileges, author(s) or assembler(s), and contributor(s) of this work, to any
+person who obtains a copy of this work in any form, to reproduce, modify,
+distribute, publish, sell, sublicense, use, and/or otherwise deal in the
+licensed material without restriction, provided the following conditions are
+met:
+
+Redistributions, modified or unmodified, in whole or in part, must retain
+applicable copyright and other legal privilege notices, the above license
+notice, these conditions, and the following disclaimer.
+
+NO WARRANTY OF ANY KIND IS IMPLIED BY, OR SHOULD BE INFERRED FROM, THIS LICENSE
+OR THE ACT OF DISTRIBUTION UNDER THE TERMS OF THIS LICENSE, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+AND NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS, ASSEMBLERS, OR HOLDERS OF
+COPYRIGHT OR OTHER LEGAL PRIVILEGE BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN ACTION OF CONTRACT, TORT, OR OTHERWISE ARISING FROM, OUT
+OF, OR IN CONNECTION WITH THE WORK OR THE USE OF OR OTHER DEALINGS IN THE WORK.
+
 
 //////////
 [index]

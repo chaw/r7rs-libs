@@ -54,13 +54,13 @@
       (case-lambda
         ((str c max start end)
          (cond ((zero? max)
-                (list (substring str start end)))
+                (list (string-copy str start end)))
                ((string-index str c start end) =>
                                                (lambda (i)
-                                                 (cons (substring str start i)
+                                                 (cons (string-copy str start i)
                                                        (string-split str c (- max 1) (+ i 1) end))))
                (else
-                 (list (substring str start end)))))
+                 (list (string-copy str start end)))))
         ((str c max start)
          (string-split str c max start (string-length str)))
         ((str c max)

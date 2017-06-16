@@ -1,0 +1,9 @@
+= Documentation for String-Case
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/String_002dCase.html#String_002dCase[]
+
+To use: +(import (slib string-case))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

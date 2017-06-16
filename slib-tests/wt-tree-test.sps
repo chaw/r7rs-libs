@@ -29,19 +29,16 @@
 (import (scheme base)
         (slib format)
         (slib wt-tree)
-        (srfi 1)
+        (scheme list)
         (srfi 27)
         (srfi 64)
-        (srfi 95))
+        (scheme sort))
 
 ;;
 ;; Utilities for wt-tree
 ;;
 
-(define (sort1 lst) (sort lst <))
-
-(define (random-alist n)
-  (zip (random-list n)))
+(define (sort1 lst) (list-sort < lst))
 
 (define integer-scale 10)
 
@@ -50,6 +47,9 @@
     (list-tabulate n
 		   (lambda (dummy)
 		     (random-integer range)))))
+
+(define (random-alist n)
+  (zip (random-list n)))
 
 (define (from-alist al)
   (alist->wt-tree number-wt-type al))

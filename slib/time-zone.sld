@@ -39,7 +39,7 @@
 ;; corruption.
 ;;
 ;; I have corrected most of the failings of the C-library time interface in
-;; SLIB while maintaining compatablility.  I wrote support for Linux
+;; SLIB while maintaining compatability.  I wrote support for Linux
 ;; timezone files because on a system where TZ is not set, there is no
 ;; other way to reveal this information.  HP-UX appears to have a more
 ;; sensible arrangement; I invite you to add support for it and other
@@ -53,10 +53,6 @@
 (define-library
   (slib time-zone)
   (export read-tzfile
-          string->transition-day-time
-          string->transition-time
-          string->time-offset
-          string->time-zone
           time-zone)
   (import (scheme base)
           (scheme char)
@@ -86,11 +82,11 @@
                          (char-numeric? (string-ref path 0)))
                      (string-append tzfile:vicinity path))
                     (else path))))
-        (or (and (file-exists? realpath)
+        (or (and (file-exists? realpath) ; returns #f if no file found, e.g. on Windows
                  (let ((zone #f))
                    (set! zone (tzfile:read realpath))
                    (and zone (list->vector (cons 'tz:file zone)))))
-            (slib:error 'read-tzfile realpath))))
+            (error 'read-tzfile realpath))))
 
     ;;; Parse Posix TZ string.
 
@@ -114,10 +110,10 @@
                   ((1) (and (<= 0 day 365)
                             (list #f #t day)))
                   (else #f)))
-              (let ((scan (scanf "M%u.%u.%u%s" str)))
-                (set! month (car scan))
+              (let ((scan (scanf-read-list "M%u.%u.%u%s" str)))
+                (set! month (car scan)) ;; assumes three values always retrieved
                 (set! week (cadr scan))
-                (set! day (caddr scan))
+                (set! day (caddr scan)) 
                 (when (= 4 (length scan)) (set! junk (cadddr scan)))
                 (case (length scan)
                   ((3) (and (<= 1 month 12)
@@ -127,18 +123,24 @@
                   (else #f)))))))
 
     (define (string->transition-time str)
-      (let ((date #f) (time "2") (junk #f))
-        (and (or (eqv? 2 (sscanf str "%[JM.0-9]/%[:0-9]%s" date time junk))
-                 (eqv? 1 (sscanf str "%[JM.0-9]" date junk)))
-             (let ((day (string->transition-day-time date))
-                   (tim (string->time-offset time)))
-               (and day tim (append day (list tim)))))))
+      (define (mk-transition date time)
+        (let ((day (string->transition-day-time date))
+              (tim (string->time-offset time)))
+          (and day tim (append day (list tim)))))
+      ;
+      (let ((case1 (scanf-read-list "%[JM.0-9]/%[:0-9]%s" str)))
+        (if (= 2 (length case1))
+          (mk-transition (car case1) (cadr case1))
+          (let ((case2 (scanf-read-list "%[JM.0-9]" str)))
+            (if (= 1 (length case2))
+              (mk-transition (car case2) "2")
+              #f)))))
 
     (define (string->time-offset str)
       (and str (string? str) (positive? (string-length str))
            (let ((hh #f) (mm 0) (ss 0) (junk #f))
              (let ((scan (scanf-read-list "%u:%u:%u%s" (if (memv (string-ref str 0) '(#\+ #\-))
-                                                         (substring str 1 (string-length str))
+                                                         (string-copy str 1 (string-length str))
                                                          str))))
                (when (> (length scan) 0) (set! hh (car scan)))
                (when (> (length scan) 1) (set! mm (cadr scan)))
@@ -151,23 +153,27 @@
                        (+ ss (* 60 (+ mm (* hh 60))))))))))
 
     (define (string->time-zone tz)
-      (let ((tzname #f) (offset #f) (dtzname #f) (doffset #f)
-                        (start-str #f) (end-str #f) (junk #f))
-        (define found
-          (sscanf
-            tz "%[^0-9,+-]%[-:+0-9]%[^0-9,+-]%[-:+0-9],%[JM.0-9/:],%[JM.0-9/:]%s"
-            tzname offset dtzname doffset start-str end-str junk))
-        (set! offset (string->time-offset offset))
-        (set! doffset (string->time-offset doffset))
-        (cond
-          ((and offset (eqv? 3 found))
-           (set! doffset (+ -3600 offset))
-           (set! found
-             (+ 1
-                (sscanf
-                  tz "%[^0-9,+-]%[-:+0-9]%[^0-9,+-],%[JM.0-9/:],%[JM.0-9/:]%s"
-                  tzname offset dtzname start-str end-str junk)))
-           (set! offset (string->time-offset offset))))
+      (let* ((case1 (scanf-read-list "%[^0-9,+-]%[-:+0-9]%[^0-9,+-]%[-:+0-9],%[JM.0-9/:],%[JM.0-9/:]%s" tz))
+             (found (length case1))
+             (tzname (and (>= found 1) (list-ref case1 0)))
+             (offset (and (>= found 2) (string->time-offset (list-ref case1 1))))
+             (dtzname (and (>= found 3) (list-ref case1 2)))
+             (doffset (and (>= found 4) (string->time-offset (list-ref case1 3))))
+             (start-str (and (>= found 5) (list-ref case1 4)))
+             (end-str (and (>= found 6) (list-ref case1 5)))
+             (junk (and (>= found 7) (list-ref case1 6))))
+        (when (and offset (= 3 found))
+          (set! doffset (+ -3600 offset))
+          (let* ((case2 (scanf-read-list "%[^0-9,+-]%[-:+0-9]%[^0-9,+-],%[JM.0-9/:],%[JM.0-9/:]%s" tz))
+                 (found2 (length case2)))
+            (set! found (+ 1 (length case2)))
+            (when (>= found2 1) (set! tzname (list-ref case2 0)))
+            (when (>= found2 2) (set! offset (list-ref case2 1)))
+            (when (>= found2 3) (set! dtzname (list-ref case2 2)))
+            (when (>= found2 4) (set! start-str (list-ref case2 3)))
+            (when (>= found2 5) (set! end-str (list-ref case2 4)))
+            (when (>= found2 6) (set! junk (list-ref case2 5)))
+            (set! offset (string->time-offset offset))))
         (case found
           ((2) (vector 'tz:fixed tz tzname offset))
           ((4) (vector 'tz:rule tz tzname dtzname offset doffset
@@ -184,7 +190,7 @@
             ((or (not tz)
                  (eqv? #\: (string-ref tz 0)))
              (let ()
-               (read-tzfile (and tz (substring tz 1 (string-length tz))))))
+               (read-tzfile (and tz (string-copy tz 1 (string-length tz))))))
             (else (string->time-zone tz))))
 
     ))

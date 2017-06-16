@@ -99,7 +99,7 @@
           (scheme case-lambda)
           (scheme file)
           (scheme write)
-          (only (srfi 1) iota))
+          (only (scheme list) iota))
 
   (begin
 

@@ -1,0 +1,106 @@
+=== Automatic Differentiation: +(import (autodiff NNNN))+
+
+indexterm:[autodiff]
+A repackaging of code written by Jeffrey Mark Siskind for R6RS: https://github.com/qobi/R6RS-AD[]
+
+The first library, +AD+ supports automatic differentiation itself.  The
+remaining libraries are, according to JMS, "experimental packages to support
+nondeterministic and stochastic programming, including constraint satisfaction
+problems".
+
+Some examples are provided, but otherwise this collection needs documenting.
+
+==== AD: +(import (autodiff AD))+
+
+This library is the automatic differentiation library itself, providing functions in both 
+forward- and reverse-mode.
+
+.Warning
+****
+This library seems to work fine within a program script (e.g. within the test
+suite), but not from the REPL.
+****
+
+The library works by redefining all standard mathematical operators to work with _dual numbers_, 
+pairs containing the "usual" result and its derivative.  So, the first thing to be careful of 
+is not to include those operators from +(scheme base)+ or +(scheme inexact)+!
+
+[source,scheme]
+----
+(import (except (scheme base) + - * / expt square = < > <= >= zero? positive? negative? real?)
+        (except (scheme inexact) sqrt exp log sin cos atan)
+        )
+----
+
+To illustrate how this library is used, consider the function +(* x x)+.  It's
+derivative is +2x+.  To get a function to compute the derivative at a given
+point, we apply the indexterm2:[+derivative-F+] function to it ("F" for
+forward-mode).
+
+[source,scheme]
+----
+(import (except (scheme base) + - * / expt square = < > <= >= zero? positive? negative? real?)
+        (scheme write)
+        (autodiff AD))
+
+(define (f x) (* x x))
+
+(display "(f 3) = ") (display (f 3))
+(display "  ; (f' 3) = ") (display ((derivative-F f) 3)) (newline)
+----
+
+The output is:
+
+----
+(f 3) = 9  ; (f' 3) = 6
+----
+
+Some further examples:
+
+[source,scheme]
+----
+(define (g x) (/ (* (+ x 1) (- x 2))
+                 (+ x 3)))
+
+(display "(g 3) = ") (display (g 3))
+(display "  ; (g' 3) = ") (display ((derivative-F g) 3)) (newline)
+
+(define (h x) (- x (/ (+ (* 4 x) 2)
+                      (+ x 3))))
+
+(display "(h 3) = ") (display (h 3))
+(display "  ; (h' 3) = ") (display ((derivative-F h) 3)) (newline)
+
+(display "(f x) = (1+x+e^x).sin x ; f'(0) = ") 
+(display ((derivative-F (lambda (x) (* (+ 1 x (exp x)) (sin x))))
+          0)) 
+(newline)
+----
+
+With output:
+
+----
+(g 3) = 2/3  ; (g' 3) = 13/18
+(h 3) = 2/3  ; (h' 3) = 13/18
+(f x) = (1+x+e^x).sin x ; f'(0) = 2.0
+----
+
+indexterm2:[+derivative-R+]
+
+indexterm2:[+directional-derivative-list-F+]
+
+indexterm2:[+directional-derivative-vector-F+]
+
+indexterm2:[+f-gradient-vector-vector-R+]
+
+indexterm2:[+gradient-list-F+]
+
+indexterm2:[+gradient-list-R+]
+
+indexterm2:[+gradient-vector-F+]
+
+indexterm2:[+gradient-vector-R+]
+
+indexterm2:[+write-real+] is used to write out the "real" part of a given 
+number (without its dual or tape part).
+

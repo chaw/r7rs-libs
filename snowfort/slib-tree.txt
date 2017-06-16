@@ -1,0 +1,9 @@
+= Documentation for Tree Operations
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Tree-Operations.html[]
+
+To use: +(import (slib tree))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

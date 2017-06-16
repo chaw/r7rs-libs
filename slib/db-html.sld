@@ -53,7 +53,7 @@
           (slib string-case)
           (slib string-search)
           (slib uri)
-          (only (srfi 1) drop take))
+          (only (scheme list) drop take))
 
   (begin
 
@@ -115,7 +115,7 @@
             (let* ((str (pretty-print->string datum))
                    (len (+ -1 (string-length str))))
               (cond ((eqv? (string-index str #\newline) len)
-                     (string-append "<TT>" (substring str 0 len) "</TT>"))
+                     (string-append "<TT>" (string-copy str 0 len) "</TT>"))
                     (else (html:pre str))))))
         (sprintf #f " <TR VALIGN=TOP>\\n%s\\n"
                  (apply string-append
@@ -296,7 +296,7 @@
               (table:retrieve (or (and (> argc 2) (caddr args)) (table 'row:retrieve)))
               (pkl (length null-keys)))
           (define ptypes (take (table 'column-types) pkl))
-          (if (> argc 4) (slib:error 'command:modify-table 'too-many-args
+          (if (> argc 4) (error 'command:modify-table 'too-many-args
                                      table-name null-keys args))
           (lambda (*keys* *row-hash* . new-row)
             (let* ((new-pkeys (take new-row pkl))
@@ -344,7 +344,7 @@
                 ((symbol) '(nil))
                 ((number) '(0))
                 (else '(#f))))
-             (else (slib:error 'make-defaulter 'unknown 'arity arity)))))
+             (else (error 'make-defaulter 'unknown 'arity arity)))))
 
     ;;@body Given @2 in @1, creates parameter and @code{*command*} tables
     ;;for editing one row of @2 at a time.  @0 returns a procedure taking a
@@ -383,7 +383,7 @@
                        (else (if (eq? 'boolean type) 'boolean 'single))))
                    (case (string-ref dstr len)
                      ((#\* #\+)
-                      (set! type (string->symbol (substring dstr 0 len)))
+                      (set! type (string->symbol (string-copy dstr 0 len)))
                       (set! domain type)))
                    `(,idx ,column ,arity ,domain
                           ,(make-defaulter arity type) #f "")))
@@ -470,7 +470,7 @@
                   (let* ((str (pretty-print->string datum))
                          (len (+ -1 (string-length str))))
                     (cond ((eqv? (string-index str #\newline) len)
-                           (string-append "<B>" (substring str 0 len) "</B>"))
+                           (string-append "<B>" (string-copy str 0 len) "</B>"))
                           (else (html:pre str))))))))
         (lambda (row)
           (string-append

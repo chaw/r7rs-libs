@@ -1,0 +1,180 @@
+=== Charplot: +(import (slib charplot))+
+
+This library provides a way to quickly visualise some data in graphical or histogram 
+form from the REPL or command-line interface.  There are two basic functions: +histograph+ 
+and +plot+, the latter drawing graphs of data or functions.
+
+==== charplot:dimensions
+
+This parameter allows you to change the size of display.  The dimensions are a two-valued 
+list: the height and width in characters.  Example below.
+
+==== histograph
+
+indexterm2:[+histograph+] is used to plot histograms of numeric data.  Given a list or vector 
+of numbers, it will arrange them into a suitable set of bins and display:
+
+----
+> (histograph '(1 1 2 3 5 5 5 7 8 9) "sample")
+           ________________________________________________________________   
+          |                                                                |  
+          |                                                                |  
+         3|-                       I                                       |  
+          |                        I                                       |  
+          |                        I                                       |  
+       2.5|-                       I                                       |  
+          |                        I                                       |  
+          |                        I                                       |  
+         2|-I                      I                                       |  
+          | I                      I                                       |  
+          | I                      I                                       |  
+       1.5|-I                      I                                       |  
+          | I                      I                                       |  
+          | I                      I                                       |  
+         1|-I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+       0.5|-I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+          | I     I     I          I           I     I     I               |  
+         0|-IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII---------------|  
+          |._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+  sample         2           4           6           8           10           
+
+> (charplot:dimensions '(10 50))
+> (histograph '(1 1 2 3 5 5 5 7 8 9) "sample")
+           ___________________________________   
+         3|-               I                  |  
+          |                I                  |  
+         2|-I              I                  |  
+          | I              I                  |  
+         1|-I   I   I      I       I   I   I  |  
+          | I   I   I      I       I   I   I  |  
+         0|-IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII--|  
+          |_.____:____.____:____.____:____.___|  
+  sample        2.5        5        7.5          
+> 
+----
+
+==== plot
+
+indexterm2:[+plot+] can be used in two ways: to display a function, or to display some data.
+
+.Plotting a function
+
++plot+ will plot the values of a single argument function (taking and returning a number).
+The function should be given as the first argument.  The second and third arguments specify the 
+range of x values over which to plot the graph - be careful of infinite values from your 
+function, which will crash +plot+.  An optional fourth argument specifies how many points 
+to plot along the range of x values.
+
+----
+> (plot (lambda (x) (* x x x)) -5 5)
+           _________________________________________________________________   
+       140|-                              :                                 |  
+          |                               :                                 |  
+       120|-                              :                             *   |  
+          |                               :                            *    |  
+       100|-                              :                           *     |  
+          |                               :                          *      |  
+        80|-                              :                         *       |  
+          |                               :                       **        |  
+        60|-                              :                      *          |  
+          |                               :                    **           |  
+        40|-                              :                   *             |  
+          |                               :                 ***             |  
+        20|-                              :               **                |  
+          |                  ***          :          *****                  |  
+         0|---------------------*********************-----------------------|  
+          |                **             :                                 |  
+       -20|-             **               :                                 |  
+          |           ***                 :                                 |  
+       -40|-          *                   :                                 |  
+          |         **                    :                                 |  
+       -60|-       *                      :                                 |  
+          |      **                       :                                 |  
+       -80|-    *                         :                                 |  
+          |    *                          :                                 |  
+      -100|-  *                           :                                 |  
+          |  *                            :                                 |  
+      -120|-*                             :                                 |  
+          |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+                  -4          -2          0           2           4           
+
+> (plot (lambda (x) (* x x x)) -5 5 30)
+           _________________________________________________________________   
+       140|-                              :                                 |  
+          |                               :                                 |  
+       120|-                              :                             *   |  
+          |                               :                                 |  
+       100|-                              :                           *     |  
+          |                               :                                 |  
+        80|-                              :                         *       |  
+          |                               :                                 |  
+        60|-                              :                       *         |  
+          |                               :                     *           |  
+        40|-                              :                   *             |  
+          |                               :                 *               |  
+        20|-                              :               *                 |  
+          |                    *          :          * *                    |  
+         0|----------------------*-*-*-*-*:*-*-*-*-*------------------------|  
+          |                  *            :                                 |  
+       -20|-              *               :                                 |  
+          |             *                 :                                 |  
+       -40|-          *                   :                                 |  
+          |         *                     :                                 |  
+       -60|-      *                       :                                 |  
+          |                               :                                 |  
+       -80|-    *                         :                                 |  
+          |                               :                                 |  
+      -100|-  *                           :                                 |  
+          |                               :                                 |  
+      -120|-*                             :                                 |  
+          |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+                  -4          -2          0           2           4          
+----
+
+.Plotting some data
+
+This second form of +plot+ directly plots a list or vector of pairs of (x, y)
+coordinates. Second and third arguments give labels to the two axes.
+
+----
+> (define data (map (lambda (x) (list x (* x x x))) (iota 11 -5)))
+> data
+((-5 -125) (-4 -64) (-3 -27) (-2 -8) (-1 -1) (0 0) (1 1) (2 8) (3 27) (4 64) (5 125))
+> (plot data "x-values" "y-values")
+ y-values  _________________________________________________________________   
+       140|-                              :                                 |  
+          |                               :                                 |  
+       120|-                              :                             *   |  
+          |                               :                                 |  
+       100|-                              :                                 |  
+          |                               :                                 |  
+        80|-                              :                                 |  
+          |                               :                                 |  
+        60|-                              :                       *         |  
+          |                               :                                 |  
+        40|-                              :                                 |  
+          |                               :                 *               |  
+        20|-                              :                                 |  
+          |                   *           :           *                     |  
+         0|-------------------------*-----*-----*---------------------------|  
+          |                               :                                 |  
+       -20|-                              :                                 |  
+          |             *                 :                                 |  
+       -40|-                              :                                 |  
+          |                               :                                 |  
+       -60|-      *                       :                                 |  
+          |                               :                                 |  
+       -80|-                              :                                 |  
+          |                               :                                 |  
+      -100|-                              :                                 |  
+          |                               :                                 |  
+      -120|-*                             :                                 |  
+          |_._____:_____._____:_____._____:_____._____:_____._____:_____.___|  
+ x-values         -4          -2          0           2           4            
+
+----
+
+

@@ -1,7 +1,6 @@
 (import (scheme base)
         (slib queue)
-        (srfi 64)
-        (robin srfi64-utils))
+        (srfi 64))
 
 (test-begin "slib-queue")
 
@@ -45,9 +44,9 @@
 (test-equal '(4 2 8) (dequeue-all! q))
 
 (test-assert (queue-empty? q))
-(test-for-error (dequeue! q))
-(test-for-error (queue-front q))
-(test-for-error (queue-rear q))
+(test-error (dequeue! q))
+(test-error (queue-front q))
+(test-error (queue-rear q))
 
 (test-end)
 

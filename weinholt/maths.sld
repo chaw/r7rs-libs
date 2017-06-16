@@ -25,9 +25,9 @@
   (export invmod expt-mod div-mod sqrt-mod)
   (import (except (scheme base) error)
           (scheme inexact)
-          (pfds bitwise)
           (r6rs base)
-          (r6rs fixnums))
+          (r6rs fixnums)
+          (only (srfi 151) arithmetic-shift bit-set?))
 
   (begin
 
@@ -53,8 +53,8 @@
         (if (zero? exponent)
           result
           (lp (mod (* base base) modulus)
-              (bitwise-arithmetic-shift-right exponent 1)
-              (if (bitwise-bit-set? exponent 0)
+              (arithmetic-shift exponent -1)
+              (if (bit-set? 0 exponent)
                 (mod (* result base) modulus)
                 result)))))
 

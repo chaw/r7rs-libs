@@ -1,11 +1,12 @@
 ;;;; "ratize.scm" Find simplest number ratios
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
+;;
+;; Note: Rationalize is in R7RS
 
 (define-library
   (slib rationalize)
-  (export rationalize ; in R7RS
-          find-ratio
+  (export find-ratio
           find-ratio-between)
   (import (scheme base))
 

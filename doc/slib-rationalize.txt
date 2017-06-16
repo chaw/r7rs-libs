@@ -1,0 +1,59 @@
+=== Rationalize: +(import (slib rationalize))+
+
+indexterm:[rationalize]
+R7RS includes the function +rationalize+ which takes
+two arguments, +x+ and +y+, and returns the _simplest_ rational number
+differing from +x+ by no more than +y+.  
+
+Note that +rationalize+ only works for rational values of +x+ and +y+.  With
+inexact values of +x+ or +y+ it returns an inexact value differing from +x+ by
+no more than +y+.
+
+[source,scheme]
+----
+> (rationalize 355/113 1/10)
+16/5
+> (inexact 355/113)
+3.14159292035398
+> (inexact 16/5)
+3.2
+> (rationalize 3.14159729 1/10)
+3.2
+----
+
+The first example shows an approximation to a value with a 0.1 difference.
+
+However, notice the last example, where an inexact number is returned when seeking 
+an approximation for PI.  
+
+The library includes the following two functions:
+
+* indexterm2:[+find-ratio+] which returns a list of the _simplest_ numerator and denominator 
+  whose quotient gives a rational number differing from +x+ by no more than +y+.
+* indexterm2:[+find-ratio-between+] which returns a list of the _simplest_ numerator and denominator
+  whose quotient gives a rational number between the given +x+ and +y+.
+
+These two functions work equally well with exact or inexact values for +x+ and +y+.
+
+For example, +find-ratio+ can be used to find increasingly better approximations to PI:
+
+[source,scheme]
+----
+#|kawa:1|# (import (slib rationalize))
+#|kawa:2|# (find-ratio 3.14159729 0.01)
+(22 7)
+#|kawa:3|# (find-ratio 3.14159729 0.001)
+(201 64)
+#|kawa:4|# (find-ratio 3.14159729 0.0001)
+(333 106)
+#|kawa:5|# (find-ratio 3.14159729 0.00001)
+(355 113)
+----
+
++find-ratio-between+ is used as follows:
+
+[source,scheme]
+----
+#|kawa:6|# (find-ratio-between 2/7 3/5)
+(1 2)
+----

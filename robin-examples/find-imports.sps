@@ -10,8 +10,8 @@
         (robin directory)
         (robin series)
         (slib format)
-        (srfi 1)
-        (srfi 95))
+        (scheme list)
+        (scheme sort))
 
 (define *search-paths* '("nltk" "pfds" "rebottled" "robin" "slib" "weinholt"))
 
@@ -47,13 +47,13 @@
             (format #f "~a" (car lib-2))))
 
 (define *dataset* 
-  (sort
+  (list-sort
+    library<?
     (collect-append 
       (map-fn process-file
               (choose-if library-path?
                          (scan ; scan over list of directory paths
-                           (apply append (map list-directory-paths *search-paths*))))))
-    library<?))
+                           (apply append (map list-directory-paths *search-paths*))))))))
 
 ;; Write to file all imports for each library name 
 
@@ -63,7 +63,7 @@
                   (format #f 
                           "Library: ~a~&~{-- ~a ~&~}~%" 
                           (car library) 
-                          (sort (cdr library) library<?)))
+                          (list-sort library<? (cdr library))))
                 (scan *dataset*))
               display)
 
@@ -80,9 +80,9 @@
 (collect-file "imported.txt"
               (map-fn 
                 (lambda (imp) (format #f "Importing: ~a~&~a~%" imp (describe-imported-by imp)))
-                (scan (sort
+                (scan (list-sort
+                        library<?
                         (delete-duplicates
-                          (apply append (map cdr *dataset*)))
-                        library<?)))
+                          (apply append (map cdr *dataset*))))))
               display)
 

@@ -56,13 +56,15 @@
          (scheme write)
          (nltk vectorspace)
          (nltk sequence)
-         (only (srfi 1) drop-right)
-         (srfi 69)
-         (srfi 95))
+         (scheme list)
+         (scheme comparator)
+         (scheme hash-table)
+         (scheme sort))
  
  (begin
 
-   (define (hash-table-entries ht)
+   ;; Special version to return vectors, like in R6RS
+   (define (hash-table-ventries ht)
      (values (apply vector (hash-table-keys ht))
              (apply vector (hash-table-values ht))))
 
@@ -71,8 +73,8 @@
 
    (define ngrams->bigrams
      (lambda (ngrams)
-       (let ((bigrams (make-hash-table equal?)))
-         (let-values (((keyv valuev) (hash-table-entries ngrams)))
+       (let ((bigrams (make-hash-table (make-default-comparator))))
+         (let-values (((keyv valuev) (hash-table-ventries ngrams)))
                      (cond ((> (vector-length keyv) 0)
                             (cond ((= (vector-length (vector-ref keyv 0)) 2)
                                    ngrams)
@@ -96,54 +98,52 @@
      (case-lambda 
        ((ngrams filter-tokens) (filter-ngrams ngrams filter-tokens #t))
        ((ngrams filter-tokens remove)
-        (let ((new-ngrams (make-hash-table equal?)))
-          (let-values (((keyv valuev) (hash-table-entries ngrams)))
+        (let ((new-ngrams (make-hash-table (make-default-comparator))))
+          (let-values (((keys vals) (hash-table-entries ngrams)))
                       ; check for length ngrams > 0
-                      (cond ((> (vector-length keyv) 0)
-                             (vector-for-each
+                      (unless (null? keys)
+                             (for-each
                                (lambda (key value)
                                  (cond ((let loop ((tokens (vector->list key)))
                                           (cond ((null? tokens) remove)
                                                 ((member (car tokens) filter-tokens) (not remove))
                                                 (else (loop (cdr tokens)))))
                                         (hash-table-set! new-ngrams key value))))
-                               keyv valuev))))
+                               keys vals))))
           new-ngrams))))
 
    (define filter-ngrams!
      (case-lambda 
        ((ngrams filter-tokens) (filter-ngrams ngrams filter-tokens #t))
        ((ngrams filter-tokens remove)
-        (let-values (((keyv valuev) (hash-table-entries ngrams)))
-                    (vector-for-each
+        (let-values (((keys vals) (hash-table-entries ngrams)))
+                    (for-each
                       (lambda (key value)
                         (cond ((let loop ((tokens (vector->list key)))
                                  (cond ((null? tokens) (not remove))
                                        ((member (car tokens) filter-tokens) remove)
                                        (else (loop (cdr tokens)))))
                                (hash-table-delete! ngrams key))))
-                      keyv valuev)
+                      keys vals)
                     ngrams))))
-
 
    (define filter-pos-ngrams
      (case-lambda 
        ((ngrams filter-tokens) (filter-ngrams ngrams filter-tokens 0))
        ((ngrams filter-tokens pos) (filter-ngrams ngrams filter-tokens pos #t))
        ((ngrams filter-tokens pos remove)
-        (let ((new-ngrams (make-hash-table equal?)))
-          (let-values (((keyv valuev) (hash-table-entries ngrams)))
-                      ; check for length ngrams > 0
-                      (cond ((> (vector-length keyv) 0)
-                             (vector-for-each
-                               (lambda (key value)
-                                 (cond ((and (>= pos 0)
-                                             (< pos (vector-length key)))
-                                        (cond ((if (member (vector-ref key pos) filter-tokens)
-                                                 (not remove)
-                                                 remove)
-                                               (hash-table-set! new-ngrams key value))))))
-                               keyv valuev))))
+        (let ((new-ngrams (make-hash-table (make-default-comparator))))
+          (let-values (((keys vals) (hash-table-entries ngrams)))
+                      (unless (null? keys)
+                        (for-each
+                          (lambda (key value)
+                            (cond ((and (>= pos 0)
+                                        (< pos (vector-length key)))
+                                   (cond ((if (member (vector-ref key pos) filter-tokens)
+                                            (not remove)
+                                            remove)
+                                          (hash-table-set! new-ngrams key value))))))
+                          keys vals)))
           new-ngrams))))
 
 
@@ -151,14 +151,14 @@
      (case-lambda 
        ((ngrams threshold) (filter-ngrams ngrams threshold #t))
        ((ngrams threshold larger)
-        (let ((new-ngrams (make-hash-table equal?))
+        (let ((new-ngrams (make-hash-table (make-default-comparator)))
               (comparison (if larger > <)))
-          (let-values (((keyv valuev) (hash-table-entries ngrams)))
-                      (vector-for-each
+          (let-values (((keys vals) (hash-table-entries ngrams)))
+                      (for-each
                         (lambda (key value)
                           (cond ((comparison value threshold)
                                  (hash-table-set! new-ngrams key value))))
-                        keyv valuev))
+                        keys vals))
           new-ngrams))))
 
    (define filter-ngrams-counts!
@@ -166,12 +166,12 @@
        ((ngrams threshold) (filter-ngrams ngrams threshold #t))
        ((ngrams threshold larger)
         (let ((comparison (if larger > <)))
-          (let-values (((keyv valuev) (hash-table-entries ngrams)))
-                      (vector-for-each
+          (let-values (((keys vals) (hash-table-entries ngrams)))
+                      (for-each
                         (lambda (key value)
                           (cond ((not (comparison value threshold))
                                  (hash-table-delete! ngrams key))))
-                        keyv valuev))
+                        keys vals))
           ngrams))))
 
 
@@ -204,19 +204,18 @@
                                                 (values "graph" " -- "))))
                           (display label p)
                           (display " G {" p)(newline p)
-                          (let ((bkeysv (hash-table-keys ngrams)))
-                            (vector-for-each 
-                              (lambda (bkey)
-                                (let ((tokens (vector->list bkey)))
-                                  (display "\t" p)
-                                  (display (car tokens) p)
-                                  (for-each
-                                    (lambda (item)
-                                      (display connector p)
-                                      (display item p))
-                                    (cdr tokens))
-                                  (display " ;" p)(newline p)))
-                              bkeysv))
+                          (for-each 
+                            (lambda (bkey)
+                              (let ((tokens (vector->list bkey)))
+                                (display "\t" p)
+                                (display (car tokens) p)
+                                (for-each
+                                  (lambda (item)
+                                    (display connector p)
+                                    (display item p))
+                                  (cdr tokens))
+                                (display " ;" p)(newline p)))
+                            (hash-table-keys ngrams))
                           (display "}" p)(newline p))))
           (get-output-string port)))))
 
@@ -276,7 +275,7 @@
 
    (define relativize-ngrams
      (lambda (ngrams)
-       (relativize-ngrams! ngrams (make-hash-table equal?))))
+       (relativize-ngrams! ngrams (make-hash-table (make-default-comparator)))))
 
 
    (define relativize-ngrams!
@@ -284,25 +283,24 @@
        ((from-ngrams) (relativize-ngrams! from-ngrams from-ngrams))
        ((from-ngrams to-ngrams)
         (begin
-          (let-values (((keys values) (hash-table-entries from-ngrams)))
-                      (let ((total-count (apply + (vector->list values))))
-                        (vector-map (lambda (key)
-                                      (hash-table-set! to-ngrams key (/ (hash-table-ref/default from-ngrams key 0) total-count)))
-                                    keys)))
+          (let-values (((keys vals) (hash-table-entries from-ngrams)))
+                      (let ((total-count (fold + 0 vals)))
+                        (for-each (lambda (key)
+                                    (hash-table-set! to-ngrams key (/ (hash-table-ref/default from-ngrams key 0) total-count)))
+                                  keys)))
           to-ngrams))))
 
 
    (define ngram-counts
      (lambda (ngrams)
-       (apply + (vector->list (hash-table-values ngrams)))))
-
+       (fold + 0 (hash-table-values ngrams))))
 
    (define ngrams-sort
      (case-lambda
        ((ngrams) (ngrams-sort ngrams #t))
        ((ngrams decreasing) (ngrams-sort ngrams decreasing #t))
        ((ngrams decreasing by-value)
-        (let-values (((keys values) (hash-table-entries ngrams)))
+        (let-values (((keys values) (hash-table-ventries ngrams)))
                     (let ((pick (if by-value
                                   (lambda (elem)
                                     (vector-ref elem 1))
@@ -320,12 +318,13 @@
                                                     (error "Unknown type for comparison")))))
                                          (else
                                            (if decreasing > <)))))
-                      (sort (vector-map
-                              (lambda (key value)
-                                (vector key value))
-                              keys values)
-                            (lambda (a b)
-                              (compare (pick a) (pick b)))))))))
+                      (list-sort 
+                        (lambda (a b)
+                          (compare (pick a) (pick b)))
+                        (vector-map
+                          (lambda (key value)
+                            (vector key value))
+                          keys values)))))))
 
 
    (define frequency-profile-decreasing
@@ -352,7 +351,7 @@
    (define token-sequence->ngrams
      (case-lambda
        ((tokens)   (token-sequence->ngrams tokens 2))
-       ((tokens n) (token-sequence->ngrams tokens n (make-hash-table equal?)))
+       ((tokens n) (token-sequence->ngrams tokens n (make-hash-table (make-default-comparator))))
        ((tokens n ngrams)
         (begin
           (cond ((and (integer? n)
@@ -370,7 +369,7 @@
                                   (let* ((rest-list (list-tail tokens index))
                                          (n-gram    (list->vector (drop-right rest-list (- (length rest-list) n) ))))
                                     (hash-table-set! ngrams n-gram
-                                                    (+ (hash-table-ref/default ngrams n-gram 0) 1))))
+                                                     (+ (hash-table-ref/default ngrams n-gram 0) 1))))
                                 (enum-list (- num-tokens (- n 1)))))))))))
           ngrams))))
 

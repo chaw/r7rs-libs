@@ -17,7 +17,7 @@ some mathematical or physical constants for use in calculations. (You probably w
 
 Use very simply:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:1|# (import (robin constants))
 #|kawa:2|# PI

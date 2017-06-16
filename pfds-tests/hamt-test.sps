@@ -3,11 +3,11 @@
 
 (import (scheme base) 
         (pfds hash-array-mapped-trie)
-        (only (srfi 1) fold iota)
+        (only (scheme list) fold iota)
         (srfi 64)
         (robin srfi64-utils)
-        (only (srfi 69) string-hash)
-        (srfi 95))
+        (only (scheme comparator) string-hash)
+        (scheme sort))
  
 (define (make-string-hamt)
   (make-hamt string-hash string=?))
@@ -15,8 +15,8 @@
 (define (compare-string-alist l1 l2)
   (lambda (l1 l2)
     (define (compare x y) (string<? (car x) (car y)))
-    (equal? (sort compare l1)
-            (sort compare l2))))
+    (equal? (list-sort compare l1)
+            (list-sort compare l2))))
 
 (define (bad-hash x) 0)
 
@@ -32,7 +32,7 @@
 ;; Referencing non-existent key
 (test-equal #f (hamt-ref (make-string-hamt) "foo" #f))
 ;; Referencing a non-existent key (exception)
-(test-for-error (hamt-ref (make-string-hamt) "bar"))
+(test-error (hamt-ref (make-string-hamt) "bar"))
 ;; Referencing newly-added key
 (test-equal "bar" (hamt-ref (hamt-set (make-string-hamt) "foo" "bar") "foo" #f))
 (test-equal 1 (hamt-size (hamt-set (make-string-hamt) "foo" "bar")))

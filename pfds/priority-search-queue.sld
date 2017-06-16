@@ -24,78 +24,6 @@
 ;; Note: where a procedure takes a key or priority these are expected
 ;; to be compatible with the relevant ordering procedures on the psq.
 ;;
-;;;; Basic operations
-;;
-;; make-psq : < < -> psq
-;; takes a two ordering procedures, one for keys, and another for
-;; priorities, and returns an empty priority search queue
-;;
-;; psq? : obj -> boolean
-;; returns #t if the object is a priority search queue, #f otherwise.
-;;
-;; psq-empty? : psq -> boolean
-;; returns #t if the priority search queue contains no elements, #f
-;; otherwise.
-;;
-;; psq-size : psq -> non-negative integer
-;; returns the number of associations in the priority search queue
-;;
-;;;; Finite map operations
-;;
-;; psq-ref : psq key -> priority
-;; returns the priority of a key if it is in the priority search
-;; queue. If the key is not in the priority queue an
-;; error is raised.
-;;
-;; psq-set : psq key priority -> psq
-;; returns the priority search queue obtained from inserting a key
-;; with a given priority. If the key is already in the priority search
-;; queue, it updates the priority to the new value.
-;;
-;; psq-update : psq key (priority -> priority) priority -> psq
-;; returns the priority search queue obtained by modifying the
-;; priority of key, by the given function. If the key is not in the
-;; priority search queue, it is inserted with the priority obtained by
-;; calling the function on the default value.
-;;
-;; psq-delete : psq key -> psq
-;; returns the priority search queue obtained by removing the
-;; key-priority association from the priority search queue. If the key
-;; is not in the queue, then the returned search queue will be the
-;; same as the original.
-;;
-;; psq-contains? : psq key -> boolean
-;; returns #t if there is an association for the given key in the
-;; priority search queue, #f otherwise.
-;;
-;;;; Priority queue operations
-;;
-;; psq-min : psq -> key
-;;
-;; returns the key of the minimum association in the priority search
-;; queue. If the queue is empty, an error is raised.
-;;
-;; psq-delete-min : psq -> psq
-;; returns the priority search queue obtained by removing the minimum
-;; association in the priority search queue. If the queue is empty, an
-;; error is raised.
-;;
-;; psq-pop : psq -> key + psq
-;; returns two values: the minimum key and the priority search queue
-;; obtained by removing the minimum association from the original
-;; queue. If the queue is empty, an error is raised.
-;;
-;;;; Ranged query functions
-;;
-;; psq-at-most : psq priority -> ListOf(key . priority)
-;; returns an alist containing all the associations in the priority
-;; search queue with priority less than or equal to a given value. The
-;; alist returned is ordered by key according to the predicate for the
-;; psq.
-;;
-;; psq-at-most-range : psq priority key key -> ListOf(key . priority)
-;; Similar to psq-at-most, but it also takes an upper and lower bound,
-;; for the keys it will return. These bounds are inclusive.
 ;;
 (define-library 
   (pfds priority-search-queue)
@@ -483,6 +411,8 @@
 
     ;;; Exported Type
 
+    ;;> psq? : obj -> boolean
+    ;;> returns #t if the object is a priority search queue, #f otherwise.
     (define-record-type <psq>
                         (%make-psq key<? priority<? tree)
                         psq?
@@ -497,13 +427,25 @@
 
     ;;; Exported Procedures
 
+    ;;> make-psq : < < -> psq
+    ;;> takes a two ordering procedures, one for keys, and another for
+    ;;> priorities, and returns an empty priority search queue
     (define (make-psq key<? priority<?)
       (%make-psq key<? priority<? (make-void)))
 
+    ;;> psq-empty? : psq -> boolean
+    ;;> returns #t if the priority search queue contains no elements, #f
+    ;;> otherwise.
     (define (psq-empty? psq)
       (unless (psq? psq) (error "Requires a psq"))
       (void? (psq-tree psq)))
 
+    ;;;; Finite map operations
+    ;;
+    ;;> psq-ref : psq key -> priority
+    ;;> returns the priority of a key if it is in the priority search
+    ;;> queue. If the key is not in the priority queue an
+    ;;> error is raised.
     (define (psq-ref psq key)
       (define cookie (cons #f #f))
       (unless (psq? psq) (error "Requires a psq"))
@@ -512,40 +454,78 @@
           (error 'psq-ref "not in tree")
           val)))
 
+    ;;> psq-set : psq key priority -> psq
+    ;;> returns the priority search queue obtained from inserting a key
+    ;;> with a given priority. If the key is already in the priority search
+    ;;> queue, it updates the priority to the new value.
     (define (psq-set psq key priority)
       (unless (psq? psq) (error "Requires a psq"))
       (%update-psq psq
                    (insert (psq-tree psq) key priority (psq-key<? psq) (psq-priority<? psq))))
 
+    ;;> psq-update : psq key (priority -> priority) priority -> psq
+    ;;> returns the priority search queue obtained by modifying the
+    ;;> priority of key, by the given function. If the key is not in the
+    ;;> priority search queue, it is inserted with the priority obtained by
+    ;;> calling the function on the default value.
     (define (psq-update psq key f default)
       (unless (psq? psq) (error "Requires a psq"))
       (%update-psq psq (update (psq-tree psq) key f default (psq-key<? psq) (psq-priority<? psq))))
 
+    ;;> psq-delete : psq key -> psq
+    ;;> returns the priority search queue obtained by removing the
+    ;;> key-priority association from the priority search queue. If the key
+    ;;> is not in the queue, then the returned search queue will be the
+    ;;> same as the original.
     (define (psq-delete psq key)
       (unless (psq? psq) (error "Requires a psq"))
       (%update-psq psq (delete (psq-tree psq) key (psq-key<? psq) (psq-priority<? psq))))
 
+    ;;> psq-contains? : psq key -> boolean
+    ;;> returns #t if there is an association for the given key in the
+    ;;> priority search queue, #f otherwise.
     (define (psq-contains? psq key)
       (define cookie (cons #f #f))
       (unless (psq? psq) (error "Requires a psq"))
       (let ((val (lookup (psq-tree psq) key cookie (psq-key<? psq))))
         (not (eq? val cookie))))
 
+    ;;;; Priority queue operations
+    ;;
+    ;;> psq-min : psq -> key
+    ;;>
+    ;;> returns the key of the minimum association in the priority search
+    ;;> queue. If the queue is empty, an error is raised.
     (define (psq-min psq)
       (unless (psq? psq) (error "Requires a psq"))
       (min (psq-tree psq)))
 
+    ;;> psq-delete-min : psq -> psq
+    ;;> returns the priority search queue obtained by removing the minimum
+    ;;> association in the priority search queue. If the queue is empty, an
+    ;;> error is raised.
     (define (psq-delete-min psq)
       (unless (and (psq? psq)
                    (not (psq-empty? psq))) 
         (error "Requires a psq"))
       (%update-psq psq (delete-min (psq-tree psq) (psq-key<? psq) (psq-priority<? psq))))
 
+    ;;> psq-pop : psq -> key + psq
+    ;;> returns two values: the minimum key and the priority search queue
+    ;;> obtained by removing the minimum association from the original
+    ;;> queue. If the queue is empty, an error is raised.
     (define (psq-pop psq)
       (unless (psq? psq) (error "Requires a psq"))
       (let-values (((min rest) (pop (psq-tree psq) (psq-key<? psq) (psq-priority<? psq))))
                   (values min (%update-psq psq rest))))
 
+    ;;;; Ranged query functions
+
+    ;;> psq-at-most : psq priority -> ListOf(key . priority)
+    ;;> returns an alist containing all the associations in the priority
+    ;;> search queue with priority less than or equal to a given value. The
+    ;;> alist returned is ordered by key according to the predicate for the
+    ;;> psq.
     (define (psq-at-most psq max-priority)
       (unless (psq? psq) (error "Requires a psq"))
       (let ((tree   (psq-tree psq))
@@ -553,6 +533,9 @@
             (prio<? (psq-priority<? psq)))
         (at-most tree max-priority key<? prio<?)))
 
+    ;;> psq-at-most-range : psq priority key key -> ListOf(key . priority)
+    ;;> Similar to psq-at-most, but it also takes an upper and lower bound,
+    ;;> for the keys it will return. These bounds are inclusive.
     (define (psq-at-most-range psq max-priority min-key max-key)
       (unless (psq? psq) (error "Requires a psq"))
       (let ((tree   (psq-tree psq))
@@ -560,6 +543,8 @@
             (prio<? (psq-priority<? psq)))
         (at-most-range tree max-priority min-key max-key key<? prio<?)))
 
+    ;;> psq-size : psq -> non-negative integer
+    ;;> returns the number of associations in the priority search queue
     (define (psq-size psq)
       (unless (psq? psq) (error "Requires a psq"))
       (let ((tree (psq-tree psq)))

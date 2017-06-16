@@ -45,13 +45,13 @@
                (case pch
                  ((#\? #\*)
                   (loop (+ i 1)
-                        (cons (substring pat i (+ i 1)) toks)))
+                        (cons (string-copy pat i (+ i 1)) toks)))
                  ((#\[)
                   (let ((j
                           (let search ((j (+ i 2)))
                             (cond
                               ((>= j (string-length pat))
-                               (slib:error 'glob:make-matcher
+                               (error 'glob:make-matcher
                                            "unmatched [" pat))
                               ((char=? #\] (string-ref pat j))
                                (if (and (< (+ j 1) (string-length pat))
@@ -59,21 +59,21 @@
                                  (+ j 1)
                                  j))
                               (else (search (+ j 1)))))))
-                    (loop (+ j 1) (cons (substring pat i (+ j 1)) toks))))
+                    (loop (+ j 1) (cons (string-copy pat i (+ j 1)) toks))))
                  (else
                    (let search ((j (+ i 1)))
                      (cond ((= j (string-length pat))
-                            (loop j (cons (substring pat i j) toks)))
+                            (loop j (cons (string-copy pat i j) toks)))
                            ((memv (string-ref pat j) '(#\? #\* #\[))
-                            (loop j (cons (substring pat i j) toks)))
+                            (loop j (cons (string-copy pat i j) toks)))
                            (else (search (+ j 1)))))))))))
         ((pair? pat)
          (for-each (lambda (elt) (or (string? elt)
-                                     (slib:error 'glob:pattern->tokens
+                                     (error 'glob:pattern->tokens
                                                  "bad pattern" pat)))
                    pat)
          pat)
-        (else (slib:error 'glob:pattern->tokens "bad pattern" pat))))
+        (else (error 'glob:pattern->tokens "bad pattern" pat))))
 
     (define (glob:make-matcher pat ch=? ch<=?)
       (define (match-end str k kmatch)
@@ -110,10 +110,10 @@
                     (lambda (ch)
                       (or (ch=? chrsi ch) (nxt ch))))))))
       (define (match-set tok nxt)
-        (let ((chrs (substring tok 1 (- (string-length tok) 1))))
+        (let ((chrs (string-copy tok 1 (- (string-length tok) 1))))
           (if (and (positive? (string-length chrs))
                    (memv (string-ref chrs 0) '(#\^ #\!)))
-            (let ((pred (match-set1 (substring chrs 1 (string-length chrs)))))
+            (let ((pred (match-set1 (string-copy chrs 1 (string-length chrs)))))
               (lambda (str k kmatch)
                 (and (< k (string-length str))
                      (not (pred (string-ref str k)))
@@ -162,7 +162,7 @@
                   ((car wild?)
                    (loop (cdr inds)
                          (cdr wild?)
-                         (cons (substring str (car inds) (cadr inds)) res)))
+                         (cons (string-copy str (car inds) (cadr inds)) res)))
                   (else
                     (loop (cdr inds) (cdr wild?) res)))))))
 
@@ -181,7 +181,7 @@
             (pat-wild? (map wildcard? (glob:pattern->tokens pattern)))
             (matcher (glob:make-matcher pattern ch=? ch<=?)))
         (or (= (countq #t pat-wild?) (countq #f tmpl-literals))
-            (slib:error 'glob:make-substituter
+            (error 'glob:make-substituter
                         "number of wildcards doesn't match" pattern template))
         (lambda (str)
           (let ((indices (matcher str)))
@@ -199,7 +199,7 @@
                       (loop '() '() lits res))
                      ((car wild?)
                       (loop (cdr inds) (cdr wild?) (cdr lits)
-                            (cons (substring str (car inds) (cadr inds))
+                            (cons (string-copy str (car inds) (cadr inds))
                                   res)))
                      (else
                        (loop (cdr inds) (cdr wild?) lits res)))))))))
@@ -258,14 +258,14 @@
             ((string? template)
              (glob:make-substituter pattern template char=? char<=?))
             (else
-              (slib:error 'filename:substitute?? "bad second argument" template))))
+              (error 'filename:substitute?? "bad second argument" template))))
     (define (filename:substitute-ci?? pattern template)
       (cond ((procedure? template)
              (glob:caller-with-matches pattern template char-ci=? char-ci<=?))
             ((string? template)
              (glob:make-substituter pattern template char-ci=? char-ci<=?))
             (else
-              (slib:error 'filename:substitute-ci?? "bad second argument" template))))
+              (error 'filename:substitute-ci?? "bad second argument" template))))
 
     ;;@example
     ;;((filename:substitute?? "scm_[0-9]*.html" "scm5c4_??.htm")
@@ -290,7 +290,7 @@
                                        char=? char<=?))
              (g (lambda (st)
                   (or (f st)
-                      (slib:error 'replace-suffix "suffix doesn't match:"
+                      (error 'replace-suffix "suffix doesn't match:"
                                   old st)))))
         (if (pair? str)
           (map g str)

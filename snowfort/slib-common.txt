@@ -1,0 +1,8 @@
+= Documentation for Common
+
+To use: +(import (slib common))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+include::../doc/slib-common.txt[]

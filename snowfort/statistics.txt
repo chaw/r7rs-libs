@@ -1,0 +1,8 @@
+= Documentation for Statistics
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+http://owl.apotheon.org/[Open Works License]
+
+include::../doc/statistics.txt[]

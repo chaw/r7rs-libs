@@ -1,0 +1,50 @@
+= Documentation for Fourier Transform
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Discrete-Fourier-Transform.html[]
+
+There are three pairs of functions.  The "-1" version is the inverse:
+
+* +dft+ the general discrete fourier transform: operates on vectors/arrays of complex numbers
+* +fft+ the fast fourier transform.  Like +dft+ but requires all dimensions to be powers of two.
+* +sft+ works similarly to +dft+ but with a different algorithm
+
+Example:
+
+[source,scheme]
+----
+sash[r7rs]> (dft #(1.0 2.0 1.0 -1.0 1.5))
+#(4.5+0.0i 2.081559480312316-1.6510987627325229i
+-1.8315594803123165+1.60822040644407i -1.8315594803123152-1.6082204064440717i
+2.0815594803123165+1.6510987627325235i)
+
+sash[r7rs]> (dft-1 (dft #(1.0 2.0 1.0 -1.0 1.5)))
+#(1.0000000000000002-2.7755575615628914e-16i 2.0-5.551115123125783e-17i
+1.0+0.0i -1.0000000000000004+2.463307335887066e-16i
+1.5000000000000004+2.7755575615628914e-16i)
+
+sash[r7rs]> (sft #(1.0 2.0 1.0 -1.0 1.5))
+#(4.5+0.0i 2.081559480312316-1.6510987627325229i
+-1.8315594803123165+1.60822040644407i -1.8315594803123152-1.6082204064440717i
+2.0815594803123165+1.6510987627325235i)
+
+sash[r7rs]> (sft-1 (sft #(1.0 2.0 1.0 -1.0 1.5)))
+#(1.0000000000000002-2.7755575615628914e-16i 2.0-5.551115123125783e-17i
+1.0+0.0i -1.0000000000000004+2.463307335887066e-16i
+1.5000000000000004+2.7755575615628914e-16i)
+
+sash[r7rs]> (fft '#(1 0+i -1 0-i 1 0+i -1 0-i))
+#(0 0.0-0.0i 8.0+8.881784197001252e-16i 0.0+0.0i 0 0.0+0.0i
+0.0-8.881784197001252e-16i -0.0+0.0i)
+
+sash[r7rs]> (fft-1 '#(0 0 0 0 0 0 8 0))
+#(1.0 -6.123233995736766e-17-1.0i -1.0+0.0i 6.123233995736766e-17+1.0i 1.0
+-6.123233995736766e-17-1.0i -1.0-0.0i 6.123233995736766e-17+1.0i)
+
+sash[r7rs]> (fft-1 (fft '#(1 0+i -1 0-i 1 0+i -1 0-i)))
+#(1.0+0.0i -1.6081226496766364e-16+1.0i -1.0+0.0i 1.6081226496766364e-16-1.0i
+1.0+0.0i -1.6081226496766364e-16+1.0i -1.0-0.0i 1.6081226496766364e-16-1.0i)
+----
+

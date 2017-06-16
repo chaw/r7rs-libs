@@ -1,0 +1,9 @@
+= Documentation for Printf
+
+Documentation: http://people.csail.mit.edu/jaffer/slib/Standard-Formatted-Output.html#Standard-Formatted-Output[]
+
+To use: +(import (slib printf))+
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+

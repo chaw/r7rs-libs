@@ -1,0 +1,7 @@
+= Documentation for Array-For-Each
+
+For more information including compatibility, examples and test cases, 
+see https://github.com/petercrlane/r7rs-libs[]
+
+include::../doc/slib-array-for-each.txt[]
+

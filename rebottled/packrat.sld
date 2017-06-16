@@ -89,7 +89,7 @@
            )
   (import (scheme base)
           (scheme write)
-          (srfi 1))
+          (scheme list))
 
   (begin
 

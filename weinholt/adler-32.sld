@@ -35,8 +35,6 @@
 ;;     returns the final checksum
 ;; (adler-32-width)
 ;;     returns the bit-width of the checksum, i.e. 32
-;; (adler-32-self-test)
-;;     returns 'sucess, 'failure, or 'no-self-test
 
 (define-library 
   (weinholt adler-32)
@@ -45,38 +43,43 @@
   (import (scheme base)
           (scheme case-lambda)
           (r6rs fixnums)
-          (srfi 60))
+          (only (srfi 151) arithmetic-shift bit-field))
 
   (begin
 
-  (define (adler-32 bv)
-    (adler-32-finish (adler-32-update (adler-32-init) bv)))
+    ;;>     returns the final Adler-32 checksum of the entire bytevector
+    (define (adler-32 bv)
+      (adler-32-finish (adler-32-update (adler-32-init) bv)))
 
-  (define (adler-32-init) 1)
+    ;;>     returns an initial Adler-32 state
+    (define (adler-32-init) 1)
 
-  (define adler-32-update
-    (case-lambda
-      ((state bv)
-       (adler-32-update state bv 0 (bytevector-length bv)))
-      ((state bv start)
-       (adler-32-update state bv start (bytevector-length bv)))
-      ((state bv start end)
-       ;; This is the simple approach. Based on the example in
-       ;; RFC1950. TODO: A more clever approach will probably unroll
-       ;; the loop and avoid fxmod?
-       (let lp ((i start)
-                (s1 (bit-field state 0 16))
-                (s2 (bit-field state 16 32)))
-         (if (= i end)
+    ;;>     returns a new state which includes the checksum on the given bytes
+    (define adler-32-update
+      (case-lambda
+        ((state bv)
+         (adler-32-update state bv 0 (bytevector-length bv)))
+        ((state bv start)
+         (adler-32-update state bv start (bytevector-length bv)))
+        ((state bv start end)
+         ;; This is the simple approach. Based on the example in
+         ;; RFC1950. TODO: A more clever approach will probably unroll
+         ;; the loop and avoid fxmod?
+         (let lp ((i start)
+                  (s1 (bit-field state 0 16))
+                  (s2 (bit-field state 16 32)))
+           (if (= i end)
              (+ s1 (arithmetic-shift s2 16))
              (let* ((s1 (fxmod (fx+ s1 (bytevector-u8-ref bv i)) 65521))
                     (s2 (fxmod (fx+ s1 s2) 65521)))
                (lp (+ i 1) s1 s2)))))))
 
-  (define (adler-32-finish state) state)
+    ;;>     returns the final checksum
+    (define (adler-32-finish state) state)
 
-  (define (adler-32-width) 32)
+    ;;>     returns the bit-width of the checksum, i.e. 32
+    (define (adler-32-width) 32)
 
-  ))
+    ))
 
 

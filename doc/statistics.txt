@@ -7,12 +7,31 @@ other information about sets of data.
 
 indexterm:[arithmetic-mean] Same as +mean+.
 
+=== arithmetic-geometric-mean
+
+The indexterm2:[+arithmetic-geometric-mean+] is defined as the 
+limit of a sequence of two terms, replacing the first term with 
+their arithmetic mean and the second with their geometric mean, 
+until the two are equal.  The function is useful in mathematical
+applications, see description at 
+http://mathworld.wolfram.com/Arithmetic-GeometricMean.html[]
+
+The function takes two arguments and an optional tolerance:
+
+[source,scheme]
+----
+> (arithmetic-geometric-mean 1 (/ 1 (sqrt 2)))
+0.8472130848351929
+> (arithmetic-geometric-mean 1 (/ 1 (sqrt 2)) 1e-12)
+0.8472130847939792
+----
+
 === coefficient-of-variation
 
 indexterm2:[+coefficient-of-variation+] describes the amount of spread in a dataset relative to its mean.
 In the following example, both lists have the same mean (3), but the spread is greater in the second.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:32|# (coefficient-of-variation '(1 2 3 4 5))
 52.70462766947299
@@ -25,7 +44,7 @@ In the following example, both lists have the same mean (3), but the spread is g
 indexterm2:[+combinations+] returns the number of ways to take k things from n without replacement, 
 when the order does not matter.  The form is +(combinations n k)+
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (combinations 5 2)
 10
@@ -39,7 +58,7 @@ indexterm:[+geometric-mean+]  The geometric mean takes the nth root of the
 product of the numbers, where +n+ is the size of the data.  This yields the 
 central number within a geometric progression.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:3|# (geometric-mean '(1 2 3 4 5))
 2.605171084697352
@@ -54,7 +73,7 @@ central number within a geometric progression.
 indexterm:[+harmonic-mean+]  The harmonic mean is the reciprocal of the arithmetic 
 mean of the reciprocals.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:6|# (harmonic-mean '(1 2 3 4 5))
 300/137
@@ -68,7 +87,7 @@ indexterm:[jaccard-distance]
 The indexterm2:[Jaccard Distance] is simply +(1 - (jaccard-index))+, and measures how _dissimilar_ 
 the two sets are.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:46|# (jaccard-distance '(1 2 3 4 5) '(3 4 5 6 7))
 4/7
@@ -81,7 +100,7 @@ The indexterm2:[Jaccard Index] returns a number from 0 to 1 indicating how _simi
 two sets are.  Sets here are represented as lists, and duplicates are ignored.  An optional 
 third argument provides the set-equality function (which defaults to +equal?+).
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:40|# (jaccard-index '(1 2 3 4 5) '(3 4 5 6 7))
 3/7
@@ -104,7 +123,7 @@ inequality.
 Computes the arithmetic indexterm2:[+mean+] of a list of numbers.  
 This is the familiar "add up all the numbers, divide by the total" average.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (mean '(1 2 3 4 5))
 3
@@ -115,7 +134,7 @@ This is the familiar "add up all the numbers, divide by the total" average.
 The indexterm2:[+median+] is the central number, when all the numbers are put in order 
 (or, when there are an even number of numbers, the average of the two middle numbers).
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:8|# (median '(5 3 1 2 4))
 3
@@ -126,7 +145,7 @@ The indexterm2:[+median+] is the central number, when all the numbers are put in
 The indexterm2:[+mode+] is the number appearing most often.  The +mode+ function returns 
 two values: a list of the most frequent number or numbers, and their number of occurrences.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:9|# (mode '(5 3 1 2 4))
 (1 2 3 4 5) 1
@@ -144,7 +163,7 @@ list, or an average of the nearest two values.  +percent+ values must be in the
 range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 +median+.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:13|# (percentile '(1 2 3 4 5) 50)
 3
@@ -158,12 +177,28 @@ range 1 to 99, inclusive.  Note that a +percent+ of 50 corresponds to the
 9/2
 ----
 
+=== perlin-noise
+
+indexterm:[Perlin Noise]
+indexterm2:[+perlin-noise+] is a function returning a value computed using a gradient function.
+Perlin Noise was invented by http://en.wikipedia.org/wiki/Ken_Perlin[Ken Perlin] and has been widely
+applied in computer graphics.  The implementation here is a conversion of the 
+http://mrl.nyu.edu/~perlin/noise/[Java reference implementation].
+
++perlin-noise+ takes three numbers as input, and returns a single number (all numbers inexact).
+
+[source,scheme]
+----
+sash> (perlin-noise 12.3 4.2 5.7)
+0.4085747160714242
+----
+
 === permutations
 
 indexterm2:[+permutations+] returns the number of ways to take k things from n without replacement, when the order matters.
 The form is +(permutations n k)+
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:4|# (permutations 5 2)
 20
@@ -175,7 +210,7 @@ The form is +(permutations n k)+
 
 indexterm2:[+population-standard-deviation+] of a list of data:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:28|# (population-standard-deviation '(1 2 3 4 5))
 1.4142135623730951
@@ -184,7 +219,7 @@ indexterm2:[+population-standard-deviation+] of a list of data:
 Optionally, if you know the mean of your data, pass that as a second argument so the 
 function does not have to recompute it:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:39|# (population-standard-deviation '(1 2 3 4 5) 3)
 1.4142135623730951
@@ -194,7 +229,7 @@ function does not have to recompute it:
 
 indexterm2:[+population-variance+] of a list of data:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:29|# (population-variance '(1 2 3 4 5))
 2
@@ -208,7 +243,7 @@ function does not have to recompute it.
 indexterm2:[+random-normal+] is used to return a random number normally distributed with 
 a given mean and standard deviation.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:2|# (random-normal 0 10)
 3017/1250
@@ -228,7 +263,7 @@ a given mean and standard deviation.
 
 indexterm2:[+random-pick+] returns a random selection from a given list
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:20|# (random-pick '(1 2 3 4 5 6))
 6
@@ -243,7 +278,7 @@ indexterm2:[+random-pick+] returns a random selection from a given list
 indexterm2:[+random-sample+] returns a random sample of +n+ chosen from a list of items, 
 without replacement
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:25|# (random-sample 3 '(1 2 3 4 5 6))
 (1 4 5)
@@ -260,7 +295,7 @@ without replacement, but with the items weighted by the given list of weights.
 
 The following gives a heavy bias to choosing 1 and 6:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:28|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(10 1 1 1 1 10))
 (6 1 5)
@@ -272,7 +307,7 @@ The following gives a heavy bias to choosing 1 and 6:
 
 The following is a lighter bias to choosing 1 and 4:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:34|# (random-weighted-sample 3 '(1 2 3 4 5 6) '(2 1 1 2 1 1))
 (4 6 2)
@@ -286,7 +321,7 @@ The following is a lighter bias to choosing 1 and 4:
 
 indexterm2:[+sign+] returns 1 for positive numbers, 0 for zero, -1 for negative numbers
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:36|# (sign 10)
 1
@@ -304,7 +339,7 @@ measure of the similarity of two sets.  Sets here are represented as lists, and
 duplicates are ignored.  An optional third argument provides the set-equality
 function (which defaults to +equal?+).
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:47|# (sorenson-dice-index '(1 2 3 4 5) '(3 4 5 6 7))
 3/5
@@ -318,7 +353,7 @@ function (which defaults to +equal?+).
 
 indexterm2:[+standard-deviation+] of a list of data:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:30|# (standard-deviation '(1 2 3 4 5))
 1.5811388300841898
@@ -331,7 +366,7 @@ function does not have to recompute it.
 
 indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling distribution.
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:35|# (standard-error-of-the-mean '(1 2 3 4 5))
 0.7071067811865476
@@ -341,7 +376,7 @@ indexterm2:[+standard-error-of-the-mean+] describes the mean of the sampling dis
 
 indexterm2:[+variance+] of a list of data:
 
-[source,lisp]
+[source,scheme]
 ----
 #|kawa:31|# (variance '(1 2 3 4 5))
 5/2

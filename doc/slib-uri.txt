@@ -1,0 +1,179 @@
+=== URIs: +(import (slib uri))+
+
+A package for creating, decoding and testing various forms of URI.
+
+==== absolute-path
+
+indexterm2:[+absolute-path?+] returns true if the given filename is an absolute
+path, or false if it depends on the current directory.
+
+[source,scheme]
+----
+> (absolute-path? "/usr/local/bin/scheme")
+#t
+> (absolute-path? "../filename")
+#f
+----
+
+==== absolute-uri?
+
+indexterm2:[+absolute-uri?+] returns true if the given uri is an absolute uri (containing 
+a complete description of the named resource), or false otherwise.
+
+[source,scheme]
+----
+> (absolute-uri? "ftp://example.org/resource.txt")
+#t
+> (absolute-uri? "resource.txt")
+#f
+----
+
+==== glob-pattern?
+
+indexterm2:[+glob-pattern?+] returns true if the given string contains any symbol typically 
+used in a indexterm2:[glob], i.e. * ? [ ]
+
+[source,scheme]
+----
+> (glob-pattern? "/home/dir/*/file.txt")
+#t
+> (glob-pattern? "/home/dir/x/file?.txt")
+#t
+> (glob-pattern? "/home/dir/x/fil[e].txt")
+#t
+> (glob-pattern? "/home/dir/x/file.txt")
+#f
+----
+
+==== html syntax
+
+The following four functions generate html text for different purposes:
+
+* indexterm2:[+html:anchor+] creates a named location given a name as a string.
+* indexterm2:[+html:base+] returns a string representing the base of given uri.
+* indexterm2:[+html:isindex+] creates a string for a search prompt (now deprecated for html forms).
+* indexterm2:[+html:link+] takes a uri and title, and returns a link to uri displaying the title.
+
+[source,scheme]
+----
+> (html:anchor "location")    ;; <1>
+<A NAME="location"></A>     
+> (html:base "http:peterlane.info")
+<BASE HREF="http:peterlane.info">
+> (html:isindex "Search term: ")
+<ISINDEX PROMPT="Search term: ">
+> (html:link "http://peterlane.info" "home page")
+<A HREF="http://peterlane.info">home page</A>
+----
+<1> Use "<A HREF=#location>" to link back to this location.
+
+==== make-uri
+
+indexterm2:[+make-uri+] constructs a URI given from 0 to 5 arguments.  These are: scheme, authority,
+path, query, fragment.  These are optional from the front, so a single argument will be treated as the 
+fragment; two arguments as a query and then a fragment, etc.
+
+[source,scheme]
+----
+> (make-uri)                                                          ; <1>
+
+> (make-uri "xyz")                                                    ; <2>
+#xyz
+> (make-uri "query" "xyz")                                            ; <3>
+?query#xyz
+> (make-uri "http" "peterlane.info" "/files/location" "query" "xyz")  ; <4>
+http://peterlane.info/files/location?query#xyz
+----
+<1> Returns the empty string
+<2> Single argument is a Fragment
+<3> Query and Fragment
+<4> All components: the authority in this case is the web address, and the path the relative location of files
+
+==== null-directory?
+
+indexterm2:[+null-directory?+] takes a string and returns true if the string
+names the current directory (so changing to it would not make any change).
+
+==== parse-ftp-address
+
+indexterm2:[+parse-ftp-address+] converts a string, representing an ftp address, into a list of up 
+to four values: the username, password, remote site, and remote directory.  +#f+ is returned if any 
+of these values is not present, or +#f+ instead of a list if the string is not an ftp address.
+
+[source,scheme]
+----
+> (parse-ftp-address "ftp://username@ftp.someplace.site/")
+("username" #f "ftp.someplace.site" #f)
+> (parse-ftp-address "ftp://username:password@ftp.someplace.site/dir")
+("username" "password" "ftp.someplace.site" "dir")
+----
+
+==== path->uri
+
+indexterm2:[+path->uri+] converts a given path (as a string) into a URI with an absolute address.
+
+[source,scheme]
+----
+> (path->uri "filename.txt")
+file:/home/NAME/CURRENT-DIRECTORY/filename.txt
+> (path->uri "/usr/local/filename.txt")
+file:/usr/local/filename.txt
+----
+
+==== uri->tree
+
+indexterm2:[+uri->tree+] takes a URI and returns a list of five values corresponding to the scheme, authority, path, query, fragment:
+
+[source,scheme]
+----
+> (uri->tree "file:/usr/local/filename.txt")
+(file #f ("" "usr" "local" "filename.txt") #f #f)
+----
+
+==== uri:decode-query
+
+indexterm2:[+uri:decode-query+] converts a given query string into an association list
+of key-value pairs:
+
+[source,scheme]
+----
+> (uri:decode-query "name=XXX&date=32")
+((date "32") (name "XXX"))
+----
+
+==== uri:make-path
+
+indexterm2:[+uri:make-path+] takes a list of strings, and returns a path component by joining 
+the strings together with a suitable separator:
+
+[source,scheme]
+----
+> (uri:make-path '("a" "b" "c"))
+"a/b/c"
+----
+
+==== uri:splitfields
+
+indexterm2:[+uri:splitfields+] splits a string at a given character.
+
+[source,scheme]
+----
+> (uri:splitfields "some text to split" #\space)
+'("some" "text" "to" "split")
+----
+
+==== uric:decode/encode
+
+indexterm2:[+uric:decode+] and indexterm2:[+uric:encode+] convert a string to and from a form 
+with certain characters rewritten using % octal values:
+
+[source,scheme]
+----
+> (uric:decode "xxx%20yyy")
+"xxx yyy"
+> (uric:encode "xxx yyy")
+"xxx%20yyy"
+----
+
+An optional second argument to +uric:encode+ provides a string of characters to allow.
+

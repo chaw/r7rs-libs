@@ -24,6 +24,7 @@
 (define-library 
   (weinholt bytevector)
   (export bytevector-append ; from (scheme base)
+          bytevector-fill!
           bytevectors-length
           bytevector-concatenate
           subbytevector
@@ -35,9 +36,9 @@
   (import (except (scheme base) bytevector-copy! error)
           (scheme case-lambda)
           (r6rs base)
-          (r6rs bytevectors) 
+          (r6rs bytevectors)
           (r6rs fixnums)
-          (srfi 60))
+          (only (srfi 151) bitwise-and integer-length))
 
   (begin
 

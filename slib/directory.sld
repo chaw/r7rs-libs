@@ -19,54 +19,88 @@
 
 ;; Packaged for R7RS Scheme by Peter Lane, 2017
 ;;
-;; Note, minor differences in which files are listed in a directory
+;; Added pathname->dirname as a new function to replace pathname->vicinity
+;; -- this removes the need for SRFI 59
 
 (define-library
   (slib directory)
   (export current-directory
-          make-directory
           directory-for-each
-          directory*-for-each)
+          directory*-for-each
+          make-directory
+          pathname->dirname ;; New function added to remove need for SRFI 59
+          )
   (import (scheme base) 
           (scheme case-lambda)
           (slib common) 
-          (slib filename)
-          (only (srfi 59) pathname->vicinity))
+          (slib filename))
 
   ;; functions must be defined in platform specific ways
   (cond-expand 
     ((library (chibi filesystem))
-     (import (chibi filesystem))
+     (import (chibi filesystem)
+             (chibi pathname))
      (begin
        ; current-directory exported
        (define make-directory create-directory*)
+       (define (pathname->dirname path)
+         (string-append (path-directory path) "/"))
        (define list-directory-files directory-files)))
+
+    (gauche
+      (import (file util))
+      (begin
+        ; current-directory exported
+        (define (make-directory str) (current-directory str))
+        (define (pathname->dirname path)
+          (let-values (((dir name ext) (decompose-path path)))
+                      dir))
+        (define list-directory-files directory-list)))
+
     (kawa
-      (import (only (kawa lib files) create-directory)
+      (import (only (kawa lib files) create-directory path-directory)
               (only (kawa lib ports) current-path)
               (only (kawa base) as invoke))
       (begin
         (define current-directory current-path)
         (define make-directory create-directory)
+        (define (pathname->dirname path)
+          (let* ((dir (path-directory path))
+                 (chars (reverse (string->list dir))))
+            (if (and (not (null? chars))
+                     (char=? #\. (car chars))) ; Kawa sometimes adds a 'dot' to end, so remove it
+              (list->string (reverse (cdr chars)))
+              dir)))
         (define (list-directory-files dir)
           (map (lambda (file) ; list-directory-files must return just the filenames
                  (let ((path (invoke file 'toString)))
-                   (string-copy path (string-length (pathname->vicinity path)))))
+                   (string-copy path (string-length (pathname->dirname path)))))
                (invoke (java.io.File (as String dir)) 'listFiles)))))
+
     (larceny
-      (import (primitives current-directory list-directory))
+      (import (primitives current-directory list-directory)
+              (only (srfi 59) pathname->vicinity))
       (begin 
         ; current-directory exported
         (define (make-directory str) (system (string-append "mkdir " str)))
+        (define pathname->dirname pathname->vicinity)
         (define list-directory-files list-directory)))
+
     (sagittarius
       (import (sagittarius)
-              (only (srfi 1) filter))
+              (util file)
+              (only (scheme list) filter))
       (begin
         ; current-directory exported
         (define (make-directory str) (create-directory str))
+        (define (pathname->dirname path)
+          (let-values (((dir file ext) (decompose-path path)))
+                      (if (string? dir)
+                        dir
+                        "")))
         (define (list-directory-files dir)
           (filter file-regular? (read-directory dir)))))
+
     (else
       (error "(slib directory) not supported for current R7RS Scheme implementation")))
 
@@ -84,7 +118,7 @@
                      (list-directory-files dir))))))
 
     (define (directory*-for-each proc path-glob)
-      (let* ((dir (pathname->vicinity path-glob))
+      (let* ((dir (pathname->dirname path-glob))
              (glob (string-copy path-glob (string-length dir))))
         (directory-for-each proc
                             (if (equal? "" dir) "." dir)

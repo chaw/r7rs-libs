@@ -1,0 +1,35 @@
+=== Dynamic: +(import (slib dynamic))+
+
+indexterm:[dynamic]
+Provides a kind of name-value store, which can be accessed globally.  (This is 
+essentially the same as R7RS parameters, with a different syntax.)
+
+indexterm2:[+make-dynamic+] creates a dynamic object wrapping a given object.
+
+indexterm2:[+dynamic?+] returns true only if the given object is a dynamic.
+
+indexterm2:[+dynamic-ref+] returns the value of a given dynamic object.
+
+indexterm2:[+dynamic-set!+] changes the value of the given dynamic object.
+
+indexterm2:[+call-with-dynamic-binding+] temporarily rebinds a given dynamic 
+object to a new value within the given procedure.
+
+[source,scheme]
+----
+(let ((x (make-dynamic 'a))         ; <1>
+      (y (make-dynamic 'b)))
+  (dynamic? x)                      ; <2>
+  (eq? 'a (dynamic-ref x))          ; <3>
+  (eq? 'b (dynamic-ref y))
+  (dynamic-set! x 'c)               ; <4>
+  (call-with-dynamic-binding x 'd   ; <5>
+    (lambda () (eq? 'd (dynamic-ref x))))
+  (eq? 'c (dynamic-ref x)))         ; <6>
+----
+<1> Names +x+ as the dynamic object with value +'a+
+<2> Returns +#t+ as +x+ is a dynamic object
+<3> Retrieves the value of the given dynamic object, and checks it is correct
+<4> Changes the value of the given dynamic object
+<5> Within the +lambda+ +x+ is now bound to +'d+
+<6> and +x+ reverts to holding +'c+ after the call

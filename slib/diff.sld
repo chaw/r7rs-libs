@@ -85,7 +85,7 @@
     ;;; #f otherwise (p > p-lim).  When passed CC, fp:compare returns #f.
     (define (fp:compare fp fpoff CC A M B N p-lim)
       (define Delta (- N M))
-      ;;(if (negative? Delta) (slib:error 'fp:compare (fp:subarray A 0 M) '> (fp:subarray B 0 N)))
+      ;;(if (negative? Delta) (error 'fp:compare (fp:subarray A 0 M) '> (fp:subarray B 0 N)))
       ;;(set! compares (+ 1 compares))  ;(print 'fp:compare M N p-lim)
       (let loop ((p 0))
         (do ((k (- p) (+ 1 k)))
@@ -152,7 +152,7 @@
       ;; RR is not longer than CC.  So do for each element of RR.
       (let loop ((cdx (+ 1 (quotient N 2)))
                  (rdx (quotient N 2)))
-        ;;(if (negative? rdx) (slib:error 'negative? 'rdx))
+        ;;(if (negative? rdx) (error 'negative? 'rdx))
         (cond ((eqv? cost (+ (array-ref CC rdx) (array-ref RR (- N rdx)))) rdx)
               ((eqv? cost (+ (array-ref CC cdx) (array-ref RR (- N cdx)))) cdx)
               (else (loop (+ 1 cdx) (+ -1 rdx))))))
@@ -249,7 +249,7 @@
     (define (diff2ez fp fpoff CCRR A start-a end-a B start-b end-b edits edx epo p-lim)
       (define len-a (- end-a start-a))
       (define len-b (- end-b start-b))
-      ;;(if (> len-a len-b) (slib:error 'diff2ez len-a '> len-b))
+      ;;(if (> len-a len-b) (error 'diff2ez len-a '> len-b))
       (cond ((zero? p-lim)			; B inserts only
              (if (= len-b len-a)
                0				; A = B; no edits
@@ -269,7 +269,7 @@
                              ;;(set! tick (+ 1 tick))
                              (loop adx (+ 1 bdx) (+ 1 edx)))))))
             ((<= len-a p-lim)		; delete all A; insert all B
-             ;;(if (< len-a p-lim) (slib:error 'diff2ez len-a len-b 'p-lim p-lim))
+             ;;(if (< len-a p-lim) (error 'diff2ez len-a len-b 'p-lim p-lim))
              (do ((idx start-a (+ 1 idx))
                   (jdx start-b (+ 1 jdx)))
                ((and (>= idx end-a) (>= jdx end-b)) (+ len-a len-b))

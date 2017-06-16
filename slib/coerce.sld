@@ -23,8 +23,8 @@
   (slib coerce)
   (export type-of
           coerce)
-  (import (scheme base)
-          (slib common))
+  (import (except (scheme base) equal?)
+          (srfi 63))
 
   (begin
 
@@ -44,7 +44,7 @@
         ((list? obj)		'list)
         ((pair? obj)		'pair)
         ((vector? obj)	'vector)
-        ((and (provided? 'array) (array? obj))	'array)
+        ((and (array? obj))	'array)
         (else		'?)))
 
     ;;@body
@@ -52,7 +52,7 @@
     ;;@code{string}, @code{symbol}, @code{list}, or @code{vector} to
     ;;@2 (which must be one of these symbols).
     (define (coerce obj result-type)
-      (define (err) (slib:error 'coerce 'not obj '-> result-type))
+      (define (err) (error 'coerce 'not obj '-> result-type))
       (define obj-type (type-of obj))
       (cond
         ((eq? obj-type result-type) obj)

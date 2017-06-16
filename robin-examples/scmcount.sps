@@ -5,13 +5,13 @@
 
 (import (scheme base)
         (scheme process-context)
+        (only (scheme list) fold)
+        (only (scheme sort) list-sort)
         (scheme write)
         (robin directory)
         (robin series)
         (slib format)
-        (slib string-search)
-        (only (srfi 1) fold)
-        (only (srfi 95) sort))
+        (slib string-search))
 
 (cond-expand
   ((library (srfi 13))
@@ -71,7 +71,7 @@
                 (format #t "~a  ~5d~&" 
                         (string-pad (car file) maxwidth) 
                         (cdr file)))
-              (sort *files* (lambda (a b) (string<? (car a) (car b)))))
+              (list-sort (lambda (a b) (string<? (car a) (car b))) *files*))
     (format #t "~a~&" divider)
     (format #t "Total files: ~a~&" (length *files*))
     (format #t "Total lines: ~a~&" (fold + 0 (map cdr *files*)))))
