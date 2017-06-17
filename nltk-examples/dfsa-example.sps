@@ -43,7 +43,7 @@
     (let ((goal-trans         (reverse-transitions automaton))
           (state-emit-symbols (state-symbol automaton))
           (trans              (dfsa-transitions automaton))
-          (str-res (make-hash-table (default-hash-comparator))))
+          (str-res (make-hash-table (make-default-comparator))))
       ; merge all absolutely final states into one
       (let ((absolute-final-states (filter (lambda (el)
                                              (if (null? (hash-table-ref/default state-emit-symbols el '())) #t #f))

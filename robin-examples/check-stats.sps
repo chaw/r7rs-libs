@@ -1,7 +1,7 @@
 ;; simple program to visually check the random-normal function 
 
 (import (scheme base)
-        (robin statistics)
+        (only (robin statistics) random-normal)
         (slib charplot))
 
 (define mean 50)

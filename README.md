@@ -299,8 +299,12 @@ The 'srfi' folder contains SRFIs for all R7RS implementations:
 
 * srfi 2   and-let\*
 * srfi 8   receive
+* srfi 26  cut
+* srfi 31  rec for recursive evaluation
 * srfi 42  Eager Comprehensions (lightly modified reference implementation)
 * srfi 63  SLIB's array.scm implemented as a srfi library
+* srfi 141 Integer division
+  * floor/ and truncate/ operations already part of R7RS
 * srfi 151 Bitwise Operations (reference implementation tailored to R7RS
   implementations) - anticipating its acceptance in place of srfi 142
 

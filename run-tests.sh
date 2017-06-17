@@ -5,6 +5,8 @@
 if [ "$1" = "kawa" ]; then
   export CLASSPATH=r7rs-libs.jar
   PROG="kawa --r7rs -f "
+  # Test srfi 27 for Kawa
+  $PROG "srfis/kawa/srfi-27-test.sps"
 else if [ "$1" = "larceny" ]; then
   PROG="larceny -r7rs -program "
 else if [ "$1" = "chibi" ]; then

@@ -36,15 +36,8 @@
           crc5)
   (import (scheme base)
           (scheme file)
-          (slib byte))
-
-  (cond-expand
-    ((library (srfi 151))
-     (only (srfi 151) arithmetic-shift bit-set? bitwise-and bitwise-xor))
-    ((library (srfi 60))
-     (only (srfi 60) arithmetic-shift bit-set? bitwise-and bitwise-xor))
-    (else
-      (error "No suitable logical bits library")))
+          (slib byte)
+          (only (srfi 151) arithmetic-shift bit-set? bitwise-and bitwise-xor))
 
   (begin
 

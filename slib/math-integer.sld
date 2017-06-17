@@ -30,7 +30,7 @@
           (rename modulo-ei modulo)
           round-quotient)
   (import (scheme base)
-          (only (srfi 60) arithmetic-shift integer-length)) ;; TODO: Replace with SRFI 151
+          (only (srfi 151) arithmetic-shift integer-length))
 
   (begin
 

@@ -46,6 +46,9 @@
   (string<? (format #f "~a" (car lib-1))
             (format #f "~a" (car lib-2))))
 
+(define (list-directory-paths filename)
+  (list-directory-files filename #t))
+
 (define *dataset* 
   (list-sort
     library<?

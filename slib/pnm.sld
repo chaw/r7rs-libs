@@ -34,8 +34,8 @@
           (slib byte)
           (slib common)
           (slib subarray)
-          (only (srfi 60) arithmetic-shift bit-set? bitwise-and) ;; TODO: Replace with SRFI 151
-          (srfi 63))
+          (srfi 63)
+          (only (srfi 151) arithmetic-shift bit-set? bitwise-and))
 
   (begin
 

@@ -34,6 +34,8 @@
         (srfi 64)
         (scheme sort))
 
+(define number-of-tests 300)
+
 ;;
 ;; Utilities for wt-tree
 ;;
@@ -75,15 +77,6 @@
 	 (size (* unit (+ (quotient i unit) 1))))
     size))
 
-(define (try-test lst i)
-  (let* ((func (car lst))
-	 (syms (cdr lst))
-	 (size (ladder i))
-	 (args (map (type-to-data size) syms)))
-    (if (apply func args)
-	#t
-	args)))
-
 (define (type-to-data size)
   (lambda (type)
     (cond
@@ -95,6 +88,15 @@
       (random-integer size))
      (else
       (error "Unknown type: " type)))))
+
+(define (try-test lst i)
+  (let* ((func (car lst))
+	 (syms (cdr lst))
+	 (size (ladder i))
+	 (args (map (type-to-data size) syms)))
+    (if (apply func args)
+	#t
+	args)))
 
 ;;
 ;; property tests
@@ -213,8 +215,6 @@
 ;;
 
 (test-begin "slib-wt-tree")
-
-(define number-of-tests 300)
 
 (define (run-test prop)
   (let ((tag (car prop))

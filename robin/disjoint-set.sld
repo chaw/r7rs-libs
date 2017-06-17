@@ -40,7 +40,8 @@
 ;;; Exported procedures:
 ;;;
 ;;; make-disjoint-set
-;;;    Input: two procedures, a hash function and equality test for the items
+;;;    Input: a comparator
+;;;           or two procedures, a hash function and equality test for the items
 ;;;           to hold within the disjoint set
 ;;;    Output: a reference to a disjoint-set object
 ;;; disjoint-set:make

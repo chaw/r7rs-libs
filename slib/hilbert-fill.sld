@@ -31,9 +31,9 @@
           gray-code>=?
           delaminate-list)
   (import (scheme base)
-          (only (srfi 60)  ;; TODO: Replace with SRFI 151
+          (only (srfi 151)
                 arithmetic-shift bit-set? bitwise-and bitwise-ior bitwise-not bitwise-xor
-                integer-length list->integer log2-binary-factors rotate-bit-field))
+                integer-length list->bits first-set-bit bit-field-rotate))
 
   (begin
 
@@ -97,9 +97,9 @@
       (do ((bdxn (- rank rank*nbits) (+ rank bdxn))
            (chnk (arithmetic-shift igry (- rank rank*nbits))
                  (bitwise-xor rnkhib (bitwise-and (arithmetic-shift igry (+ rank bdxn)) rnkmsk)))
-           (rotation 0 (modulo (+ (log2-binary-factors chnk) 2 rotation) rank))
+           (rotation 0 (modulo (+ (first-set-bit chnk) 2 rotation) rank))
            (flipbit 0 (arithmetic-shift 1 rotation))
-           (lst '() (cons (bitwise-xor flipbit (rotate-bit-field chnk rotation 0 rank))
+           (lst '() (cons (bitwise-xor flipbit (bit-field-rotate chnk rotation 0 rank))
                           lst)))
         ((positive? bdxn)
          (map gray-code->integer (delaminate-list rank (reverse lst))))))
@@ -122,14 +122,14 @@
             (define (loop lst rotation flipbit scalar)
               (if (null? lst)
                 (gray-code->integer scalar)
-                (let ((chnk (rotate-bit-field (bitwise-xor flipbit (car lst))
+                (let ((chnk (bit-field-rotate (bitwise-xor flipbit (car lst))
                                               (- rotation) 0 rank)))
                   (loop (cdr lst)
-                        (modulo (+ (log2-binary-factors chnk) 2 rotation) rank)
+                        (modulo (+ (first-set-bit chnk) 2 rotation) rank)
                         (arithmetic-shift 1 rotation)
                         (bitwise-ior (bitwise-xor rnkhib chnk) (arithmetic-shift scalar rank))))))
             (loop (cdr lst)
-                  (modulo (+ (log2-binary-factors (car lst)) 2) rank)
+                  (modulo (+ (first-set-bit (car lst)) 2) rank)
                   1
                   (car lst))))))
 
@@ -226,7 +226,7 @@
     (define (delaminate-list count ks)
       (define nks (length ks))
       (do ((kdx 0 (+ 1 kdx))
-           (lst '() (cons (list->integer (map (lambda (k) (bit-set? kdx k)) ks))
+           (lst '() (cons (list->bits (map (lambda (k) (bit-set? kdx k)) ks))
                           lst)))
         ((>= kdx count) lst)))
 

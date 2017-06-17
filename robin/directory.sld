@@ -135,8 +135,8 @@
              (define glob-match? (filename:match?? glob))
              (define (process-files dir) 
                (let-values (((subdirs files) (directory-list2 dir)))
-               (format #t "Collect ~a ~a ~a~&" dir files (filter glob-match? files))
-                           (for-each proc (filter glob-match? files))
+                           (for-each proc (filter glob-match? 
+                                                  (map (lambda (f) (string-append dir "/" f)) files)))
                            (for-each process-files 
                                      (map (lambda (d) (string-append dir "/" d))
                                           (remove (lambda (d) (member d '("." "..") string=?))

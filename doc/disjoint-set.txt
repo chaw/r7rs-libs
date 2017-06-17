@@ -7,8 +7,7 @@ joining two sets together.
 
 === make-disjoint-set
           
-indexterm2:[+make-disjoint-set+] takes two parameters: the equality function to use on 
-terms, and a hash function (e.g. SRFI 69's +hash+, +string-hash+ or +hash-by-identity+).
+indexterm2:[+make-disjoint-set+] takes one or two parameters: a single +comparator+ or the equality function to use on terms, and a hash function (e.g. +hash+, +string-hash+ or +default-hash+).
 The return value is a disjoint set.
 
 === disjoint-set?

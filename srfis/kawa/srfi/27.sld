@@ -17,13 +17,15 @@
   (import (scheme base)
           (class java.lang
                  Long System)
+          (class java.util.concurrent.atomic
+                 AtomicLong)
           (class java.lang.reflect
                  Field)
           (class java.math
                  BigInteger)
           (class java.util
                  Random)
-          (only (kawa base) as logxor))
+          (only (kawa base) as invoke logxor))
 
   (begin
 
@@ -62,7 +64,7 @@
     (define (random-source-state-ref source)
       (let ((field (java.lang.Class:getDeclaredField (source:getClass) "seed")))
         ((as Field field):setAccessible #t)
-        (logxor (((as Field field):get source):longValue)
+        (logxor ((as AtomicLong ((as Field field):get source)):longValue)
                 #x5DEECE66D)))
 
     (define (random-source-state-set! source seed)

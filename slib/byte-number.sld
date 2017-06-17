@@ -38,7 +38,7 @@
           (scheme inexact)
           (slib byte)
           (slib common)
-          (only (srfi 60) any-bits-set? arithmetic-shift bit-set? bitwise-and bitwise-if bitwise-xor)) ;; TODO: Replace with SRFI 151
+          (only (srfi 151) any-bit-set? arithmetic-shift bit-set? bitwise-and bitwise-if bitwise-xor))
 
   (begin
 
@@ -351,7 +351,7 @@
     ;;Modifies @1 so that @code{string<?} ordering of IEEE floating-point
     ;;byte-vectors matches numerical order.  @0 returns @1.
     (define (ieee-byte-collate! byte-vector)
-      (cond ((any-bits-set? #x80 (byte-ref byte-vector 0))
+      (cond ((any-bit-set? #x80 (byte-ref byte-vector 0))
              (do ((idx (+ -1 (bytes-length byte-vector)) (+ -1 idx)))
                ((negative? idx))
                (byte-set! byte-vector idx
@@ -363,7 +363,7 @@
     ;;Given @1 modified by @code{ieee-byte-collate!}, reverses the @1
     ;;modifications.
     (define (ieee-byte-decollate! byte-vector)
-      (cond ((not (any-bits-set? #x80 (byte-ref byte-vector 0)))
+      (cond ((not (any-bit-set? #x80 (byte-ref byte-vector 0)))
              (do ((idx (+ -1 (bytes-length byte-vector)) (+ -1 idx)))
                ((negative? idx))
                (byte-set! byte-vector idx

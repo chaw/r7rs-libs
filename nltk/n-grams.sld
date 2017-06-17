@@ -110,7 +110,7 @@
                                                 (else (loop (cdr tokens)))))
                                         (hash-table-set! new-ngrams key value))))
                                keys vals))))
-          new-ngrams))))
+          new-ngrams)))
 
    (define filter-ngrams!
      (case-lambda 
@@ -216,8 +216,8 @@
                                   (cdr tokens))
                                 (display " ;" p)(newline p)))
                             (hash-table-keys ngrams))
-                          (display "}" p)(newline p))))
-          (get-output-string port)))))
+                          (display "}" p)(newline p))
+              (get-output-string port)))))))
 
 
    ; ngrams->html-table-string
@@ -318,7 +318,7 @@
                                                     (error "Unknown type for comparison")))))
                                          (else
                                            (if decreasing > <)))))
-                      (list-sort 
+                      (vector-sort 
                         (lambda (a b)
                           (compare (pick a) (pick b)))
                         (vector-map

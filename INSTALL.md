@@ -68,7 +68,7 @@ libraries, "Weinholt", can be particularly difficult, so the script asks before 
 I don't recommend testing Weinholt with Chibi or Larceny.
 
 Apart from (slib format), which has three known issues, and Weinholt, all tests are expected 
-to pass on all supported implementations. [Exceptions are listed in README.md]
+to pass on all supported implementations.  [Exceptions are listed in README.md]
 
 
 # Documentation
