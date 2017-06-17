@@ -60,9 +60,9 @@
 
     ;; Use reflection to retrieve value of seed in source
     (define (random-source-state-ref source)
-      (let ((field ((source:getClass):getDeclaredField "seed")))
+      (let ((field (java.lang.Class:getDeclaredField (source:getClass) "seed")))
         ((as Field field):setAccessible #t)
-        (logxor ((as Long ((as Field field):get source)):longValue)
+        (logxor (((as Field field):get source):longValue)
                 #x5DEECE66D)))
 
     (define (random-source-state-set! source seed)
