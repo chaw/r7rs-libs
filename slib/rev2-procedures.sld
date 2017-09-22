@@ -32,8 +32,12 @@
           =?
           >?
           >=?)
-  (import (scheme base)
-          (only (scheme list) last-pair))
+  (import (scheme base))
+  (cond-expand
+    ((library (scheme list))
+     (import (only (scheme list) last-pair)))
+    (else
+     (import (only (srfi 1) last-pair))))
 
   (begin
 

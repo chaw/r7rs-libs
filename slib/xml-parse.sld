@@ -72,8 +72,12 @@
           (scheme cxr)  
           (slib common)
           (slib rev2-procedures)
-          (slib string-search)
-          (scheme list))
+          (slib string-search))
+  (cond-expand
+    ((library (scheme list))
+     (import (scheme list)))
+    (else
+     (import (srfi 1))))
 
   (begin
     ;;@subsection String Glue
