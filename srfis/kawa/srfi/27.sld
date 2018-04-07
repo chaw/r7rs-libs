@@ -36,7 +36,7 @@
 
     ;; Uses BigInteger to permit arbitrarily large n
     (define (random-integer-from-source source n)
-      (if (<= n MAX-LONG)
+      (if (<= n MAX-INTEGER)
         ((as Random source):nextInt n)
         (let* ((input (BigInteger (number->string n)))
                (bits (input:bitLength)))
